@@ -282,22 +282,21 @@
     .footer-bottom { display: flex; justify-content: space-between; align-items: center; padding-top: 24px; font-size: 12px; color: var(--muted); }
 
     /* ══════════════════════════════════════
-       SCROLL-DRIVEN SECTION TRANSITIONS
+       SECTION TRANSITIONS
     ══════════════════════════════════════ */
-    @supports (animation-timeline: scroll()) {
-      .strans {
-        animation: strans-in 1s linear both, strans-out 1s linear both;
-        animation-timeline: view(), view();
-        animation-range: entry 0% entry 55%, exit 10% exit 70%;
-      }
-      @keyframes strans-in {
-        from { transform: translateY(-60px); }
-        to   { transform: translateY(0); }
-      }
-      @keyframes strans-out {
-        from { transform: translateY(0); }
-        to   { transform: translateY(60px); }
-      }
+    .strans {
+      opacity: 0;
+      transform: translateY(-55px);
+      transition: opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1);
+    }
+    .strans.st-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .strans.st-exit {
+      opacity: 0;
+      transform: translateY(55px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
     }
 
     /* ══════════════════════════════════════
@@ -761,7 +760,7 @@
     });
   });
 
-  // Scroll reveal
+  // Scroll reveal (child elements)
   var obs = new IntersectionObserver(function(entries) {
     entries.forEach(function(e) { if (e.isIntersecting) { e.target.classList.add('in'); obs.unobserve(e.target); } });
   }, { threshold: 0.1, rootMargin: '0px 0px -32px 0px' });
@@ -770,6 +769,26 @@
     if (r.top < window.innerHeight) { setTimeout(function() { el.classList.add('in'); }, 60); }
     else { obs.observe(el); }
   });
+
+  // Section transitions — enter from top, exit sliding down
+  var stSections = document.querySelectorAll('.strans');
+  var stObs = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      var rect = e.boundingClientRect;
+      if (e.isIntersecting) {
+        e.target.classList.remove('st-exit');
+        e.target.classList.add('st-visible');
+      } else if (rect.top < 0) {
+        // Scrolled past — exit downward
+        e.target.classList.remove('st-visible');
+        e.target.classList.add('st-exit');
+      } else {
+        // Below viewport — reset to enter-from-top state
+        e.target.classList.remove('st-visible', 'st-exit');
+      }
+    });
+  }, { threshold: 0.12 });
+  stSections.forEach(function(s) { stObs.observe(s); });
 
   // Auth state
   (async function() {
