@@ -282,6 +282,25 @@
     .footer-bottom { display: flex; justify-content: space-between; align-items: center; padding-top: 24px; font-size: 12px; color: var(--muted); }
 
     /* ══════════════════════════════════════
+       SCROLL-DRIVEN SECTION TRANSITIONS
+    ══════════════════════════════════════ */
+    @supports (animation-timeline: scroll()) {
+      .strans {
+        animation: strans-in 1s linear both, strans-out 1s linear both;
+        animation-timeline: view(), view();
+        animation-range: entry 0% entry 55%, exit 10% exit 70%;
+      }
+      @keyframes strans-in {
+        from { transform: translateY(-60px); }
+        to   { transform: translateY(0); }
+      }
+      @keyframes strans-out {
+        from { transform: translateY(0); }
+        to   { transform: translateY(60px); }
+      }
+    }
+
+    /* ══════════════════════════════════════
        RESPONSIVE — TABLET
     ══════════════════════════════════════ */
     @media (max-width: 960px) {
@@ -420,7 +439,7 @@
 </section>
 
 <!-- ══ SERVICES ══ -->
-<section class="services" id="services">
+<section class="services strans" id="services">
   <div class="container">
     <div class="services-top reveal">
       <div class="services-top-left">
@@ -470,7 +489,7 @@
 </section>
 
 <!-- ══ MANAGE (how we work) ══ -->
-<section class="manage" id="how-it-works">
+<section class="manage strans" id="how-it-works">
   <div class="container manage-inner">
     <div class="manage-content reveal">
       <div class="tag">How We Work</div>
@@ -488,7 +507,7 @@
 </section>
 
 <!-- ══ CTA BAND ══ -->
-<div class="cta-band">
+<div class="cta-band strans">
   <div class="container cta-band-inner reveal">
     <h2>Ready to supercharge your shipping?</h2>
     <p>Join hundreds of businesses in the Western Cape already using CapeLoad to unlock smarter, faster logistics solutions.</p>
@@ -500,7 +519,7 @@
 </div>
 
 <!-- ══ STEP 1 ══ -->
-<section class="step-section" id="coverage">
+<section class="step-section strans" id="coverage">
   <div class="container step-inner">
     <div class="step-visual reveal">
       <img src="https://images.unsplash.com/photo-1580060839134-75a5edca2e99?w=700&h=700&fit=crop" alt="Cape Town" loading="lazy" onload="this.classList.add('loaded')">
@@ -519,7 +538,7 @@
 </section>
 
 <!-- ══ STEP 2 ══ -->
-<section class="step-section alt" id="get-started">
+<section class="step-section strans" id="get-started">
   <div class="container step-inner flip">
     <div class="step-content reveal">
       <div class="step-tag">Step 2</div>
@@ -542,7 +561,7 @@
 </section>
 
 <!-- ══ TESTIMONIALS ══ -->
-<section class="testimonials">
+<section class="testimonials strans">
   <div class="container">
     <div class="testimonials-header reveal">
       <div class="tag">Testimonials</div>
@@ -603,7 +622,7 @@
 </section>
 
 <!-- ══ NEWS ══ -->
-<section class="news">
+<section class="news strans">
   <div class="container">
     <div class="news-header reveal">
       <div class="news-header-left">
@@ -653,7 +672,7 @@
 </section>
 
 <!-- ══ FOOTER CTA ══ -->
-<section class="footer-cta">
+<section class="footer-cta strans">
   <div class="container footer-cta-inner reveal">
     <h2>Start Growing<br>With CapeLoad</h2>
     <p>Whether you need a load moved or have a vehicle to put to work — your logistics platform is ready.</p>
