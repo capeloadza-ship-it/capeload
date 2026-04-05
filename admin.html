@@ -246,6 +246,10 @@
       <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
       Clients
     </div>
+    <div class="sidebar-link" data-panel="contacts" onclick="showPanel('contacts', this)">
+      <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 11h-6m3-3v6"/></svg>
+      Contacts
+    </div>
     <div class="sidebar-section">Marketing</div>
     <div class="sidebar-link" data-panel="promotions" onclick="showPanel('promotions', this)">
       <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.95 10.5a19.79 19.79 0 01-3.07-8.67A2 2 0 012.85 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.46 6.46l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
@@ -500,6 +504,30 @@
       </div>
     </div>
 
+    <!-- ─── Contacts ─── -->
+    <div class="panel" id="panel-contacts">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Contacts</div>
+            <div class="card-sub">All registered emails from sign-ups</div>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <span id="contacts-count" style="font-size:12px;color:var(--text-muted);align-self:center;"></span>
+            <button class="btn btn-outline" style="padding:7px 14px;font-size:12px;" onclick="exportContactsCSV()">Export CSV</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Joined</th></tr></thead>
+            <tbody id="contacts-tbody">
+              <tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:24px;">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -529,6 +557,7 @@
     if (name === 'drivers') loadDrivers();
     if (name === 'clients') loadClients();
     if (name === 'promotions') loadPromoHistory();
+    if (name === 'contacts') loadContacts();
   }
 
   // ── Auth ready ──
@@ -979,6 +1008,46 @@
     activeTrip = null;
     document.getElementById('tracking-detail').innerHTML = '<div class="tracking-placeholder"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Select a trip from the list to view on map</div>';
     loadTracking(); loadStats();
+  }
+
+  // ── Contacts ──
+  var _contacts = [];
+  async function loadContacts() {
+    var tbody = document.getElementById('contacts-tbody');
+    var countEl = document.getElementById('contacts-count');
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:24px;">Loading...</td></tr>';
+    var { data } = await sb.from('users').select('full_name, email, role, created_at').order('created_at', { ascending: false });
+    _contacts = data || [];
+    if (_contacts.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:24px;">No contacts yet</td></tr>';
+      countEl.textContent = '';
+      return;
+    }
+    countEl.textContent = _contacts.length + ' contacts';
+    tbody.innerHTML = '';
+    _contacts.forEach(function(u) {
+      var date = u.created_at ? new Date(u.created_at).toLocaleDateString('en-ZA', { day:'numeric', month:'short', year:'numeric' }) : '—';
+      var roleClass = u.role === 'driver' ? 'badge-blue' : u.role === 'admin' ? 'badge-orange' : 'badge-green';
+      var tr = document.createElement('tr');
+      tr.innerHTML = '<td style="font-weight:600;">' + (u.full_name || '—') + '</td>' +
+        '<td style="color:var(--text-muted);">' + (u.email || '—') + '</td>' +
+        '<td><span class="badge ' + roleClass + '">' + (u.role || 'client') + '</span></td>' +
+        '<td style="font-size:12px;color:var(--text-muted);">' + date + '</td>';
+      tbody.appendChild(tr);
+    });
+  }
+
+  function exportContactsCSV() {
+    if (!_contacts.length) { showToast('No contacts to export', 'error'); return; }
+    var rows = [['Name', 'Email', 'Role', 'Joined']];
+    _contacts.forEach(function(u) {
+      rows.push([u.full_name || '', u.email || '', u.role || 'client', u.created_at ? new Date(u.created_at).toLocaleDateString('en-ZA') : '']);
+    });
+    var csv = rows.map(function(r) { return r.map(function(c) { return '"' + String(c).replace(/"/g, '""') + '"'; }).join(','); }).join('\n');
+    var a = document.createElement('a');
+    a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+    a.download = 'capeload-contacts-' + new Date().toISOString().split('T')[0] + '.csv';
+    a.click();
   }
 
   async function loadPromoHistory() {

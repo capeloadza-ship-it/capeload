@@ -31,14 +31,31 @@ serve(async (req) => {
     }
 
     const htmlBody = `
-      <div style="font-family:Inter,Arial,sans-serif;max-width:600px;margin:0 auto;padding:32px 24px;background:#fff;">
-        <img src="https://capeload.co.za/images/logo%20dark.png" style="height:56px;margin-bottom:28px;" alt="CapeLoad">
-        <div style="font-size:22px;font-weight:800;color:#1a1a1a;margin-bottom:16px;">${subject}</div>
-        <div style="font-size:15px;color:#444;line-height:1.8;white-space:pre-wrap;">${message}</div>
-        <hr style="margin:32px 0;border:none;border-top:1px solid #eee;">
-        <div style="font-size:12px;color:#999;">
-          CapeLoad Logistics &middot; Cape Town, South Africa<br>
-          You're receiving this because you're registered on our platform.
+      <div style="font-family:Inter,Arial,sans-serif;max-width:600px;margin:0 auto;background:#fff;">
+        <!-- Header -->
+        <div style="background:#0a0b15;padding:24px 32px;border-radius:12px 12px 0 0;">
+          <img src="https://capeload.co.za/images/logo-light.png" style="height:52px;" alt="CapeLoad Logistics">
+        </div>
+        <!-- Body -->
+        <div style="padding:36px 32px;">
+          <div style="font-size:22px;font-weight:800;color:#1a1a1a;margin-bottom:16px;">${subject}</div>
+          <div style="font-size:15px;color:#444;line-height:1.8;white-space:pre-wrap;">${message}</div>
+          <div style="margin-top:32px;">
+            <a href="https://capeload.co.za/booking.html" style="display:inline-block;background:#f15f22;color:#fff;text-decoration:none;padding:13px 28px;border-radius:8px;font-weight:700;font-size:14px;">Book a Load</a>
+          </div>
+        </div>
+        <!-- Footer -->
+        <div style="background:#f7f5f2;border-top:1px solid #e8e5e0;padding:24px 32px;border-radius:0 0 12px 12px;">
+          <div style="display:flex;align-items:center;gap:16px;margin-bottom:12px;">
+            <img src="https://capeload.co.za/images/logo%20dark.png" style="height:28px;" alt="CapeLoad">
+          </div>
+          <div style="font-size:12px;color:#888;line-height:1.7;">
+            <strong style="color:#555;">CapeLoad Logistics</strong> &middot; Cape Town, South Africa<br>
+            <a href="https://capeload.co.za" style="color:#f15f22;text-decoration:none;">capeload.co.za</a>
+            &nbsp;&middot;&nbsp;
+            <a href="mailto:info@capeload.co.za" style="color:#f15f22;text-decoration:none;">info@capeload.co.za</a><br><br>
+            You're receiving this because you're registered on CapeLoad. If you believe this was sent in error, please contact us.
+          </div>
         </div>
       </div>
     `
