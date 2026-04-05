@@ -157,6 +157,38 @@
     .info-note { margin-top: 12px; padding: 10px 14px; background: #f9f7f5; border-radius: 8px; font-size: 12px; color: var(--text-muted); }
     .info-note a { color: var(--orange); font-weight: 600; }
 
+    /* ═══ TRACKING ═══ */
+    .tracking-layout { display: grid; grid-template-columns: 360px 1fr; gap: 20px; min-height: 600px; }
+    .trip-list { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
+    .trip-list-header { padding: 16px 20px; border-bottom: 1px solid var(--card-border); display: flex; align-items: center; justify-content: space-between; }
+    .trip-list-title { font-size: 13px; font-weight: 700; }
+    .trip-filter { display: flex; gap: 6px; }
+    .trip-filter-btn { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; border: 1.5px solid var(--card-border); background: transparent; cursor: pointer; font-family: inherit; color: var(--text-muted); transition: all 0.15s; }
+    .trip-filter-btn.active { background: var(--orange); color: #fff; border-color: var(--orange); }
+    .trip-scroll { overflow-y: auto; flex: 1; }
+    .trip-item { padding: 14px 20px; border-bottom: 1px solid #f5f3ef; cursor: pointer; transition: background 0.12s; }
+    .trip-item:hover { background: #faf9f7; }
+    .trip-item.selected { background: var(--orange-light); border-left: 3px solid var(--orange); }
+    .trip-ref { font-size: 12px; font-weight: 700; color: var(--orange); }
+    .trip-client { font-size: 13px; font-weight: 600; margin: 2px 0; }
+    .trip-route { font-size: 11px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .trip-meta { display: flex; align-items: center; justify-content: space-between; margin-top: 6px; }
+    .trip-driver-name { font-size: 11px; color: var(--blue); font-weight: 600; }
+    .trip-empty { padding: 48px 24px; text-align: center; color: var(--text-muted); font-size: 13px; }
+
+    .tracking-detail { display: flex; flex-direction: column; gap: 16px; }
+    .tracking-map-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; overflow: hidden; }
+    #admin-map { height: 380px; width: 100%; }
+    .tracking-info { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 20px; }
+    .tracking-info-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 16px; }
+    .tracking-info-item { }
+    .tracking-info-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 4px; }
+    .tracking-info-val { font-size: 14px; font-weight: 600; }
+    .tracking-placeholder { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 10px; padding: 80px; color: var(--text-muted); font-size: 13px; text-align: center; }
+    .tracking-placeholder svg { width: 40px; height: 40px; stroke: #ccc; fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+
+    @media (max-width: 1100px) { .tracking-layout { grid-template-columns: 1fr; } .tracking-info-grid { grid-template-columns: repeat(2, 1fr); } }
+
     /* ═══ RESPONSIVE ═══ */
     @media (max-width: 1100px) {
       .promo-grid { grid-template-columns: 1fr; }
@@ -173,6 +205,8 @@
       .topbar { padding: 0 16px; }
     }
   </style>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/supabase-config.js"></script>
   <script>window.REQUIRED_ROLE = 'admin';</script>
@@ -190,6 +224,10 @@
     <div class="sidebar-link active" data-panel="overview" onclick="showPanel('overview', this)">
       <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
       Dashboard
+    </div>
+    <div class="sidebar-link" data-panel="tracking" onclick="showPanel('tracking', this)">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg>
+      Live Tracking
     </div>
     <div class="sidebar-link" data-panel="bookings" onclick="showPanel('bookings', this)">
       <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
@@ -279,6 +317,10 @@
           <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
           Pending Drivers
         </button>
+        <button class="qa-btn" onclick="showPanel('tracking', document.querySelector('[data-panel=tracking]'))">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg>
+          Live Tracking
+        </button>
         <button class="qa-btn" onclick="showPanel('promotions', document.querySelector('[data-panel=promotions]'))">
           <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.95 10.5a19.79 19.79 0 01-3.07-8.67A2 2 0 012.85 0h3a2 2 0 012 1.72"/></svg>
           Send Promo Email
@@ -305,6 +347,32 @@
           </div>
           <div class="activity-list" id="activity-feed">
             <div style="text-align:center;color:var(--text-muted);padding:24px;font-size:13px;">Loading...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── Live Tracking ─── -->
+    <div class="panel" id="panel-tracking">
+      <div class="tracking-layout">
+        <div class="trip-list">
+          <div class="trip-list-header">
+            <div class="trip-list-title">Active Trips</div>
+            <div class="trip-filter">
+              <button class="trip-filter-btn active" onclick="filterTrips('all', this)">All</button>
+              <button class="trip-filter-btn" onclick="filterTrips('assigned', this)">Assigned</button>
+              <button class="trip-filter-btn" onclick="filterTrips('in_progress', this)">In Progress</button>
+            </div>
+          </div>
+          <div class="trip-scroll" id="trip-list-body">
+            <div class="trip-empty">Loading trips...</div>
+          </div>
+        </div>
+
+        <div class="tracking-detail" id="tracking-detail">
+          <div class="tracking-placeholder">
+            <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Select a trip from the list to view on map
           </div>
         </div>
       </div>
@@ -456,6 +524,7 @@
     if (el) el.classList.add('active');
     document.getElementById('panel-' + name).classList.add('active');
     document.getElementById('topbar-title').textContent = el ? el.textContent.trim() : name;
+    if (name === 'tracking') loadTracking();
     if (name === 'fleet') loadFleet();
     if (name === 'drivers') loadDrivers();
     if (name === 'clients') loadClients();
@@ -479,6 +548,7 @@
       })
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'bookings' }, function() {
         loadBookings(); loadStats();
+        if (document.getElementById('panel-tracking').classList.contains('active')) loadTracking();
       })
       .subscribe();
   });
@@ -723,6 +793,169 @@
       btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Send Email';
       statusEl.textContent = '';
     }
+  }
+
+  // ── Live Tracking ──
+  var allTrips = [];
+  var activeTrip = null;
+  var adminMap = null;
+  var adminMapMarkers = [];
+  var trackingFilter = 'all';
+
+  async function loadTracking() {
+    var { data } = await sb.from('bookings')
+      .select('*, drivers!bookings_driver_id_fkey(id, users!drivers_user_id_fkey(full_name, phone))')
+      .in('status', ['assigned', 'in_progress'])
+      .order('created_at', { ascending: false });
+    allTrips = data || [];
+    renderTripList();
+  }
+
+  function filterTrips(status, btn) {
+    trackingFilter = status;
+    document.querySelectorAll('.trip-filter-btn').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    renderTripList();
+  }
+
+  function renderTripList() {
+    var trips = trackingFilter === 'all' ? allTrips : allTrips.filter(function(t) { return t.status === trackingFilter; });
+    var body = document.getElementById('trip-list-body');
+    if (trips.length === 0) {
+      body.innerHTML = '<div class="trip-empty">No active trips' + (trackingFilter !== 'all' ? ' with status <strong>' + trackingFilter + '</strong>' : '') + '</div>';
+      return;
+    }
+    body.innerHTML = '';
+    trips.forEach(function(trip) {
+      var driverName = trip.drivers?.users?.full_name || 'Unassigned';
+      var from = (trip.pickup_address || 'Unknown pickup').split(',')[0];
+      var to = (trip.dropoff_address || 'Unknown dropoff').split(',')[0];
+      var s = trip.status === 'in_progress' ? '<span class="badge badge-blue">In Progress</span>' : '<span class="badge badge-yellow">Assigned</span>';
+      var div = document.createElement('div');
+      div.className = 'trip-item' + (activeTrip && activeTrip.id === trip.id ? ' selected' : '');
+      div.innerHTML =
+        '<div class="trip-ref">' + (trip.ref || '—') + '</div>' +
+        '<div class="trip-client">' + (trip.client_name || 'Guest') + '</div>' +
+        '<div class="trip-route">' + from + ' → ' + to + '</div>' +
+        '<div class="trip-meta">' +
+          '<span class="trip-driver-name">' + (trip.driver_id ? '🚗 ' + driverName : '⏳ No driver') + '</span>' +
+          s +
+        '</div>';
+      div.onclick = function() { selectTrip(trip); };
+      body.appendChild(div);
+    });
+  }
+
+  async function selectTrip(trip) {
+    activeTrip = trip;
+    renderTripList();
+
+    var detail = document.getElementById('tracking-detail');
+    var driverName = trip.drivers?.users?.full_name || 'Unassigned';
+    var driverPhone = trip.drivers?.users?.phone || '—';
+    var from = trip.pickup_address || '';
+    var to = trip.dropoff_address || '';
+    var jobTime = new Date(trip.created_at).toLocaleString('en-ZA', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+    var s = trip.status === 'in_progress' ? '<span class="badge badge-blue">In Progress</span>' : '<span class="badge badge-yellow">Assigned</span>';
+
+    detail.innerHTML =
+      '<div class="tracking-map-card"><div id="admin-map"></div></div>' +
+      '<div class="tracking-info">' +
+        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">' +
+          '<div><div style="font-size:16px;font-weight:800;">' + (trip.ref || '—') + '</div>' +
+          '<div style="font-size:12px;color:var(--text-muted);margin-top:2px;">Booked ' + jobTime + '</div></div>' +
+          s +
+        '</div>' +
+        '<div class="tracking-info-grid">' +
+          '<div class="tracking-info-item"><div class="tracking-info-label">Client</div><div class="tracking-info-val">' + (trip.client_name || 'Guest') + '</div></div>' +
+          '<div class="tracking-info-item"><div class="tracking-info-label">Driver</div><div class="tracking-info-val">' + driverName + '</div></div>' +
+          '<div class="tracking-info-item"><div class="tracking-info-label">Driver Phone</div><div class="tracking-info-val">' + driverPhone + '</div></div>' +
+          '<div class="tracking-info-item"><div class="tracking-info-label">Vehicle Type</div><div class="tracking-info-val">' + (vehicleLabels[trip.vehicle_type] || trip.vehicle_type || '—') + '</div></div>' +
+          '<div class="tracking-info-item"><div class="tracking-info-label">Pickup</div><div class="tracking-info-val" style="font-size:12px;">' + (from || '—') + '</div></div>' +
+          '<div class="tracking-info-item"><div class="tracking-info-label">Drop-off</div><div class="tracking-info-val" style="font-size:12px;">' + (to || '—') + '</div></div>' +
+        '</div>' +
+        '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
+          '<button class="btn btn-primary" onclick="markInProgress(\'' + trip.id + '\')">Mark In Progress</button>' +
+          '<button class="btn btn-green" onclick="markCompleted(\'' + trip.id + '\')">Mark Completed</button>' +
+          '<button class="btn btn-outline" onclick="cancelBooking(\'' + trip.id + '\')">Cancel Trip</button>' +
+        '</div>' +
+      '</div>';
+
+    // Init map
+    if (adminMap) { adminMap.remove(); adminMap = null; }
+    adminMap = L.map('admin-map', { zoomControl: true });
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(adminMap);
+
+    var bounds = [];
+
+    // Geocode pickup and dropoff, plot route
+    var coords = await geocodeBoth(from, to);
+    if (coords.pickup) {
+      var pickupMarker = L.marker(coords.pickup, { icon: makeIcon('🟢') }).addTo(adminMap).bindPopup('<strong>Pickup</strong><br>' + from);
+      bounds.push(coords.pickup);
+    }
+    if (coords.dropoff) {
+      var dropoffMarker = L.marker(coords.dropoff, { icon: makeIcon('🔴') }).addTo(adminMap).bindPopup('<strong>Drop-off</strong><br>' + to);
+      bounds.push(coords.dropoff);
+    }
+    if (coords.pickup && coords.dropoff) {
+      // Draw route
+      try {
+        var osrmUrl = 'https://router.project-osrm.org/route/v1/driving/' +
+          coords.pickup[1] + ',' + coords.pickup[0] + ';' +
+          coords.dropoff[1] + ',' + coords.dropoff[0] + '?overview=full&geometries=geojson';
+        var resp = await fetch(osrmUrl);
+        var routeData = await resp.json();
+        if (routeData.routes && routeData.routes[0]) {
+          var line = L.geoJSON(routeData.routes[0].geometry, { style: { color: '#f15f22', weight: 4, opacity: 0.8 } }).addTo(adminMap);
+          adminMap.fitBounds(line.getBounds(), { padding: [40, 40] });
+        } else if (bounds.length > 0) {
+          adminMap.fitBounds(bounds, { padding: [60, 60] });
+        }
+      } catch(e) {
+        if (bounds.length > 0) adminMap.fitBounds(bounds, { padding: [60, 60] });
+      }
+    } else if (bounds.length > 0) {
+      adminMap.setView(bounds[0], 13);
+    } else {
+      adminMap.setView([-33.9249, 18.4241], 11); // Cape Town default
+    }
+  }
+
+  async function geocodeBoth(from, to) {
+    var results = { pickup: null, dropoff: null };
+    try {
+      var [fromRes, toRes] = await Promise.all([
+        from ? fetch('https://nominatim.openstreetmap.org/search?format=json&q=' + encodeURIComponent(from) + '&limit=1&countrycodes=za', { headers: { 'Accept-Language': 'en' } }).then(function(r) { return r.json(); }) : Promise.resolve([]),
+        to ? fetch('https://nominatim.openstreetmap.org/search?format=json&q=' + encodeURIComponent(to) + '&limit=1&countrycodes=za', { headers: { 'Accept-Language': 'en' } }).then(function(r) { return r.json(); }) : Promise.resolve([])
+      ]);
+      if (fromRes && fromRes[0]) results.pickup = [parseFloat(fromRes[0].lat), parseFloat(fromRes[0].lon)];
+      if (toRes && toRes[0]) results.dropoff = [parseFloat(toRes[0].lat), parseFloat(toRes[0].lon)];
+    } catch(e) {}
+    return results;
+  }
+
+  function makeIcon(emoji) {
+    return L.divIcon({ html: '<div style="font-size:20px;line-height:1;">' + emoji + '</div>', className: '', iconSize: [24, 24], iconAnchor: [12, 12] });
+  }
+
+  async function markInProgress(id) {
+    await sb.from('bookings').update({ status: 'in_progress' }).eq('id', id);
+    showToast('Marked as In Progress', 'success');
+    loadTracking(); loadStats();
+    if (activeTrip && activeTrip.id === id) {
+      var updated = Object.assign({}, activeTrip, { status: 'in_progress' });
+      selectTrip(updated);
+    }
+  }
+
+  async function markCompleted(id) {
+    if (!confirm('Mark this trip as completed?')) return;
+    await sb.from('bookings').update({ status: 'completed' }).eq('id', id);
+    showToast('Trip marked as completed', 'success');
+    activeTrip = null;
+    document.getElementById('tracking-detail').innerHTML = '<div class="tracking-placeholder"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Select a trip from the list to view on map</div>';
+    loadTracking(); loadStats();
   }
 
   async function loadPromoHistory() {
