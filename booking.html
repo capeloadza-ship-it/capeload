@@ -21,7 +21,7 @@
     }
 
     /* ── Map ─────────────────────────────────── */
-    #map { position: absolute; inset: 0; z-index: 1; filter: brightness(0.85); }
+    #map { position: absolute; inset: 0; z-index: 1; }
 
     /* ── Top bar ─────────────────────────────── */
     .top-bar {
@@ -397,7 +397,7 @@
   // MAP
   // ══════════════════════════════════════════
   var map = L.map('map', { zoomControl: false }).setView([-33.925, 18.42], 12);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
     attribution: '&copy; OSM &copy; CARTO', maxZoom: 19
   }).addTo(map);
 
