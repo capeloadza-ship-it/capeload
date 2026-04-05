@@ -404,18 +404,27 @@
   }
 
   // ── Init ───────────────────────────────────────────────────────────────────
+  function termsAgreed() {
+    try {
+      var raw = localStorage.getItem('cl_terms_agreed');
+      return raw ? JSON.parse(raw).version === '1' : false;
+    } catch (e) { return false; }
+  }
+
   function init() {
     injectStyles();
     createFloatBtn();
 
     var state = loadState();
     if (!state) {
-      // First visit — show consent banner after DOM is ready
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', createBanner);
-      } else {
-        // Small delay so the page renders first
-        setTimeout(createBanner, 300);
+      // Only auto-show cookie banner if terms already agreed.
+      // terms-gate.js calls CookieConsent.showBanner() after the user agrees.
+      if (termsAgreed()) {
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', createBanner);
+        } else {
+          setTimeout(createBanner, 300);
+        }
       }
     } else {
       // Returning visitor — show float button, re-apply saved consent
