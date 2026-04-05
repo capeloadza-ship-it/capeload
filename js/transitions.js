@@ -1,156 +1,95 @@
 /**
- * CapeLoad Page Transitions
- * Curtain-strip reveal effect between pages.
- * 7 vertical strips sweep up covering the page, then retract to reveal the next.
+ * CapeLoad Page Transitions — fast single-panel drop
+ * Cover: orange panel drops from top in 200ms
+ * Reveal: panel falls away to bottom in 280ms
+ * One element, zero stagger, GPU-accelerated
  */
 (function () {
-  var STRIP_COUNT = 7;
-  var COLORS = ['#f15f22','#0a0b15','#f15f22','#2b3990','#f15f22','#0a0b15','#f15f22'];
-  var COVER_DURATION = 380;   // ms per strip stagger base
-  var REVEAL_DURATION = 360;
-  var STAGGER = 48;
+  var COVER  = 200;
+  var REVEAL = 280;
 
-  /* ── build overlay DOM ── */
+  /* ── overlay ── */
   var overlay = document.createElement('div');
   overlay.id = 'cl-overlay';
   overlay.style.cssText = [
-    'position:fixed',
-    'inset:0',
-    'z-index:99999',
+    'position:fixed', 'inset:0', 'z-index:99999',
     'pointer-events:none',
-    'display:flex',
-    'overflow:hidden'
+    'background:linear-gradient(160deg,#f15f22 0%,#c44a18 55%,#2b3990 100%)',
+    'transform:translateY(-101%)',
+    'will-change:transform'
   ].join(';');
 
-  var strips = [];
-  for (var i = 0; i < STRIP_COUNT; i++) {
-    var s = document.createElement('div');
-    s.style.cssText = [
-      'flex:1',
-      'height:100%',
-      'background:' + COLORS[i],
-      'transform:scaleY(0)',
-      'transform-origin:bottom',
-      'will-change:transform',
-      'transition:transform ' + COVER_DURATION + 'ms cubic-bezier(0.76,0,0.24,1) ' + (i * STAGGER) + 'ms'
-    ].join(';');
-    overlay.appendChild(s);
-    strips.push(s);
-  }
-
-  /* logo centred over strips */
-  var logoWrap = document.createElement('div');
-  logoWrap.style.cssText = [
-    'position:absolute',
-    'inset:0',
-    'display:flex',
-    'align-items:center',
-    'justify-content:center',
-    'pointer-events:none',
-    'opacity:0',
-    'transition:opacity 0.25s ease 0.3s'
+  var logo = document.createElement('img');
+  logo.src = '/images/logo-light.png';
+  logo.style.cssText = [
+    'position:absolute', 'top:50%', 'left:50%',
+    'transform:translate(-50%,-50%)',
+    'height:80px', 'width:auto',
+    'opacity:0', 'transition:opacity 0.15s ease 0.08s'
   ].join(';');
-  var logoImg = document.createElement('img');
-  logoImg.src = (document.querySelector('script[src*="transitions"]') || {src:''}).src.replace(/js\/transitions\.js.*/, '') + 'images/logo-light.png';
-  /* fallback – derive from current page location */
-  if (!logoImg.src || logoImg.src === 'images/logo-light.png') {
-    logoImg.src = window.location.origin + '/images/logo-light.png';
-  }
-  logoImg.style.cssText = 'height:90px;width:auto;';
-  logoWrap.appendChild(logoImg);
-  overlay.appendChild(logoWrap);
-
+  overlay.appendChild(logo);
   document.body.appendChild(overlay);
 
   /* ── helpers ── */
   function cover(cb) {
     overlay.style.pointerEvents = 'all';
-    var lastDelay = (STRIP_COUNT - 1) * STAGGER + COVER_DURATION;
-    strips.forEach(function (s, i) {
-      s.style.transitionDelay = (i * STAGGER) + 'ms';
-      s.style.transformOrigin = 'bottom';
-      s.style.transform = 'scaleY(1)';
-    });
-    logoWrap.style.opacity = '1';
-    setTimeout(function () { cb && cb(); }, lastDelay + 60);
+    overlay.style.transition = 'transform ' + COVER + 'ms cubic-bezier(0.76,0,0.24,1)';
+    overlay.style.transform = 'translateY(0)';
+    logo.style.opacity = '1';
+    setTimeout(cb, COVER + 20);
   }
 
   function reveal() {
-    /* reverse stagger – retract from top, outer strips first */
-    var order = [0, 6, 1, 5, 2, 4, 3]; // wave from edges in
-    strips.forEach(function (s, i) {
-      var pos = order.indexOf(i);
-      s.style.transition = 'transform ' + REVEAL_DURATION + 'ms cubic-bezier(0.76,0,0.24,1) ' + (pos * STAGGER) + 'ms';
-      s.style.transformOrigin = 'top';
-      s.style.transform = 'scaleY(0)';
-    });
-    logoWrap.style.transition = 'opacity 0.15s ease 0s';
-    logoWrap.style.opacity = '0';
-    var lastDelay = 6 * STAGGER + REVEAL_DURATION;
+    overlay.style.transition = 'transform ' + REVEAL + 'ms cubic-bezier(0.76,0,0.24,1)';
+    overlay.style.transform = 'translateY(101%)';
+    logo.style.transition = 'opacity 0.1s ease';
+    logo.style.opacity = '0';
     setTimeout(function () {
       overlay.style.pointerEvents = 'none';
-      /* reset for next cover */
-      strips.forEach(function (s, idx) {
-        s.style.transition = 'none';
-        s.style.transformOrigin = 'bottom';
-        /* keep scaleY(0) — already there */
-      });
-      logoWrap.style.transition = 'opacity 0.25s ease 0.3s';
-    }, lastDelay + 80);
+      overlay.style.transition = 'none';
+      overlay.style.transform = 'translateY(-101%)';
+      logo.style.transition = 'opacity 0.15s ease 0.08s';
+    }, REVEAL + 30);
   }
 
   /* ── intercept link clicks ── */
   document.addEventListener('click', function (e) {
     var link = e.target.closest('a[href]');
     if (!link) return;
-    var href = link.getAttribute('href');
-    if (!href) return;
-    /* skip external, mailto, tel, hash, new-tab */
     if (link.target === '_blank') return;
-    if (/^(mailto:|tel:|#|javascript:|https?:\/\/((?!capeload\.vercel\.app|localhost|127\.0\.0\.1).))/.test(href)) return;
-    if (href.startsWith('#')) return;
-    /* skip wa.me */
+    var href = link.getAttribute('href');
+    if (!href || href.charAt(0) === '#') return;
+    if (/^(mailto:|tel:|javascript:)/.test(href)) return;
     if (href.includes('wa.me')) return;
-
+    if (/^https?:\/\/(?!capeload\.vercel\.app|localhost|127\.)/.test(href)) return;
     e.preventDefault();
     var dest = link.href;
-
-    cover(function () {
-      window.location.href = dest;
-    });
+    cover(function () { window.location.href = dest; });
   }, true);
 
   /* ── reveal on page load ── */
   function runReveal() {
-    /* small tick to ensure styles are painted */
+    overlay.style.transition = 'none';
+    overlay.style.transform = 'translateY(0)';
+    logo.style.opacity = '1';
     requestAnimationFrame(function () {
-      requestAnimationFrame(function () {
-        reveal();
-      });
+      requestAnimationFrame(function () { reveal(); });
     });
   }
 
   if (document.readyState === 'complete' || document.readyState === 'interactive') {
-    /* strips start covered, reveal now */
-    strips.forEach(function (s) { s.style.transform = 'scaleY(1)'; });
-    logoWrap.style.opacity = '1';
     runReveal();
   } else {
-    /* set covered state immediately to avoid flash */
-    strips.forEach(function (s) { s.style.transform = 'scaleY(1)'; });
-    logoWrap.style.opacity = '1';
     window.addEventListener('DOMContentLoaded', runReveal);
   }
 
-  /* handle browser back/forward */
+  /* ── browser back/forward ── */
   window.addEventListener('pageshow', function (e) {
     if (e.persisted) {
-      strips.forEach(function (s) {
-        s.style.transition = 'none';
-        s.style.transform = 'scaleY(1)';
-      });
-      logoWrap.style.opacity = '1';
-      setTimeout(runReveal, 50);
+      overlay.style.transition = 'none';
+      overlay.style.transform = 'translateY(0)';
+      logo.style.opacity = '1';
+      setTimeout(runReveal, 40);
     }
   });
 })();
