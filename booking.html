@@ -552,7 +552,18 @@
       .confirmation-actions { flex-direction: column; }
       .btn { width: 100%; justify-content: center; }
     }
+
+    /* Map */
+    #booking-map { width: 100%; height: 260px; border-radius: 10px; margin-bottom: 16px; border: 1px solid var(--card-border); z-index: 1; }
+    .autocomplete-list { position: absolute; top: 100%; left: 0; right: 0; background: #fff; border: 1px solid var(--card-border); border-top: none; border-radius: 0 0 10px 10px; max-height: 200px; overflow-y: auto; z-index: 50; }
+    .autocomplete-list div { padding: 10px 14px; font-size: 13px; cursor: pointer; border-bottom: 1px solid #f5f5f3; }
+    .autocomplete-list div:hover { background: var(--orange-light, #fff1eb); }
+    .autocomplete-list div:last-child { border-bottom: none; }
+    .input-wrapper { position: relative; }
+    .distance-badge { display: inline-block; padding: 6px 14px; border-radius: 100px; font-size: 13px; font-weight: 600; background: #eef0f9; color: #2b3990; margin-top: 8px; }
   </style>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/supabase-config.js"></script>
 </head>
@@ -737,20 +748,24 @@
     <div class="step-panel" id="step-3">
       <div class="card">
         <div class="card-title">Pickup &amp; drop-off</div>
+        <div id="booking-map"></div>
         <div class="form-group">
           <label>Pickup address</label>
           <div class="input-wrapper">
             <svg viewBox="0 0 24 24"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 018 8c0 5.4-8 12-8 12S4 15.4 4 10a8 8 0 018-8z"/></svg>
-            <input type="text" id="pickup" placeholder="e.g. 12 Main Road, Claremont">
+            <input type="text" id="pickup" placeholder="Start typing an address..." autocomplete="off" oninput="searchAddress(this.value, 'pickup-results')">
+            <div class="autocomplete-list" id="pickup-results" style="display:none"></div>
           </div>
         </div>
         <div class="form-group">
           <label>Drop-off address</label>
           <div class="input-wrapper">
             <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            <input type="text" id="dropoff" placeholder="e.g. 5 Strand Street, CBD">
+            <input type="text" id="dropoff" placeholder="Start typing an address..." autocomplete="off" oninput="searchAddress(this.value, 'dropoff-results')">
+            <div class="autocomplete-list" id="dropoff-results" style="display:none"></div>
           </div>
         </div>
+        <div id="distance-display"></div>
         <div class="form-row">
           <div class="form-group">
             <label>Date</label>
@@ -918,6 +933,100 @@
     const bookingData = { jobType: '', vehicle: '', pickup: '', dropoff: '', date: '', time: '', name: '', phone: '', email: '', notes: '' };
 
     // ══════════════════════════════════════════
+    // LEAFLET MAP + NOMINATIM AUTOCOMPLETE
+    // ══════════════════════════════════════════
+    var map, pickupMarker, dropoffMarker, routeLine;
+    var pickupCoords = null, dropoffCoords = null;
+    var searchTimeout = null;
+
+    function initMap() {
+      if (map) return;
+      map = L.map('booking-map', { zoomControl: false }).setView([-33.925, 18.42], 11);
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; OpenStreetMap &copy; CARTO',
+        maxZoom: 19
+      }).addTo(map);
+      L.control.zoom({ position: 'bottomright' }).addTo(map);
+    }
+
+    // Debounced Nominatim search
+    function searchAddress(query, resultsId) {
+      var resultsList = document.getElementById(resultsId);
+      if (query.length < 3) { resultsList.style.display = 'none'; return; }
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(function() {
+        fetch('https://nominatim.openstreetmap.org/search?format=json&countrycodes=za&limit=5&q=' + encodeURIComponent(query), {
+          headers: { 'Accept-Language': 'en' }
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          if (!data || data.length === 0) { resultsList.style.display = 'none'; return; }
+          resultsList.innerHTML = '';
+          data.forEach(function(item) {
+            var div = document.createElement('div');
+            div.textContent = item.display_name;
+            div.onclick = function() { selectAddress(item, resultsId); };
+            resultsList.appendChild(div);
+          });
+          resultsList.style.display = 'block';
+        })
+        .catch(function() { resultsList.style.display = 'none'; });
+      }, 400);
+    }
+
+    function selectAddress(item, resultsId) {
+      var isPickup = resultsId === 'pickup-results';
+      var input = document.getElementById(isPickup ? 'pickup' : 'dropoff');
+      input.value = item.display_name;
+      document.getElementById(resultsId).style.display = 'none';
+
+      var lat = parseFloat(item.lat);
+      var lng = parseFloat(item.lon);
+
+      if (isPickup) {
+        pickupCoords = [lat, lng];
+        if (pickupMarker) map.removeLayer(pickupMarker);
+        pickupMarker = L.circleMarker([lat, lng], { radius: 8, color: '#22c55e', fillColor: '#22c55e', fillOpacity: 1, weight: 2 }).addTo(map);
+      } else {
+        dropoffCoords = [lat, lng];
+        if (dropoffMarker) map.removeLayer(dropoffMarker);
+        dropoffMarker = L.circleMarker([lat, lng], { radius: 8, color: '#f15f22', fillColor: '#f15f22', fillOpacity: 1, weight: 2 }).addTo(map);
+      }
+
+      // Draw route line + show distance
+      if (pickupCoords && dropoffCoords) {
+        if (routeLine) map.removeLayer(routeLine);
+        routeLine = L.polyline([pickupCoords, dropoffCoords], { color: '#f15f22', weight: 3, opacity: 0.7, dashArray: '8 8' }).addTo(map);
+        map.fitBounds(routeLine.getBounds(), { padding: [40, 40] });
+
+        // Calculate real distance (Haversine)
+        var realDist = haversineKm(pickupCoords[0], pickupCoords[1], dropoffCoords[0], dropoffCoords[1]);
+        // Road distance is roughly 1.3x straight line
+        var roadDist = Math.round(realDist * 1.3);
+        document.getElementById('distance-display').innerHTML = '<span class="distance-badge">' + roadDist + ' km estimated distance</span>';
+        // Store for quote calculation
+        bookingData._realDistKm = roadDist;
+      } else {
+        map.setView([lat, lng], 13);
+      }
+    }
+
+    function haversineKm(lat1, lon1, lat2, lon2) {
+      var R = 6371;
+      var dLat = (lat2 - lat1) * Math.PI / 180;
+      var dLon = (lon2 - lon1) * Math.PI / 180;
+      var a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
+      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    }
+
+    // Close autocomplete when clicking outside
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('.input-wrapper')) {
+        document.querySelectorAll('.autocomplete-list').forEach(function(l) { l.style.display = 'none'; });
+      }
+    });
+
+    // ══════════════════════════════════════════
     // WESTERN CAPE PRICING MODEL
     // Commission: CapeLoad takes 15% of total fare
     // Driver receives 85% of total fare
@@ -1030,6 +1139,9 @@
       document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
       document.getElementById('step-' + step).classList.add('active');
 
+      // Init map when step 3 opens
+      if (step === 3) { setTimeout(function() { initMap(); map.invalidateSize(); }, 100); }
+
       document.querySelectorAll('.stepper-step').forEach(s => {
         const sNum = parseInt(s.dataset.step);
         s.classList.remove('active', 'done');
@@ -1055,7 +1167,8 @@
       bookingData.email = document.getElementById('email').value;
       bookingData.notes = document.getElementById('notes').value;
 
-      const distKm = estimateDistance(bookingData.pickup, bookingData.dropoff);
+      // Use real distance from map if available, otherwise estimate
+      const distKm = bookingData._realDistKm || estimateDistance(bookingData.pickup, bookingData.dropoff);
       const quote = calculateQuote(bookingData.vehicle, distKm);
       bookingData.quote = quote;
 
@@ -1095,6 +1208,10 @@
           vehicle_type: bookingData.vehicle,
           pickup_address: bookingData.pickup,
           dropoff_address: bookingData.dropoff,
+          pickup_lat: pickupCoords ? pickupCoords[0] : null,
+          pickup_lng: pickupCoords ? pickupCoords[1] : null,
+          dropoff_lat: dropoffCoords ? dropoffCoords[0] : null,
+          dropoff_lng: dropoffCoords ? dropoffCoords[1] : null,
           distance_km: q.distanceKm || 10,
           base_fare: q.base || 0,
           distance_cost: q.distanceCost || 0,
