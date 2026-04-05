@@ -77,3 +77,15 @@ function showToast(message, type) {
     setTimeout(function() { toast.remove(); }, 300);
   }, 4000);
 }
+
+// Send transactional email via send-email edge function
+// template: newsletter_welcome | booking_confirmation | booking_admin |
+//           driver_application_received | driver_admin_notification |
+//           driver_approved | driver_rejected | driver_suspended
+async function sendEmail(to, template, data, alsoNotifyAdmin) {
+  try {
+    await sb.functions.invoke('send-email', {
+      body: { to: to, template: template, data: data || {}, also_notify_admin: alsoNotifyAdmin || null }
+    });
+  } catch(e) { console.warn('sendEmail error:', e); }
+}

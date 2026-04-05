@@ -630,6 +630,25 @@
     var vLabel = pricing[selectedVehicle]?.label || selectedVehicle;
     var msg = encodeURIComponent('Hi CapeLoad! Booking ref ' + ref + '. ' + vLabel + ' from ' + document.getElementById('pickup').value.split(',')[0] + ' to ' + document.getElementById('dropoff').value.split(',')[0] + '. Total: R' + (q.total || 0));
     document.getElementById('waLink').href = 'https://wa.me/27625692939?text=' + msg;
+
+    // Email notifications
+    var emailData = {
+      ref: ref,
+      name: document.getElementById('fullName').value,
+      phone: document.getElementById('phone').value,
+      clientEmail: document.getElementById('email').value || '',
+      vehicle: vLabel,
+      pickup: document.getElementById('pickup').value,
+      dropoff: document.getElementById('dropoff').value,
+      date: document.getElementById('bookingDate').value || '',
+      time: document.getElementById('bookingTime').value || '',
+      total: String(q.total || 0),
+      payment: selectedPay || 'TBC'
+    };
+    var clientEmail = document.getElementById('email').value;
+    if (clientEmail) sendEmail(clientEmail, 'booking_confirmation', emailData);
+    sendEmail('info@capeload.co.za', 'booking_admin', emailData);
+
     goStep(4);
   }
 

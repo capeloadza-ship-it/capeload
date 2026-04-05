@@ -380,7 +380,16 @@
 
         if (vehicleErr) throw vehicleErr;
 
-        // 5. Show success
+        // 5. Send email notifications
+        var driverEmailData = {
+          name: name, email: email, phone: phone,
+          vehicleType: vehicleType.value, make: make, model: model, plate: plate,
+          area: area || 'Cape Town Metro'
+        };
+        sendEmail(email, 'driver_application_received', driverEmailData);
+        sendEmail('info@capeload.co.za', 'driver_admin_notification', driverEmailData);
+
+        // 6. Show success
         document.getElementById('signupForm').classList.add('hidden');
         document.getElementById('successPanel').classList.add('visible');
         window.scrollTo({ top: 0, behavior: 'smooth' });

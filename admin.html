@@ -763,20 +763,32 @@
   async function approveDriver(driverId, userId) {
     await sb.from('drivers').update({ status: 'approved' }).eq('id', driverId);
     await sb.from('users').update({ role: 'driver' }).eq('id', userId);
+    var { data: u } = await sb.from('users').select('full_name, email').eq('id', userId).single();
+    if (u && u.email) sendEmail(u.email, 'driver_approved', { name: u.full_name || 'Driver' });
     showToast('Driver approved', 'success');
     loadDrivers(); loadStats();
   }
 
   async function rejectDriver(driverId) {
     if (!confirm('Reject this driver?')) return;
+    var { data: d } = await sb.from('drivers').select('user_id').eq('id', driverId).single();
     await sb.from('drivers').update({ status: 'rejected' }).eq('id', driverId);
+    if (d) {
+      var { data: u } = await sb.from('users').select('full_name, email').eq('id', d.user_id).single();
+      if (u && u.email) sendEmail(u.email, 'driver_rejected', { name: u.full_name || 'Driver' });
+    }
     showToast('Driver rejected', 'success');
     loadDrivers();
   }
 
   async function suspendDriver(driverId) {
     if (!confirm('Suspend this driver? They will lose portal access.')) return;
+    var { data: d } = await sb.from('drivers').select('user_id').eq('id', driverId).single();
     await sb.from('drivers').update({ status: 'suspended' }).eq('id', driverId);
+    if (d) {
+      var { data: u } = await sb.from('users').select('full_name, email').eq('id', d.user_id).single();
+      if (u && u.email) sendEmail(u.email, 'driver_suspended', { name: u.full_name || 'Driver' });
+    }
     showToast('Driver suspended', 'success');
     loadDrivers();
   }

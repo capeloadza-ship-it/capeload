@@ -89,16 +89,23 @@
     .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
     .mobile-menu {
-      display: none; position: fixed; top: 72px; left: 0; right: 0; bottom: 0;
-      background: rgba(10,11,21,0.98); z-index: 999;
-      padding: 32px 20px; overflow-y: auto;
-      flex-direction: column; gap: 4px;
+      display: none; position: fixed; top: 60px; left: 0; right: 0; bottom: 0;
+      background: #0a0b15; z-index: 999;
+      padding: 0; overflow-y: auto;
+      flex-direction: column;
     }
     .mobile-menu.open { display: flex; }
-    .mobile-menu a { font-size: 18px; font-weight: 600; color: var(--sub); padding: 14px 0; border-bottom: 1px solid var(--border); }
-    .mobile-menu a:hover { color: var(--orange); }
-    .mobile-menu .m-btns { display: flex; flex-direction: column; gap: 12px; margin-top: 24px; }
-    .mobile-menu .m-btns .btn { width: 100%; justify-content: center; font-size: 16px; padding: 16px; }
+    .mobile-menu a {
+      font-size: 15px; font-weight: 600; color: var(--sub);
+      padding: 16px 24px; border-bottom: 1px solid rgba(255,255,255,0.05);
+      transition: color 0.2s, background 0.2s;
+    }
+    .mobile-menu a:hover { color: var(--text); background: rgba(255,255,255,0.03); }
+    .mobile-menu .m-btns {
+      display: flex; gap: 10px; padding: 20px 24px;
+      border-top: 1px solid rgba(255,255,255,0.07); margin-top: auto;
+    }
+    .mobile-menu .m-btns .btn { flex: 1; justify-content: center; font-size: 13px; padding: 11px 14px; }
 
     /* ══════════════════════════════════════
        HERO
@@ -808,8 +815,8 @@
         <a href="https://wa.me/27625692939" target="_blank">WhatsApp Support</a>
         <a href="mailto:info@capeload.co.za">info@capeload.co.za</a>
         <a href="auth.html?redirect=admin.html">Admin Login</a>
-        <a href="#">Terms of Service</a>
-        <a href="#">Privacy Policy</a>
+        <a href="terms.html">Terms of Service</a>
+        <a href="privacy.html">Privacy Policy</a>
       </div>
     </div>
     <div class="footer-bottom">
@@ -947,6 +954,7 @@
     } else {
       msg.textContent = 'Subscribed! Thanks for joining.';
       msg.style.color = '#22c55e';
+      sendEmail(email, 'newsletter_welcome', {});
       document.getElementById('nl-email').value = '';
     }
   }
