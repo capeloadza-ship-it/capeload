@@ -55,7 +55,7 @@
     }
     .nav.scrolled { background: #0a0b15; }
     .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 72px; }
-    .logo img { height: 140px; width: auto; display: block; }
+    .logo img { height: 120px; width: auto; display: block; }
     .nav-links { display: flex; align-items: center; gap: 2px; }
     .nav-links a { font-size: 14px; font-weight: 500; color: var(--sub); padding: 8px 14px; border-radius: 7px; transition: color 0.2s, background 0.2s; }
     .nav-links a:hover { color: var(--text); background: rgba(255,255,255,0.05); }
@@ -306,7 +306,7 @@
       .nav-links { display: none; }
       .hamburger { display: flex; }
       .services-top { grid-template-columns: 1fr; gap: 24px; }
-      .srv-grid { grid-template-columns: 1fr 1fr; }
+      .srv-grid { grid-template-columns: 1fr 1fr; gap: 14px; }
       .manage-inner { grid-template-columns: 1fr; gap: 40px; }
       .step-inner, .step-inner.flip { grid-template-columns: 1fr; gap: 40px; }
       .step-inner.flip .step-content { order: 2; }
@@ -321,9 +321,11 @@
     ══════════════════════════════════════ */
     @media (max-width: 600px) {
       .container { padding: 0 16px; }
-      .nav-inner { height: 64px; }
-      .logo img { height: 110px; }
-      .mobile-menu { top: 64px; }
+      .nav-inner { height: 60px; }
+      .logo img { height: 90px; }
+      .mobile-menu { top: 60px; }
+      .nav-cta { display: none; }
+      .nav-login { font-size: 13px; padding: 6px 10px; }
 
       /* Hero */
       .hero { padding: 100px 0 60px; min-height: auto; }
@@ -334,8 +336,8 @@
 
       /* Services */
       .services { padding: 56px 0; }
-      .srv-grid { grid-template-columns: 1fr; gap: 16px; }
-      .srv-card { aspect-ratio: 16/9; }
+      .srv-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+      .srv-card { aspect-ratio: 3/4; }
       .services-top-right .btn-row { flex-direction: column; }
       .services-top-right .btn-row .btn { width: 100%; justify-content: center; }
 
@@ -361,11 +363,6 @@
 
       /* Testimonials */
       .testimonials { padding: 56px 0; }
-
-      /* News */
-      .news { padding: 56px 0; }
-      .news-header { flex-direction: column; align-items: flex-start; gap: 12px; }
-      .news-grid { grid-template-columns: 1fr; gap: 16px; }
 
       /* Footer CTA */
       .footer-cta { padding: 64px 0; }
@@ -451,34 +448,67 @@
     </div>
     <div class="srv-grid">
       <div class="srv-card reveal d1">
-        <img src="https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=600&h=750&fit=crop" alt="Courier" loading="lazy" onload="this.classList.add('loaded')">
+        <img src="https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=600&h=750&fit=crop" alt="Motorbike courier" loading="lazy" onload="this.classList.add('loaded')">
         <div class="srv-card-shade"></div>
         <div class="srv-card-inner">
           <div class="srv-card-bottom">
-            <h3>Courier &amp; Local Delivery</h3>
-            <p>Same-day deliveries with motorbikes and bakkies. Fast, tracked and affordable.</p>
+            <h3>Motorbike</h3>
+            <p>Fast parcel deliveries in and around the city. Ideal for documents and small packages.</p>
             <span class="srv-pill">From R85</span>
           </div>
         </div>
       </div>
       <div class="srv-card reveal d2">
-        <img src="https://images.unsplash.com/photo-1616432043562-3671ea2e5242?w=600&h=750&fit=crop" alt="Regional transport" loading="lazy" onload="this.classList.add('loaded')">
+        <img src="images/Bakkie%20%20LDV.png" alt="Bakkie / LDV" loading="lazy" onload="this.classList.add('loaded')">
         <div class="srv-card-shade"></div>
         <div class="srv-card-inner">
           <div class="srv-card-bottom">
-            <h3>Regional Transport</h3>
-            <p>Panel vans and 4-ton trucks for office moves, furniture and bulk goods across the Western Cape.</p>
-            <span class="srv-pill">From R550</span>
+            <h3>Bakkie / LDV</h3>
+            <p>Perfect for household items, small furniture moves and light commercial loads.</p>
+            <span class="srv-pill">From R250</span>
           </div>
         </div>
       </div>
       <div class="srv-card reveal d3">
-        <img src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=600&h=750&fit=crop" alt="Heavy haul" loading="lazy" onload="this.classList.add('loaded')">
+        <img src="images/Panel%20Van.png" alt="Panel Van" loading="lazy" onload="this.classList.add('loaded')">
         <div class="srv-card-shade"></div>
         <div class="srv-card-inner">
           <div class="srv-card-bottom">
-            <h3>Heavy Haul &amp; Industrial</h3>
-            <p>8-ton trucks and flatbeds for construction materials, machinery and oversized loads.</p>
+            <h3>Panel Van</h3>
+            <p>Enclosed cargo space for goods that need protection. Great for retail and courier runs.</p>
+            <span class="srv-pill">From R550</span>
+          </div>
+        </div>
+      </div>
+      <div class="srv-card reveal d1">
+        <img src="images/4-Ton%20Truck.png" alt="4-Ton Truck" loading="lazy" onload="this.classList.add('loaded')">
+        <div class="srv-card-shade"></div>
+        <div class="srv-card-inner">
+          <div class="srv-card-bottom">
+            <h3>4-Ton Truck</h3>
+            <p>Office moves, bulk deliveries and furniture — the workhorse for medium loads.</p>
+            <span class="srv-pill">From R1,200</span>
+          </div>
+        </div>
+      </div>
+      <div class="srv-card reveal d2">
+        <img src="images/8-Ton%20Truck.png" alt="8-Ton Truck" loading="lazy" onload="this.classList.add('loaded')">
+        <div class="srv-card-shade"></div>
+        <div class="srv-card-inner">
+          <div class="srv-card-bottom">
+            <h3>8-Ton Truck</h3>
+            <p>Large-scale relocations and heavy commercial deliveries across the Western Cape.</p>
+            <span class="srv-pill">From R2,500</span>
+          </div>
+        </div>
+      </div>
+      <div class="srv-card reveal d3">
+        <img src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=600&h=750&fit=crop" alt="Flatbed / Heavy Haul" loading="lazy" onload="this.classList.add('loaded')">
+        <div class="srv-card-shade"></div>
+        <div class="srv-card-inner">
+          <div class="srv-card-bottom">
+            <h3>Flatbed / Heavy Haul</h3>
+            <p>Construction materials, machinery and oversized loads handled with care.</p>
             <span class="srv-pill">From R3,000</span>
           </div>
         </div>
@@ -620,55 +650,6 @@
   </div>
 </section>
 
-<!-- ══ NEWS ══ -->
-<section class="news strans">
-  <div class="container">
-    <div class="news-header reveal">
-      <div class="news-header-left">
-        <div class="tag">CapeLoad News</div>
-        <h2>Our Latest News</h2>
-      </div>
-      <p>Discover our latest vehicle listings, logistics updates, expert advice, and insightful resources.</p>
-    </div>
-    <div class="news-grid">
-      <div class="news-card reveal d1">
-        <img src="https://images.unsplash.com/photo-1519003722824-194d4455a60c?w=400&h=320&fit=crop" alt="" loading="lazy" onload="this.classList.add('loaded')">
-        <div class="news-card-body">
-          <div class="news-date">Mar 2026 · CapeLoad</div>
-          <h4>Top 5 Trends Shaping Modern Logistics in 2026</h4>
-          <p>From AI-powered routing to same-day delivery expectations...</p>
-        </div>
-      </div>
-      <div class="news-card reveal d2">
-        <img src="https://images.unsplash.com/photo-1609659001050-e1b3cf500a30?w=400&h=320&fit=crop" alt="" loading="lazy" onload="this.classList.add('loaded')">
-        <div class="news-card-body">
-          <div class="news-date">Feb 2026 · Industry</div>
-          <h4>Greener Supply Chains Start With Smart Moves</h4>
-          <p>How small businesses in the Western Cape are reducing their transport footprint...</p>
-        </div>
-      </div>
-      <div class="news-card reveal d3">
-        <img src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=400&h=320&fit=crop" alt="" loading="lazy" onload="this.classList.add('loaded')">
-        <div class="news-card-body">
-          <div class="news-date">Jan 2026 · Drivers</div>
-          <h4>Real-Time Tracking Is Reshaping the Logistics Industry</h4>
-          <p>Why customers now expect live updates on every delivery they book...</p>
-        </div>
-      </div>
-      <div class="news-card reveal d4">
-        <img src="https://images.unsplash.com/photo-1494412651409-8963ce7935a7?w=400&h=320&fit=crop" alt="" loading="lazy" onload="this.classList.add('loaded')">
-        <div class="news-card-body">
-          <div class="news-date">Dec 2025 · CapeLoad</div>
-          <h4>Navigating Crisis in Logistics with Advanced Tech</h4>
-          <p>How digital platforms help owner-operators thrive in tough economic conditions...</p>
-        </div>
-      </div>
-    </div>
-    <div class="news-footer reveal">
-      <a href="https://wa.me/27625692939" target="_blank" class="btn btn-outline">View All</a>
-    </div>
-  </div>
-</section>
 
 <!-- ══ FOOTER CTA ══ -->
 <section class="footer-cta strans">
