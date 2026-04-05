@@ -143,6 +143,7 @@
       <div class="tab" onclick="switchTab('recurring')">Recurring</div>
       <div class="tab" onclick="switchTab('history')">History</div>
       <div class="tab" onclick="switchTab('tracking')">Live Tracking</div>
+      <div class="tab" onclick="switchTab('settings')">Settings</div>
     </div>
 
     <!-- Active Bookings -->
@@ -224,6 +225,25 @@
         </div>
       </div>
     </div>
+
+    <!-- Settings -->
+    <div class="tab-panel" id="tab-settings">
+      <div class="card">
+        <div class="card-title">Profile</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+          <div><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">Full Name</label><input type="text" id="s-name" style="width:100%;padding:12px;border:1.5px solid #eee;border-radius:10px;font-size:14px;font-family:inherit;outline:none;"></div>
+          <div><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">Phone</label><input type="tel" id="s-phone" style="width:100%;padding:12px;border:1.5px solid #eee;border-radius:10px;font-size:14px;font-family:inherit;outline:none;"></div>
+        </div>
+        <div style="margin-bottom:16px;"><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">Email (read-only)</label><input type="email" id="s-email" readonly style="width:100%;padding:12px;border:1.5px solid #eee;border-radius:10px;font-size:14px;font-family:inherit;outline:none;background:#f5f5f3;color:#999;"></div>
+        <button class="btn btn-primary" onclick="saveProfile()">Save Changes</button>
+      </div>
+      <div class="card">
+        <div class="card-title">Change Password</div>
+        <div style="margin-bottom:12px;"><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">New Password</label><input type="password" id="s-newpw" placeholder="Min 6 characters" style="width:100%;padding:12px;border:1.5px solid #eee;border-radius:10px;font-size:14px;font-family:inherit;outline:none;"></div>
+        <div style="margin-bottom:16px;"><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">Confirm Password</label><input type="password" id="s-confirmpw" placeholder="Repeat password" style="width:100%;padding:12px;border:1.5px solid #eee;border-radius:10px;font-size:14px;font-family:inherit;outline:none;"></div>
+        <button class="btn btn-primary" onclick="changePassword()">Update Password</button>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -249,7 +269,34 @@
       sb.channel('client-bookings').on('postgres_changes', { event: '*', schema: 'public', table: 'bookings', filter: 'client_id=eq.' + window.currentUser.id }, function() {
         loadBookings();
       }).subscribe();
+
+      // Pre-fill settings
+      document.getElementById('s-name').value = profile?.full_name || '';
+      document.getElementById('s-phone').value = profile?.phone || '';
+      document.getElementById('s-email').value = window.currentUser.email || '';
     });
+
+    async function saveProfile() {
+      var name = document.getElementById('s-name').value.trim();
+      var phone = document.getElementById('s-phone').value.trim();
+      var { error } = await sb.from('users').update({ full_name: name, phone: phone }).eq('id', window.currentUser.id);
+      if (error) { showToast('Save failed: ' + error.message, 'error'); return; }
+      showToast('Profile updated', 'success');
+      document.getElementById('nav-user').textContent = name;
+      document.getElementById('greeting').textContent = 'Welcome back, ' + name.split(' ')[0];
+    }
+
+    async function changePassword() {
+      var newPw = document.getElementById('s-newpw').value;
+      var confirmPw = document.getElementById('s-confirmpw').value;
+      if (newPw.length < 6) { showToast('Password must be at least 6 characters', 'error'); return; }
+      if (newPw !== confirmPw) { showToast('Passwords do not match', 'error'); return; }
+      var { error } = await sb.auth.updateUser({ password: newPw });
+      if (error) { showToast('Failed: ' + error.message, 'error'); return; }
+      showToast('Password updated', 'success');
+      document.getElementById('s-newpw').value = '';
+      document.getElementById('s-confirmpw').value = '';
+    }
 
     async function loadBookings() {
       var userId = window.currentUser.id;

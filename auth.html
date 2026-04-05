@@ -192,6 +192,18 @@
     <button type="submit" class="submit-btn" id="submit-btn">Sign In</button>
   </form>
 
+  <p id="forgot-link" style="text-align:center;margin-top:12px;"><a href="#" onclick="showForgot()" style="font-size:13px;color:var(--orange);font-weight:600;">Forgot password?</a></p>
+
+  <div id="forgot-panel" style="display:none;">
+    <p style="font-size:14px;color:var(--text-muted);margin-bottom:16px;">Enter your email and we'll send a reset link.</p>
+    <div class="field">
+      <label>Email</label>
+      <input type="email" id="reset-email" placeholder="you@example.com">
+    </div>
+    <button class="submit-btn" onclick="sendReset()">Send Reset Link</button>
+    <p style="text-align:center;margin-top:12px;"><a href="#" onclick="hideForgot()" style="font-size:13px;color:var(--text-muted);">Back to sign in</a></p>
+  </div>
+
   <div id="error-msg" style="display:none" class="error"></div>
   <div id="success-msg" style="display:none" class="success"></div>
 
@@ -315,6 +327,35 @@
   function hideMessages() {
     document.getElementById('error-msg').style.display = 'none';
     document.getElementById('success-msg').style.display = 'none';
+  }
+
+  function showForgot() {
+    document.querySelector('form').style.display = 'none';
+    document.getElementById('tabs').style.display = 'none';
+    document.getElementById('forgot-link').style.display = 'none';
+    document.getElementById('forgot-panel').style.display = 'block';
+    document.getElementById('auth-title').textContent = 'Reset Password';
+    document.getElementById('auth-subtitle').textContent = '';
+    hideMessages();
+  }
+
+  function hideForgot() {
+    document.querySelector('form').style.display = 'block';
+    document.getElementById('forgot-link').style.display = 'block';
+    document.getElementById('forgot-panel').style.display = 'none';
+    switchMode(mode);
+    hideMessages();
+  }
+
+  async function sendReset() {
+    hideMessages();
+    var email = document.getElementById('reset-email').value;
+    if (!email) { showError('Please enter your email.'); return; }
+    var { error } = await sb.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin + '/auth.html'
+    });
+    if (error) { showError(error.message); return; }
+    showSuccess('Check your email for a password reset link.');
   }
 
   // Handle URL params for context

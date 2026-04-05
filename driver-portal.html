@@ -162,6 +162,7 @@
       <div class="tab" onclick="switchTab('jobs')">Job Board</div>
       <div class="tab" onclick="switchTab('active')">Active Jobs</div>
       <div class="tab" onclick="switchTab('earnings')">Earnings</div>
+      <div class="tab" onclick="switchTab('settings')">Settings</div>
     </div>
 
     <!-- Vehicles Tab -->
@@ -202,6 +203,48 @@
         </div>
       </div>
     </div>
+
+    <!-- Settings Tab -->
+    <div class="tab-panel" id="tab-settings">
+      <div class="card">
+        <div class="card-title">Profile</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+          <div><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">Full Name</label><input type="text" id="ds-name" style="width:100%;padding:12px;border:1.5px solid #eee;border-radius:10px;font-size:14px;font-family:inherit;outline:none;"></div>
+          <div><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">Phone</label><input type="tel" id="ds-phone" style="width:100%;padding:12px;border:1.5px solid #eee;border-radius:10px;font-size:14px;font-family:inherit;outline:none;"></div>
+        </div>
+        <button class="btn btn-primary" onclick="saveDriverProfile()">Save Profile</button>
+      </div>
+      <div class="card">
+        <div class="card-title">Banking Details (for payouts)</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px;">
+          <div><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">Bank Name</label><input type="text" id="ds-bank" placeholder="e.g. FNB" style="width:100%;padding:12px;border:1.5px solid #eee;border-radius:10px;font-size:14px;font-family:inherit;outline:none;"></div>
+          <div><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">Account Number</label><input type="text" id="ds-account" placeholder="e.g. 62000000000" style="width:100%;padding:12px;border:1.5px solid #eee;border-radius:10px;font-size:14px;font-family:inherit;outline:none;"></div>
+          <div><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">Branch Code</label><input type="text" id="ds-branch" placeholder="e.g. 250655" style="width:100%;padding:12px;border:1.5px solid #eee;border-radius:10px;font-size:14px;font-family:inherit;outline:none;"></div>
+        </div>
+        <button class="btn btn-primary" onclick="saveBanking()">Save Banking Details</button>
+      </div>
+      <div class="card">
+        <div class="card-title">Change Password</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+          <div><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">New Password</label><input type="password" id="ds-newpw" placeholder="Min 6 characters" style="width:100%;padding:12px;border:1.5px solid #eee;border-radius:10px;font-size:14px;font-family:inherit;outline:none;"></div>
+          <div><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">Confirm</label><input type="password" id="ds-confirmpw" placeholder="Repeat password" style="width:100%;padding:12px;border:1.5px solid #eee;border-radius:10px;font-size:14px;font-family:inherit;outline:none;"></div>
+        </div>
+        <button class="btn btn-primary" onclick="driverChangePassword()">Update Password</button>
+      </div>
+      <div class="card">
+        <div class="card-title">Add Vehicle</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+          <div><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">Type</label><select id="av-type" style="width:100%;padding:12px;border:1.5px solid #eee;border-radius:10px;font-size:14px;font-family:inherit;outline:none;"><option value="">Select</option><option value="motorbike">Motorbike</option><option value="bakkie">Bakkie</option><option value="panel-van">Panel Van</option><option value="4-ton">4-Ton</option><option value="8-ton">8-Ton</option><option value="flatbed">Flatbed</option></select></div>
+          <div><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">Make</label><input type="text" id="av-make" placeholder="e.g. Toyota" style="width:100%;padding:12px;border:1.5px solid #eee;border-radius:10px;font-size:14px;font-family:inherit;outline:none;"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px;">
+          <div><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">Model</label><input type="text" id="av-model" placeholder="e.g. Hilux" style="width:100%;padding:12px;border:1.5px solid #eee;border-radius:10px;font-size:14px;font-family:inherit;outline:none;"></div>
+          <div><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">Plate</label><input type="text" id="av-plate" placeholder="CA 123 456" style="width:100%;padding:12px;border:1.5px solid #eee;border-radius:10px;font-size:14px;font-family:inherit;outline:none;"></div>
+          <div><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">Year</label><input type="number" id="av-year" placeholder="2022" style="width:100%;padding:12px;border:1.5px solid #eee;border-radius:10px;font-size:14px;font-family:inherit;outline:none;"></div>
+        </div>
+        <button class="btn btn-primary" onclick="addVehicle()">Submit Vehicle</button>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -239,6 +282,17 @@
 
       await loadVehicles();
       await loadStats();
+
+      // Pre-fill settings
+      document.getElementById('ds-name').value = profile?.full_name || '';
+      document.getElementById('ds-phone').value = profile?.phone || '';
+      // Load banking from driver record
+      var { data: driverFull } = await sb.from('drivers').select('bank_name, account_number, branch_code').eq('id', driverRecord.id).single();
+      if (driverFull) {
+        document.getElementById('ds-bank').value = driverFull.bank_name || '';
+        document.getElementById('ds-account').value = driverFull.account_number || '';
+        document.getElementById('ds-branch').value = driverFull.branch_code || '';
+      }
 
       // Realtime for new pending bookings
       sb.channel('driver-jobs').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'bookings' }, function(payload) {
@@ -398,6 +452,60 @@
         tbody.appendChild(tr);
       });
       document.getElementById('payout-total').textContent = formatRand(totalPayout);
+    }
+
+    async function saveDriverProfile() {
+      var name = document.getElementById('ds-name').value.trim();
+      var phone = document.getElementById('ds-phone').value.trim();
+      var { error } = await sb.from('users').update({ full_name: name, phone: phone }).eq('id', window.currentUser.id);
+      if (error) { showToast('Save failed: ' + error.message, 'error'); return; }
+      showToast('Profile updated', 'success');
+      document.getElementById('nav-user').textContent = name;
+      document.getElementById('greeting').textContent = 'Welcome back, ' + name.split(' ')[0];
+    }
+
+    async function saveBanking() {
+      var { error } = await sb.from('drivers').update({
+        bank_name: document.getElementById('ds-bank').value.trim(),
+        account_number: document.getElementById('ds-account').value.trim(),
+        branch_code: document.getElementById('ds-branch').value.trim()
+      }).eq('id', driverRecord.id);
+      if (error) { showToast('Save failed: ' + error.message, 'error'); return; }
+      showToast('Banking details saved', 'success');
+    }
+
+    async function driverChangePassword() {
+      var newPw = document.getElementById('ds-newpw').value;
+      var confirmPw = document.getElementById('ds-confirmpw').value;
+      if (newPw.length < 6) { showToast('Password must be at least 6 characters', 'error'); return; }
+      if (newPw !== confirmPw) { showToast('Passwords do not match', 'error'); return; }
+      var { error } = await sb.auth.updateUser({ password: newPw });
+      if (error) { showToast('Failed: ' + error.message, 'error'); return; }
+      showToast('Password updated', 'success');
+      document.getElementById('ds-newpw').value = '';
+      document.getElementById('ds-confirmpw').value = '';
+    }
+
+    async function addVehicle() {
+      var type = document.getElementById('av-type').value;
+      var make = document.getElementById('av-make').value.trim();
+      var model = document.getElementById('av-model').value.trim();
+      var plate = document.getElementById('av-plate').value.trim();
+      var year = document.getElementById('av-year').value;
+      if (!type || !make || !model || !plate) { showToast('Please fill type, make, model and plate', 'error'); return; }
+      var { error } = await sb.from('vehicles').insert({
+        owner_id: driverRecord.id, type: type, make: make, model: model,
+        reg_plate: plate, year: year ? parseInt(year) : null,
+        status: 'pending', available: false, availability_status: 'unavailable'
+      });
+      if (error) { showToast('Failed: ' + error.message, 'error'); return; }
+      showToast('Vehicle submitted for approval', 'success');
+      document.getElementById('av-type').value = '';
+      document.getElementById('av-make').value = '';
+      document.getElementById('av-model').value = '';
+      document.getElementById('av-plate').value = '';
+      document.getElementById('av-year').value = '';
+      loadVehicles();
     }
   </script>
 </body>

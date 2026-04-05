@@ -375,9 +375,14 @@
         var phone = d.users?.phone || '';
         var initials = name.split(' ').map(function(n) { return n[0]; }).join('').slice(0, 2).toUpperCase();
         var st = driverBadge[d.status] || ['badge-yellow','Pending'];
-        var actions = d.status === 'pending'
-          ? '<button class="btn btn-green" onclick="approveDriver(\'' + d.id + '\', \'' + d.user_id + '\')">Approve</button> <button class="btn btn-red" onclick="rejectDriver(\'' + d.id + '\')">Reject</button>'
-          : '<button class="btn btn-outline">View</button>';
+        var actions = '';
+        if (d.status === 'pending') {
+          actions = '<button class="btn btn-green" onclick="approveDriver(\'' + d.id + '\', \'' + d.user_id + '\')">Approve</button> <button class="btn btn-red" onclick="rejectDriver(\'' + d.id + '\')">Reject</button>';
+        } else if (d.status === 'approved') {
+          actions = '<button class="btn btn-red" style="font-size:11px;" onclick="suspendDriver(\'' + d.id + '\')">Suspend</button>';
+        } else {
+          actions = '<button class="btn btn-outline">' + d.status + '</button>';
+        }
         var tr = document.createElement('tr');
         tr.innerHTML = '<td><div class="driver-row"><div class="driver-avatar">' + initials + '</div><div><div style="font-weight:600">' + name + '</div><div style="font-size:11px;color:var(--text-muted)">' + phone + '</div></div></div></td><td>—</td><td>' + (d.total_jobs || 0) + '</td><td>' + (d.rating || '—') + '</td><td><span class="badge ' + st[0] + '">' + st[1] + '</span></td><td>' + actions + '</td>';
         tbody.appendChild(tr);
@@ -396,6 +401,13 @@
       if (!confirm('Reject this driver?')) return;
       await sb.from('drivers').update({ status: 'rejected' }).eq('id', driverId);
       showToast('Driver rejected', 'success');
+      loadDrivers();
+    }
+
+    async function suspendDriver(driverId) {
+      if (!confirm('Suspend this driver?')) return;
+      await sb.from('drivers').update({ status: 'suspended' }).eq('id', driverId);
+      showToast('Driver suspended', 'success');
       loadDrivers();
     }
 
