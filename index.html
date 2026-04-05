@@ -201,7 +201,26 @@
       transition: transform 0.5s ease;
     }
     .srv-card:hover .srv-card-bg { transform: scale(1.04); }
-    .srv-card-bg svg { width: 80px; height: 80px; opacity: 0.35; }
+    .srv-icon-circle {
+      width: 116px; height: 116px; border-radius: 50%;
+      background: #e8eaf0;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow:
+        0 20px 48px rgba(0,0,0,0.65),
+        0 6px 14px rgba(0,0,0,0.45),
+        inset 0 2px 4px rgba(255,255,255,0.95),
+        inset 0 -3px 6px rgba(0,0,0,0.12);
+      transition: transform 0.4s ease, box-shadow 0.4s ease;
+    }
+    .srv-card:hover .srv-icon-circle {
+      transform: translateY(-6px) scale(1.04);
+      box-shadow:
+        0 28px 60px rgba(0,0,0,0.7),
+        0 10px 22px rgba(0,0,0,0.5),
+        inset 0 2px 4px rgba(255,255,255,0.95),
+        inset 0 -3px 6px rgba(0,0,0,0.12);
+    }
+    .srv-icon-circle svg { width: 62px; height: 62px; }
     .srv-card-shade {
       position: absolute; inset: 0;
       background: linear-gradient(180deg, rgba(10,11,21,0.1) 0%, rgba(10,11,21,0.92) 100%);
@@ -576,7 +595,7 @@
     </div>
     <div class="stat-divider"></div>
     <div class="stat-item">
-      <span class="stat-num">500+</span>
+      <span class="stat-num" id="stat-jobs">—</span>
       <span class="stat-label">Jobs Completed</span>
     </div>
     <div class="stat-divider"></div>
@@ -605,9 +624,19 @@
       </div>
     </div>
     <div class="srv-grid">
+      <!-- Motorbike -->
       <div class="srv-card reveal d1">
-        <div class="srv-card-bg" style="background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="17.5" r="2.5"/><circle cx="18.5" cy="17.5" r="2.5"/><path d="M8 17.5h7"/><path d="M14 17.5V13l-3-5H8"/><path d="M14 8h2l3 5.5"/><path d="M6 13l2-5"/></svg>
+        <div class="srv-card-bg" style="background:linear-gradient(145deg,#0e1628 0%,#141e3a 55%,#0a1020 100%)">
+          <div class="srv-icon-circle">
+            <svg viewBox="0 0 56 44" fill="#1a2744" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="33" r="10"/><circle cx="12" cy="33" r="4" fill="#e8eaf0"/>
+              <circle cx="44" cy="33" r="10"/><circle cx="44" cy="33" r="4" fill="#e8eaf0"/>
+              <polygon points="20,33 25,13 34,13 32,18 26,18 21,33"/>
+              <polygon points="32,13 44,13 44,24 34,24 34,18"/>
+              <ellipse cx="28" cy="11" rx="8" ry="4"/>
+              <rect x="38" y="10" width="10" height="5" rx="2.5"/>
+            </svg>
+          </div>
         </div>
         <div class="srv-card-shade"></div>
         <div class="srv-card-inner">
@@ -618,16 +647,20 @@
           </div>
         </div>
       </div>
+      <!-- Bakkie / LDV -->
       <div class="srv-card reveal d2">
-        <div class="srv-card-bg" style="background:linear-gradient(135deg,#0d1f12 0%,#112b1a 50%,#0a1a10 100%)">
-          <!-- Bakkie / LDV: pickup truck -->
-          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M2 12V8a1 1 0 011-1h7l3 5"/>
-            <path d="M13 12h8v3a1 1 0 01-1 1H2a1 1 0 01-1-1v-3h12z"/>
-            <path d="M9 7V5h4l2 2"/>
-            <circle cx="5.5" cy="16.5" r="1.5"/>
-            <circle cx="17.5" cy="16.5" r="1.5"/>
-          </svg>
+        <div class="srv-card-bg" style="background:linear-gradient(145deg,#0d1f12 0%,#112b1a 55%,#0a1510 100%)">
+          <div class="srv-icon-circle">
+            <svg viewBox="0 0 62 38" fill="#1a2744" xmlns="http://www.w3.org/2000/svg">
+              <rect x="2" y="13" width="27" height="14" rx="2"/>
+              <rect x="2" y="13" width="27" height="3" rx="1" fill="#e8eaf0" opacity="0.25"/>
+              <polygon points="29,27 29,7 34,5 48,14 56,14 56,27"/>
+              <rect x="50" y="15" width="5" height="10" rx="1" fill="#e8eaf0" opacity="0.2"/>
+              <rect x="56" y="21" width="3" height="6" rx="1.5"/>
+              <circle cx="13" cy="28" r="8"/><circle cx="13" cy="28" r="3.5" fill="#e8eaf0"/>
+              <circle cx="44" cy="28" r="8"/><circle cx="44" cy="28" r="3.5" fill="#e8eaf0"/>
+            </svg>
+          </div>
         </div>
         <div class="srv-card-shade"></div>
         <div class="srv-card-inner">
@@ -638,16 +671,20 @@
           </div>
         </div>
       </div>
+      <!-- Panel Van -->
       <div class="srv-card reveal d3">
-        <div class="srv-card-bg" style="background:linear-gradient(135deg,#0f1a2e 0%,#142240 50%,#0a1222 100%)">
-          <!-- Panel Van: enclosed van -->
-          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="1" y="8" width="15" height="9" rx="1"/>
-            <path d="M16 11h4.5a1 1 0 01.9.56l1.1 2.2V17h-6.5V11z"/>
-            <circle cx="5" cy="17" r="2"/>
-            <circle cx="19" cy="17" r="2"/>
-            <rect x="3" y="10" width="5" height="4" rx="0.5" opacity="0.5"/>
-          </svg>
+        <div class="srv-card-bg" style="background:linear-gradient(145deg,#0f1a2e 0%,#142240 55%,#0a1222 100%)">
+          <div class="srv-icon-circle">
+            <svg viewBox="0 0 62 36" fill="#1a2744" xmlns="http://www.w3.org/2000/svg">
+              <rect x="2" y="6" width="46" height="20" rx="3"/>
+              <polygon points="48,6 58,13 58,26 48,26"/>
+              <rect x="49" y="7" width="7" height="12" rx="1" fill="#e8eaf0" opacity="0.2"/>
+              <rect x="58" y="20" width="3" height="6" rx="1.5"/>
+              <rect x="4" y="10" width="18" height="8" rx="1" fill="#e8eaf0" opacity="0.15"/>
+              <circle cx="14" cy="28" r="7"/><circle cx="14" cy="28" r="3" fill="#e8eaf0"/>
+              <circle cx="44" cy="28" r="7"/><circle cx="44" cy="28" r="3" fill="#e8eaf0"/>
+            </svg>
+          </div>
         </div>
         <div class="srv-card-shade"></div>
         <div class="srv-card-inner">
@@ -658,17 +695,21 @@
           </div>
         </div>
       </div>
+      <!-- 4-Ton Truck -->
       <div class="srv-card reveal d1">
-        <div class="srv-card-bg" style="background:linear-gradient(135deg,#1a120a 0%,#2a1e10 50%,#140d06 100%)">
-          <!-- 4-Ton Truck: box truck -->
-          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="1" y="7" width="13" height="10" rx="1"/>
-            <path d="M14 9h5.5a1 1 0 01.83.44l2.17 3.25V17H14V9z"/>
-            <circle cx="5" cy="17" r="2"/>
-            <circle cx="11" cy="17" r="2"/>
-            <circle cx="19" cy="17" r="2"/>
-            <line x1="1" y1="12" x2="14" y2="12"/>
-          </svg>
+        <div class="srv-card-bg" style="background:linear-gradient(145deg,#1a120a 0%,#2a1e10 55%,#140d06 100%)">
+          <div class="srv-icon-circle">
+            <svg viewBox="0 0 66 40" fill="#1a2744" xmlns="http://www.w3.org/2000/svg">
+              <rect x="2" y="8" width="40" height="20" rx="2"/>
+              <rect x="2" y="8" width="40" height="4" rx="2" fill="#e8eaf0" opacity="0.2"/>
+              <polygon points="42,8 58,17 60,17 60,28 42,28"/>
+              <rect x="53" y="18" width="6" height="9" rx="1" fill="#e8eaf0" opacity="0.2"/>
+              <rect x="60" y="22" width="3" height="6" rx="1.5"/>
+              <circle cx="12" cy="30" r="8"/><circle cx="12" cy="30" r="3.5" fill="#e8eaf0"/>
+              <circle cx="29" cy="30" r="8"/><circle cx="29" cy="30" r="3.5" fill="#e8eaf0"/>
+              <circle cx="51" cy="30" r="7"/><circle cx="51" cy="30" r="3" fill="#e8eaf0"/>
+            </svg>
+          </div>
         </div>
         <div class="srv-card-shade"></div>
         <div class="srv-card-inner">
@@ -679,18 +720,22 @@
           </div>
         </div>
       </div>
+      <!-- 8-Ton Truck -->
       <div class="srv-card reveal d2">
-        <div class="srv-card-bg" style="background:linear-gradient(135deg,#10101a 0%,#18182e 50%,#0c0c16 100%)">
-          <!-- 8-Ton Truck: large rigid truck -->
-          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="1" y="6" width="14" height="11" rx="1"/>
-            <path d="M15 8h4.5a1 1 0 01.85.47l2.15 3.53V17H15V8z"/>
-            <circle cx="4" cy="17" r="2"/>
-            <circle cx="10" cy="17" r="2"/>
-            <circle cx="19" cy="17" r="2"/>
-            <line x1="1" y1="11" x2="15" y2="11"/>
-            <line x1="7" y1="6" x2="7" y2="11"/>
-          </svg>
+        <div class="srv-card-bg" style="background:linear-gradient(145deg,#10101a 0%,#18182e 55%,#0c0c16 100%)">
+          <div class="srv-icon-circle">
+            <svg viewBox="0 0 70 42" fill="#1a2744" xmlns="http://www.w3.org/2000/svg">
+              <rect x="2" y="6" width="44" height="24" rx="2"/>
+              <rect x="2" y="6" width="44" height="5" rx="2" fill="#e8eaf0" opacity="0.2"/>
+              <polygon points="46,6 64,17 66,17 66,30 46,30"/>
+              <rect x="58" y="18" width="7" height="11" rx="1" fill="#e8eaf0" opacity="0.2"/>
+              <rect x="66" y="23" width="3" height="7" rx="1.5"/>
+              <circle cx="11" cy="32" r="8"/><circle cx="11" cy="32" r="3.5" fill="#e8eaf0"/>
+              <circle cx="25" cy="32" r="8"/><circle cx="25" cy="32" r="3.5" fill="#e8eaf0"/>
+              <circle cx="39" cy="32" r="8"/><circle cx="39" cy="32" r="3.5" fill="#e8eaf0"/>
+              <circle cx="57" cy="32" r="7"/><circle cx="57" cy="32" r="3" fill="#e8eaf0"/>
+            </svg>
+          </div>
         </div>
         <div class="srv-card-shade"></div>
         <div class="srv-card-inner">
@@ -701,9 +746,21 @@
           </div>
         </div>
       </div>
+      <!-- Flatbed / Heavy Haul -->
       <div class="srv-card reveal d3">
-        <div class="srv-card-bg" style="background:linear-gradient(135deg,#1a1210 0%,#2d1f14 50%,#1a0a00 100%)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="11" width="18" height="6" rx="1"/><path d="M19 13h3l1 4H19"/><circle cx="5" cy="17" r="1.5"/><circle cx="15" cy="17" r="1.5"/><path d="M1 11V7a1 1 0 011-1h13l3 5"/></svg>
+        <div class="srv-card-bg" style="background:linear-gradient(145deg,#1a1210 0%,#2d1f14 55%,#1a0a00 100%)">
+          <div class="srv-icon-circle">
+            <svg viewBox="0 0 70 40" fill="#1a2744" xmlns="http://www.w3.org/2000/svg">
+              <polygon points="44,5 60,14 64,14 64,28 44,28"/>
+              <rect x="58" y="15" width="5" height="12" rx="1" fill="#e8eaf0" opacity="0.2"/>
+              <rect x="64" y="21" width="3" height="7" rx="1.5"/>
+              <rect x="2" y="14" width="44" height="5" rx="1"/>
+              <rect x="2" y="19" width="58" height="7" rx="2"/>
+              <circle cx="11" cy="30" r="8"/><circle cx="11" cy="30" r="3.5" fill="#e8eaf0"/>
+              <circle cx="25" cy="30" r="8"/><circle cx="25" cy="30" r="3.5" fill="#e8eaf0"/>
+              <circle cx="52" cy="30" r="7"/><circle cx="52" cy="30" r="3" fill="#e8eaf0"/>
+            </svg>
+          </div>
         </div>
         <div class="srv-card-shade"></div>
         <div class="srv-card-inner">
@@ -1166,6 +1223,15 @@
     try {
       var { count } = await sb.from('profiles').select('id', { count: 'exact', head: true }).eq('role', 'driver');
       var el = document.getElementById('stat-drivers');
+      if (el && count !== null) el.textContent = count > 0 ? count + (count >= 10 ? '+' : '') : '—';
+    } catch(e) {}
+  })();
+
+  // Live jobs count
+  (async function() {
+    try {
+      var { count } = await sb.from('bookings').select('id', { count: 'exact', head: true });
+      var el = document.getElementById('stat-jobs');
       if (el && count !== null) el.textContent = count > 0 ? count + (count >= 10 ? '+' : '') : '—';
     } catch(e) {}
   })();
