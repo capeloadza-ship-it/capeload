@@ -9,908 +9,283 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
-    /* ═══════════════════════════════════════
-       RESET & BASE
-    ═══════════════════════════════════════ */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
-    body {
-      font-family: 'Inter', Arial, Helvetica, sans-serif;
-      background: #0d0d14;
-      color: #e0e0e0;
-      line-height: 1.6;
-      overflow-x: hidden;
-    }
+    body { font-family: 'Inter', Arial, sans-serif; background: #0b0c14; color: #e0e0e0; line-height: 1.6; overflow-x: hidden; }
     a { text-decoration: none; color: inherit; }
     img { max-width: 100%; display: block; }
-    ul { list-style: none; }
 
-    /* ═══════════════════════════════════════
-       BRAND COLORS
-    ═══════════════════════════════════════ */
     :root {
       --orange: #f15f22;
       --orange-dark: #c44a18;
       --blue: #2b3990;
-      --blue-light: #3d4db3;
-      --charcoal: #414042;
-      --dark-bg: #0d0d14;
-      --card-bg: #14141f;
-      --card-border: #1e1e2e;
-      --text-primary: #f0f0f0;
-      --text-secondary: #999;
-      --text-muted: #666;
+      --dark: #0b0c14;
+      --dark2: #10111c;
+      --dark3: #0d0e1a;
+      --card: #13141f;
+      --border: rgba(255,255,255,0.07);
+      --text: #f0f0f0;
+      --muted: #888;
+      --muted2: #555;
     }
 
-    /* ═══════════════════════════════════════
-       UTILITY
-    ═══════════════════════════════════════ */
     .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
-    .section-label {
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      color: var(--orange);
-      margin-bottom: 12px;
-    }
-    .section-title {
-      font-size: clamp(28px, 4vw, 42px);
-      font-weight: 800;
-      color: var(--text-primary);
-      line-height: 1.2;
-      margin-bottom: 16px;
-    }
-    .section-subtitle {
-      font-size: 16px;
-      color: var(--text-secondary);
-      max-width: 600px;
-      line-height: 1.7;
-    }
+    .section-tag { font-size: 12px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--orange); margin-bottom: 12px; display: block; }
 
     /* Buttons */
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 14px 32px;
-      border-radius: 8px;
-      font-size: 15px;
-      font-weight: 600;
-      border: none;
-      cursor: pointer;
-      transition: opacity 0.2s, background 0.2s;
-    }
-    .btn:hover { opacity: 0.85; }
-    .btn-primary {
-      background: var(--orange);
-      color: #fff;
-    }
-    .btn-secondary {
-      background: rgba(255,255,255,0.06);
-      color: var(--text-primary);
-      border: 1px solid rgba(255,255,255,0.12);
-    }
-    .btn-secondary:hover {
-      border-color: rgba(255,255,255,0.25);
-      opacity: 1;
-    }
-    .btn-blue {
-      background: var(--blue);
-      color: #fff;
-    }
-    .btn svg { width: 18px; height: 18px; }
+    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 13px 28px; border-radius: 8px; font-size: 14px; font-weight: 600; border: none; cursor: pointer; transition: all 0.2s; font-family: inherit; white-space: nowrap; }
+    .btn-primary { background: var(--orange); color: #fff; }
+    .btn-primary:hover { background: var(--orange-dark); }
+    .btn-ghost { background: rgba(255,255,255,0.07); color: var(--text); border: 1px solid rgba(255,255,255,0.12); }
+    .btn-ghost:hover { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.2); }
+    .btn-blue { background: var(--blue); color: #fff; }
+    .btn-blue:hover { opacity: 0.9; }
+    .btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
-    /* ═══════════════════════════════════════
-       NAV
-    ═══════════════════════════════════════ */
-    .nav {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      z-index: 1000;
-      background: rgba(13, 13, 20, 0.7);
-      backdrop-filter: none;
-      -webkit-backdrop-filter: none;
-      border-bottom: 1px solid rgba(255,255,255,0.06);
-      transition: all 0.4s ease;
-    }
-    .nav.scrolled {
-      background: rgba(13, 13, 20, 0.95);
-      box-shadow: none;
-      border-bottom-color: rgba(241, 95, 34, 0.08);
-    }
-    .nav-inner {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      height: 80px;
-      transition: height 0.3s;
-    }
-    .nav.scrolled .nav-inner { height: 68px; }
-    .logo {
-      display: flex;
-      align-items: center;
-    }
-    .logo img {
-      height: 144px;
-      width: auto;
-      transition: height 0.3s;
-    }
-    .nav.scrolled .logo img { height: 100px; }
-    .nav-links {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .nav-links a {
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--text-secondary);
-      transition: all 0.25s;
-      padding: 8px 16px;
-      border-radius: 8px;
-      position: relative;
-    }
-    .nav-links a:not(.nav-cta):hover {
-      color: var(--text-primary);
-      background: rgba(255,255,255,0.05);
-    }
-    .nav-links a:not(.nav-cta)::after {
-      content: '';
-      position: absolute;
-      bottom: 2px;
-      left: 50%;
-      width: 0;
-      height: 2px;
-      background: var(--orange);
-      border-radius: 2px;
-      transition: all 0.3s;
-      transform: translateX(-50%);
-    }
-    .nav-links a:not(.nav-cta):hover::after {
-      width: 20px;
-    }
-    .nav-cta {
-      padding: 10px 28px !important;
-      font-size: 13px !important;
-      margin-left: 8px;
-      border-radius: 10px !important;
-      background: rgba(255, 255, 255, 0.08) !important;
-      color: #fff !important;
-      border: 1px solid rgba(255, 255, 255, 0.15) !important;
-      box-shadow: none !important;
-    }
-    .nav-cta:hover {
-      background: rgba(255, 255, 255, 0.14) !important;
-      border-color: rgba(255, 255, 255, 0.25) !important;
-      box-shadow: none !important;
-      color: #fff !important;
-    }
-    .nav-divider {
-      width: 1px;
-      height: 24px;
-      background: rgba(255,255,255,0.08);
-      margin: 0 8px;
-    }
-    .mobile-toggle {
-      display: none;
-      background: none;
-      border: none;
-      cursor: pointer;
-      padding: 10px;
-      border-radius: 8px;
-      transition: background 0.2s;
-    }
-    .mobile-toggle:hover { background: rgba(255,255,255,0.05); }
-    .mobile-toggle span {
-      display: block;
-      width: 22px;
-      height: 2px;
-      background: var(--text-primary);
-      margin: 5px 0;
-      transition: 0.3s;
-      border-radius: 2px;
-    }
+    /* Reveal */
+    .reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1); }
+    .reveal.visible { opacity: 1; transform: none; }
+    .reveal-left { opacity: 0; transform: translateX(-36px); transition: opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1); }
+    .reveal-left.visible { opacity: 1; transform: none; }
+    .reveal-right { opacity: 0; transform: translateX(36px); transition: opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1); }
+    .reveal-right.visible { opacity: 1; transform: none; }
+    .reveal-d1 { transition-delay: 0.1s; }
+    .reveal-d2 { transition-delay: 0.2s; }
+    .reveal-d3 { transition-delay: 0.3s; }
+    .reveal-d4 { transition-delay: 0.4s; }
 
-    /* ═══════════════════════════════════════
-       HERO
-    ═══════════════════════════════════════ */
-    .hero {
-      position: relative;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      padding-top: 80px;
-      overflow: hidden;
-    }
-    .hero::before { display: none; }
-    .hero::after { display: none; }
-    .hero-inner {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 60px;
-      align-items: center;
-      position: relative;
-      z-index: 1;
-    }
-    .hero-content { max-width: 560px; }
-    .hero-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 16px;
-      border-radius: 100px;
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--text-secondary);
-      margin-bottom: 24px;
-    }
-    .hero-badge .dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #22c55e;
-      animation: pulse 2s infinite;
-    }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.4; }
-    }
-    .hero h1 {
-      font-size: clamp(36px, 5vw, 56px);
-      font-weight: 900;
-      line-height: 1.1;
-      color: var(--text-primary);
-      margin-bottom: 20px;
-    }
-    .hero h1 .highlight { color: #fff; text-decoration: underline; text-decoration-color: var(--orange); text-underline-offset: 6px; text-decoration-thickness: 3px; }
-    .hero p {
-      font-size: 17px;
-      color: var(--text-secondary);
-      line-height: 1.7;
-      margin-bottom: 36px;
-      max-width: 480px;
-    }
-    .hero-buttons { display: flex; gap: 16px; flex-wrap: wrap; }
-    .hero-stats {
-      display: flex;
-      gap: 40px;
-      margin-top: 48px;
-      padding-top: 32px;
-      border-top: 1px solid rgba(255,255,255,0.06);
-    }
-    .hero-stat-value {
-      font-size: 32px;
-      font-weight: 800;
-      color: var(--text-primary);
-      line-height: 1;
-    }
-    .hero-stat-label {
-      font-size: 13px;
-      color: var(--text-muted);
-      margin-top: 6px;
-    }
+    /* ══ NAV ══ */
+    .nav { position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; background: rgba(11,12,20,0.6); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.05); transition: all 0.3s; }
+    .nav.scrolled { background: rgba(11,12,20,0.95); }
+    .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 76px; }
+    .logo img { height: 144px; width: auto; }
+    .nav-links { display: flex; align-items: center; gap: 4px; }
+    .nav-links a { font-size: 14px; font-weight: 500; color: var(--muted); padding: 8px 14px; border-radius: 8px; transition: all 0.2s; }
+    .nav-links a:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+    .nav-divider { width: 1px; height: 22px; background: var(--border); margin: 0 6px; }
+    .nav-auth { font-weight: 600 !important; color: var(--text) !important; }
+    .nav-cta { background: rgba(255,255,255,0.08) !important; color: #fff !important; border: 1px solid rgba(255,255,255,0.14) !important; padding: 9px 22px !important; border-radius: 10px !important; }
+    .nav-cta:hover { background: var(--orange) !important; border-color: var(--orange) !important; }
+    .mobile-toggle { display: none; background: none; border: none; cursor: pointer; padding: 8px; }
+    .mobile-toggle span { display: block; width: 22px; height: 2px; background: var(--text); margin: 5px 0; border-radius: 2px; transition: 0.3s; }
+    .mobile-menu { display: none; position: fixed; top: 76px; left: 0; width: 100%; background: rgba(11,12,20,0.98); padding: 20px 24px 28px; border-bottom: 1px solid var(--border); z-index: 999; }
+    .mobile-menu.active { display: block; }
+    .mobile-menu a { display: block; padding: 12px 0; font-size: 16px; color: var(--muted); border-bottom: 1px solid var(--border); }
+    .mobile-menu a:hover { color: var(--orange); }
+    .mobile-menu .btn { margin-top: 16px; width: 100%; justify-content: center; }
 
-    /* Hero visual */
-    .hero-visual {
-      position: relative;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-    .hero-graphic {
-      width: 100%;
-      max-width: 480px;
-      aspect-ratio: 1;
-      position: relative;
-    }
-    .hero-graphic .ring {
-      position: absolute;
-      border-radius: 50%;
-      border: 1px solid rgba(241, 95, 34, 0.1);
-    }
-    .hero-graphic .ring-1 { inset: 0; animation: spin 40s linear infinite; }
-    .hero-graphic .ring-2 { inset: 15%; border-color: rgba(43, 57, 144, 0.1); animation: spin 30s linear infinite reverse; }
-    .hero-graphic .ring-3 { inset: 30%; animation: spin 20s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .hero-graphic .center-icon {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 100px;
-      height: 100px;
-      background: rgba(241, 95, 34, 0.1);
-      border: 2px solid var(--orange);
-      border-radius: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .hero-graphic .center-icon svg {
-      width: 48px;
-      height: 48px;
-      fill: none;
-      stroke: var(--orange);
-      stroke-width: 2;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-    }
-    /* Floating vehicle labels */
-    .vehicle-float {
-      position: absolute;
-      padding: 8px 16px;
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 8px;
-      font-size: 12px;
-      font-weight: 600;
-      white-space: nowrap;
-      animation: float 4s ease-in-out infinite;
-    }
-    .vehicle-float:nth-child(4) { top: 8%; left: 10%; animation-delay: 0s; color: var(--orange); }
-    .vehicle-float:nth-child(5) { top: 20%; right: 5%; animation-delay: 1s; color: #7a8fd4; }
-    .vehicle-float:nth-child(6) { bottom: 25%; left: 2%; animation-delay: 0.5s; color: var(--orange); }
-    .vehicle-float:nth-child(7) { bottom: 10%; right: 10%; animation-delay: 1.5s; color: #7a8fd4; }
-    @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-10px); }
-    }
+    /* ══ HERO ══ */
+    .hero { position: relative; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding-top: 76px; overflow: hidden; background: var(--dark); }
+    .hero-bg { position: absolute; inset: 0; z-index: 0; }
+    .hero-bg img { width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 1s; }
+    .hero-bg img.loaded { opacity: 0.18; }
+    .hero-bg::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(11,12,20,1) 40%, rgba(11,12,20,0.5) 100%); }
+    .hero-inner { position: relative; z-index: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; padding: 80px 0; }
+    .hero-tag { display: inline-flex; align-items: center; gap: 8px; padding: 5px 14px; border-radius: 100px; background: rgba(241,95,34,0.1); border: 1px solid rgba(241,95,34,0.25); font-size: 12px; font-weight: 700; color: var(--orange); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 20px; }
+    .hero-tag .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--orange); animation: blink 2s infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+    .hero h1 { font-size: clamp(38px,5vw,62px); font-weight: 900; line-height: 1.08; color: #fff; margin-bottom: 18px; }
+    .hero h1 em { font-style: normal; color: var(--orange); }
+    .hero-sub { font-size: 17px; color: var(--muted); line-height: 1.75; max-width: 480px; margin-bottom: 36px; }
+    .hero-btns { display: flex; gap: 14px; flex-wrap: wrap; }
+    .hero-stats { display: flex; gap: 36px; margin-top: 52px; padding-top: 32px; border-top: 1px solid rgba(255,255,255,0.07); }
+    .hero-stat strong { display: block; font-size: 30px; font-weight: 800; color: #fff; line-height: 1; }
+    .hero-stat span { font-size: 12px; color: var(--muted); margin-top: 4px; display: block; }
+    .hero-visual { position: relative; }
+    .hero-visual img { width: 100%; border-radius: 20px; object-fit: cover; height: 460px; opacity: 0; transition: opacity 0.8s; }
+    .hero-visual img.loaded { opacity: 1; }
+    .hero-float { position: absolute; bottom: 28px; left: -20px; background: rgba(255,255,255,0.06); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 14px 20px; display: flex; align-items: center; gap: 14px; }
+    .hero-float-icon { width: 40px; height: 40px; background: rgba(241,95,34,0.15); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .hero-float-icon svg { width: 20px; height: 20px; stroke: var(--orange); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .hero-float strong { font-size: 15px; font-weight: 700; color: #fff; display: block; }
+    .hero-float span { font-size: 11px; color: var(--muted); }
 
-    /* ═══════════════════════════════════════
-       VEHICLES SECTION
-    ═══════════════════════════════════════ */
-    .vehicles {
-      padding: 100px 0;
-      border-top: 1px solid rgba(255,255,255,0.04);
-    }
-    .vehicles-header {
-      text-align: center;
-      margin-bottom: 60px;
-    }
-    .vehicles-header .section-subtitle { margin: 0 auto; }
-    .vehicles-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-      gap: 20px;
-    }
-    .vehicle-card {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 12px;
-      padding: 28px 20px;
-      text-align: center;
-      transition: all 0.3s ease;
-      cursor: default;
-    }
-    .vehicle-card:hover {
-      border-color: var(--orange);
-    }
-    .vehicle-img {
-      width: 100%;
-      height: 120px;
-      object-fit: cover;
-      border-radius: 8px;
-      margin-bottom: 14px;
-      opacity: 0;
-      transition: opacity 0.5s ease;
-    }
-    .vehicle-img.loaded { opacity: 1; }
-    .vehicle-card h3 {
-      font-size: 15px;
-      font-weight: 700;
-      color: var(--text-primary);
-      margin-bottom: 6px;
-    }
-    .vehicle-card p {
-      font-size: 13px;
-      color: var(--text-muted);
-    }
-    .vehicle-card .capacity {
-      display: inline-block;
-      margin-top: 12px;
-      padding: 4px 12px;
-      border-radius: 100px;
-      font-size: 11px;
-      font-weight: 600;
-      background: rgba(43, 57, 144, 0.12);
-      color: #7a8fd4;
-    }
+    /* ══ SERVICES ══ */
+    .services { padding: 100px 0; background: var(--dark2); border-top: 1px solid var(--border); }
+    .services-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 52px; gap: 24px; }
+    .services-header h2 { font-size: clamp(26px,3.5vw,40px); font-weight: 800; color: var(--text); line-height: 1.2; max-width: 420px; }
+    .services-header p { font-size: 15px; color: var(--muted); max-width: 380px; line-height: 1.7; }
+    .services-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    .service-card { position: relative; border-radius: 16px; overflow: hidden; aspect-ratio: 3/4; cursor: default; }
+    .service-card img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease, opacity 0.6s; opacity: 0; }
+    .service-card img.loaded { opacity: 1; }
+    .service-card:hover img { transform: scale(1.04); }
+    .service-card-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(11,12,20,0.95) 0%, rgba(11,12,20,0.3) 60%, rgba(11,12,20,0.1) 100%); }
+    .service-card-body { position: absolute; inset: 0; padding: 24px; display: flex; flex-direction: column; justify-content: space-between; }
+    .service-card-icon { width: 44px; height: 44px; background: rgba(241,95,34,0.15); border: 1px solid rgba(241,95,34,0.3); border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+    .service-card-icon svg { width: 22px; height: 22px; fill: none; stroke: var(--orange); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .service-card-bottom h3 { font-size: 19px; font-weight: 800; color: #fff; margin-bottom: 6px; }
+    .service-card-bottom p { font-size: 13px; color: rgba(255,255,255,0.6); line-height: 1.5; }
+    .service-tag { display: inline-block; margin-top: 12px; padding: 4px 12px; border-radius: 100px; background: rgba(241,95,34,0.15); border: 1px solid rgba(241,95,34,0.3); font-size: 11px; font-weight: 600; color: var(--orange); }
 
-    /* ═══════════════════════════════════════
-       HOW IT WORKS
-    ═══════════════════════════════════════ */
-    .how-it-works {
-      padding: 100px 0;
-      background: #0a0a12;
-      border-top: 1px solid rgba(255,255,255,0.04);
-    }
-    .how-header {
-      text-align: center;
-      margin-bottom: 60px;
-    }
-    .how-header .section-subtitle { margin: 0 auto; }
-    .steps {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 32px;
-      position: relative;
-    }
-    /* Connector line */
-    .steps::before {
-      content: '';
-      position: absolute;
-      top: 44px;
-      left: 16.5%;
-      right: 16.5%;
-      height: 2px;
-      background: rgba(255,255,255,0.08);
-      opacity: 0.3;
-    }
-    .step {
-      text-align: center;
-      position: relative;
-    }
-    .step-number {
-      width: 64px;
-      height: 64px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 24px;
-      font-weight: 900;
-      margin: 0 auto 24px;
-      position: relative;
-      z-index: 1;
-    }
-    .step:nth-child(1) .step-number {
-      background: rgba(241, 95, 34, 0.15);
-      color: var(--orange);
-      border: 2px solid rgba(241, 95, 34, 0.3);
-    }
-    .step:nth-child(2) .step-number {
-      background: rgba(43, 57, 144, 0.15);
-      color: #7a8fd4;
-      border: 2px solid rgba(43, 57, 144, 0.3);
-    }
-    .step:nth-child(3) .step-number {
-      background: rgba(241, 95, 34, 0.15);
-      color: var(--orange);
-      border: 2px solid rgba(241, 95, 34, 0.3);
-    }
-    .step h3 {
-      font-size: 18px;
-      font-weight: 700;
-      color: var(--text-primary);
-      margin-bottom: 10px;
-    }
-    .step p {
-      font-size: 14px;
-      color: var(--text-secondary);
-      line-height: 1.7;
-      max-width: 280px;
-      margin: 0 auto;
-    }
+    /* ══ HOW IT WORKS ══ */
+    .how { padding: 100px 0; background: var(--dark3); border-top: 1px solid var(--border); }
+    .how-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+    .how-content h2 { font-size: clamp(26px,3.5vw,42px); font-weight: 800; color: var(--text); line-height: 1.2; margin-bottom: 16px; }
+    .how-content p { font-size: 15px; color: var(--muted); line-height: 1.75; margin-bottom: 36px; }
+    .how-steps { display: flex; flex-direction: column; gap: 0; }
+    .how-step { display: flex; gap: 20px; padding: 20px 0; border-bottom: 1px solid var(--border); }
+    .how-step:last-child { border-bottom: none; }
+    .how-step-num { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 800; flex-shrink: 0; margin-top: 2px; }
+    .how-step:nth-child(1) .how-step-num { background: rgba(241,95,34,0.12); color: var(--orange); }
+    .how-step:nth-child(2) .how-step-num { background: rgba(43,57,144,0.15); color: #7a8fd4; }
+    .how-step:nth-child(3) .how-step-num { background: rgba(34,197,94,0.1); color: #22c55e; }
+    .how-step h4 { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .how-step p { font-size: 13px; color: var(--muted); line-height: 1.6; margin: 0; }
+    .how-visual { position: relative; }
+    .how-visual img { width: 100%; border-radius: 20px; height: 480px; object-fit: cover; opacity: 0; transition: opacity 0.6s; }
+    .how-visual img.loaded { opacity: 1; }
+    .how-float { position: absolute; top: 28px; right: -20px; background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 16px 20px; min-width: 180px; }
+    .how-float-label { font-size: 11px; color: var(--muted); font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 8px; }
+    .how-float-stat { font-size: 28px; font-weight: 800; color: var(--orange); line-height: 1; }
+    .how-float-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
 
-    /* ═══════════════════════════════════════
-       COVERAGE
-    ═══════════════════════════════════════ */
-    .coverage {
-      padding: 100px 0;
-      border-top: 1px solid rgba(255,255,255,0.04);
-    }
-    .coverage-inner {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 60px;
-      align-items: center;
-    }
-    .coverage-content { max-width: 480px; }
-    .coverage-content .section-subtitle { margin-bottom: 32px; }
-    .coverage-list {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      margin-bottom: 32px;
-    }
-    .coverage-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-    }
-    .coverage-item .check {
-      width: 24px;
-      height: 24px;
-      min-width: 24px;
-      border-radius: 6px;
-      background: rgba(241, 95, 34, 0.12);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-top: 2px;
-    }
-    .coverage-item .check svg {
-      width: 14px;
-      height: 14px;
-      stroke: var(--orange);
-      fill: none;
-      stroke-width: 2.5;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-    }
-    .coverage-item .text h4 {
-      font-size: 15px;
-      font-weight: 700;
-      color: var(--text-primary);
-    }
-    .coverage-item .text p {
-      font-size: 13px;
-      color: var(--text-muted);
-    }
-    /* Map placeholder */
-    .coverage-map {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 16px;
-      padding: 40px;
-      aspect-ratio: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      overflow: hidden;
-    }
-    .coverage-map::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: transparent;
-    }
-    .map-pin {
-      position: relative;
-      z-index: 1;
-    }
-    .map-pin svg {
-      width: 80px;
-      height: 80px;
-      stroke: var(--orange);
-      fill: none;
-      stroke-width: 1.5;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-    }
-    .map-label {
-      position: relative;
-      z-index: 1;
-      margin-top: 16px;
-      font-size: 22px;
-      font-weight: 800;
-      color: var(--text-primary);
-    }
-    .map-sublabel {
-      position: relative;
-      z-index: 1;
-      font-size: 14px;
-      color: var(--text-muted);
-      margin-top: 4px;
-    }
-    .map-regions {
-      position: relative;
-      z-index: 1;
-      display: flex;
-      gap: 12px;
-      margin-top: 24px;
-    }
-    .map-region {
-      padding: 6px 14px;
-      border-radius: 100px;
-      font-size: 12px;
-      font-weight: 600;
-    }
-    .map-region.active {
-      background: rgba(241, 95, 34, 0.15);
-      color: var(--orange);
-      border: 1px solid rgba(241, 95, 34, 0.3);
-    }
-    .map-region.soon {
-      background: rgba(43, 57, 144, 0.1);
-      color: #7a8fd4;
-      border: 1px solid rgba(43, 57, 144, 0.2);
-    }
+    /* ══ CTA BAND ══ */
+    .cta-band { padding: 80px 0; background: linear-gradient(135deg, #0f102a 0%, #0b0c14 50%, #1a0e08 100%); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); position: relative; overflow: hidden; }
+    .cta-band::before { content: ''; position: absolute; top: -80px; right: -80px; width: 400px; height: 400px; background: radial-gradient(circle, rgba(241,95,34,0.08) 0%, transparent 70%); pointer-events: none; }
+    .cta-band-inner { display: flex; align-items: center; justify-content: space-between; gap: 40px; flex-wrap: wrap; }
+    .cta-band h2 { font-size: clamp(24px,3.5vw,40px); font-weight: 900; color: #fff; line-height: 1.2; max-width: 520px; }
+    .cta-band h2 em { font-style: normal; color: var(--orange); }
+    .cta-band p { font-size: 15px; color: var(--muted); max-width: 400px; margin-top: 10px; line-height: 1.7; }
+    .cta-band-btns { display: flex; gap: 12px; flex-wrap: wrap; flex-shrink: 0; }
 
-    /* ═══════════════════════════════════════
-       CTA SPLIT
-    ═══════════════════════════════════════ */
-    .cta-split {
-      padding: 100px 0;
-      background: #0a0a12;
-      border-top: 1px solid rgba(255,255,255,0.04);
-    }
-    .cta-header {
-      text-align: center;
-      margin-bottom: 60px;
-    }
-    .cta-header .section-subtitle { margin: 0 auto; }
-    .cta-cards {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 32px;
-    }
-    .cta-card {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 16px;
-      padding: 48px 40px;
-      transition: all 0.3s ease;
-    }
-    .cta-card.client-cta:hover {
-      border-color: var(--blue);
-    }
-    .cta-card.driver-cta:hover {
-      border-color: var(--orange);
-    }
-    .cta-card-icon {
-      width: 64px;
-      height: 64px;
-      border-radius: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 24px;
-    }
-    .client-cta .cta-card-icon {
-      background: rgba(43, 57, 144, 0.12);
-    }
-    .driver-cta .cta-card-icon {
-      background: rgba(241, 95, 34, 0.12);
-    }
-    .cta-card-icon svg {
-      width: 32px;
-      height: 32px;
-      fill: none;
-      stroke-width: 1.8;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-    }
-    .client-cta .cta-card-icon svg { stroke: var(--blue); }
-    .driver-cta .cta-card-icon svg { stroke: var(--orange); }
-    .cta-card h3 {
-      font-size: 24px;
-      font-weight: 800;
-      color: var(--text-primary);
-      margin-bottom: 12px;
-    }
-    .cta-card p {
-      font-size: 15px;
-      color: var(--text-secondary);
-      line-height: 1.7;
-      margin-bottom: 28px;
-    }
-    .cta-card ul {
-      margin-bottom: 32px;
-    }
-    .cta-card ul li {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 14px;
-      color: var(--text-secondary);
-      padding: 6px 0;
-    }
-    .cta-card ul li svg {
-      width: 16px;
-      height: 16px;
-      fill: none;
-      stroke-width: 2.5;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-      min-width: 16px;
-    }
-    .client-cta ul li svg { stroke: var(--blue); }
-    .driver-cta ul li svg { stroke: var(--orange); }
+    /* ══ FEATURES ══ */
+    .features { padding: 100px 0; background: var(--dark2); border-top: 1px solid var(--border); }
+    .features-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+    .features-content { order: 2; }
+    .features-visual { order: 1; position: relative; }
+    .features-visual img { width: 100%; border-radius: 20px; height: 500px; object-fit: cover; opacity: 0; transition: opacity 0.6s; }
+    .features-visual img.loaded { opacity: 1; }
+    .features-stats { position: absolute; bottom: 28px; right: -20px; background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px 24px; min-width: 240px; }
+    .features-stat strong { display: block; font-size: 22px; font-weight: 800; color: #fff; }
+    .features-stat span { font-size: 11px; color: var(--muted); }
+    .features-content h2 { font-size: clamp(26px,3.5vw,42px); font-weight: 800; color: var(--text); line-height: 1.2; margin-bottom: 16px; }
+    .features-content > p { font-size: 15px; color: var(--muted); line-height: 1.75; margin-bottom: 36px; }
+    .features-list { display: flex; flex-direction: column; gap: 18px; margin-bottom: 36px; }
+    .feature-item { display: flex; gap: 14px; }
+    .feature-item-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .feature-item:nth-child(1) .feature-item-icon { background: rgba(241,95,34,0.1); }
+    .feature-item:nth-child(2) .feature-item-icon { background: rgba(43,57,144,0.12); }
+    .feature-item:nth-child(3) .feature-item-icon { background: rgba(34,197,94,0.08); }
+    .feature-item-icon svg { width: 22px; height: 22px; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .feature-item:nth-child(1) .feature-item-icon svg { stroke: var(--orange); }
+    .feature-item:nth-child(2) .feature-item-icon svg { stroke: #7a8fd4; }
+    .feature-item:nth-child(3) .feature-item-icon svg { stroke: #22c55e; }
+    .feature-item h4 { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .feature-item p { font-size: 13px; color: var(--muted); line-height: 1.6; }
 
-    /* ═══════════════════════════════════════
-       FOOTER
-    ═══════════════════════════════════════ */
-    .footer {
-      padding: 60px 0 32px;
-      border-top: 1px solid rgba(255,255,255,0.06);
-    }
-    .footer-inner {
-      display: grid;
-      grid-template-columns: 1.5fr 1fr 1fr 1fr;
-      gap: 40px;
-      margin-bottom: 48px;
-    }
-    .footer-brand .logo { margin-bottom: 16px; }
-    .footer-brand p {
-      font-size: 14px;
-      color: var(--text-muted);
-      line-height: 1.7;
-      max-width: 280px;
-    }
-    .footer-col h4 {
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      color: var(--text-secondary);
-      margin-bottom: 16px;
-    }
-    .footer-col a {
-      display: block;
-      font-size: 14px;
-      color: var(--text-muted);
-      padding: 4px 0;
-      transition: color 0.2s;
-    }
+    /* ══ COVERAGE ══ */
+    .coverage { padding: 100px 0; background: var(--dark3); border-top: 1px solid var(--border); }
+    .coverage-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+    .coverage-content h2 { font-size: clamp(26px,3.5vw,42px); font-weight: 800; color: var(--text); line-height: 1.2; margin-bottom: 16px; }
+    .coverage-content p { font-size: 15px; color: var(--muted); line-height: 1.75; margin-bottom: 36px; }
+    .coverage-areas { display: flex; flex-direction: column; gap: 12px; margin-bottom: 36px; }
+    .coverage-area { display: flex; align-items: center; gap: 12px; padding: 14px 18px; background: var(--card); border: 1px solid var(--border); border-radius: 10px; }
+    .coverage-area-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .coverage-area-dot.live { background: #22c55e; box-shadow: 0 0 0 3px rgba(34,197,94,0.2); }
+    .coverage-area-dot.soon { background: #7a8fd4; }
+    .coverage-area h4 { font-size: 14px; font-weight: 700; color: var(--text); }
+    .coverage-area p { font-size: 12px; color: var(--muted); }
+    .coverage-area-badge { margin-left: auto; padding: 3px 10px; border-radius: 100px; font-size: 11px; font-weight: 600; }
+    .live-badge { background: rgba(34,197,94,0.1); color: #22c55e; border: 1px solid rgba(34,197,94,0.25); }
+    .soon-badge { background: rgba(122,143,212,0.1); color: #7a8fd4; border: 1px solid rgba(122,143,212,0.2); }
+    .coverage-visual { position: relative; }
+    .coverage-visual img { width: 100%; height: 480px; object-fit: cover; border-radius: 20px; opacity: 0; transition: opacity 0.6s; }
+    .coverage-visual img.loaded { opacity: 1; }
+    .coverage-visual-overlay { position: absolute; inset: 0; border-radius: 20px; background: linear-gradient(to top, rgba(11,12,20,0.9) 0%, transparent 60%); display: flex; flex-direction: column; justify-content: flex-end; padding: 28px; }
+    .coverage-visual-overlay h3 { font-size: 22px; font-weight: 800; color: #fff; }
+    .coverage-visual-overlay p { font-size: 13px; color: rgba(255,255,255,0.5); }
+
+    /* ══ TESTIMONIALS ══ */
+    .testimonials { padding: 100px 0; background: var(--dark2); border-top: 1px solid var(--border); }
+    .testimonials-header { text-align: center; margin-bottom: 60px; }
+    .testimonials-header h2 { font-size: clamp(26px,3.5vw,40px); font-weight: 800; color: var(--text); margin-bottom: 12px; }
+    .testimonials-header p { font-size: 15px; color: var(--muted); max-width: 500px; margin: 0 auto; }
+    .testimonials-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    .testi-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 28px; transition: border-color 0.2s; }
+    .testi-card:hover { border-color: rgba(241,95,34,0.3); }
+    .testi-stars { display: flex; gap: 4px; margin-bottom: 16px; }
+    .testi-star { width: 14px; height: 14px; fill: var(--orange); }
+    .testi-card blockquote { font-size: 14px; color: rgba(255,255,255,0.75); line-height: 1.7; margin-bottom: 20px; font-style: italic; }
+    .testi-author { display: flex; align-items: center; gap: 12px; }
+    .testi-avatar { width: 40px; height: 40px; border-radius: 50%; background: rgba(241,95,34,0.15); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 800; color: var(--orange); flex-shrink: 0; }
+    .testi-name { font-size: 14px; font-weight: 700; color: var(--text); }
+    .testi-role { font-size: 12px; color: var(--muted); }
+
+    /* ══ GET STARTED ══ */
+    .get-started { padding: 100px 0; background: var(--dark3); border-top: 1px solid var(--border); }
+    .get-started-header { text-align: center; margin-bottom: 52px; }
+    .get-started-header h2 { font-size: clamp(26px,3.5vw,42px); font-weight: 800; color: var(--text); margin-bottom: 12px; }
+    .get-started-header p { font-size: 15px; color: var(--muted); max-width: 500px; margin: 0 auto; }
+    .get-started-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+    .gs-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; overflow: hidden; transition: border-color 0.3s; }
+    .gs-card:hover { border-color: rgba(241,95,34,0.3); }
+    .gs-card-img { width: 100%; height: 180px; object-fit: cover; opacity: 0; transition: opacity 0.6s; display: block; }
+    .gs-card-img.loaded { opacity: 1; }
+    .gs-card-body { padding: 32px; }
+    .gs-icon { width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; margin-bottom: 18px; }
+    .gs-card.client .gs-icon { background: rgba(43,57,144,0.15); }
+    .gs-card.driver .gs-icon { background: rgba(241,95,34,0.12); }
+    .gs-icon svg { width: 26px; height: 26px; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .gs-card.client .gs-icon svg { stroke: #7a8fd4; }
+    .gs-card.driver .gs-icon svg { stroke: var(--orange); }
+    .gs-card h3 { font-size: 22px; font-weight: 800; color: var(--text); margin-bottom: 10px; }
+    .gs-card p { font-size: 14px; color: var(--muted); line-height: 1.7; margin-bottom: 24px; }
+    .gs-checklist { display: flex; flex-direction: column; gap: 8px; margin-bottom: 28px; }
+    .gs-check { display: flex; align-items: center; gap: 10px; font-size: 13px; color: rgba(255,255,255,0.65); }
+    .gs-check svg { width: 15px; height: 15px; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+    .gs-card.client .gs-check svg { stroke: #7a8fd4; }
+    .gs-card.driver .gs-check svg { stroke: var(--orange); }
+
+    /* ══ FOOTER ══ */
+    .footer { padding: 64px 0 32px; border-top: 1px solid var(--border); background: var(--dark); }
+    .footer-top { display: grid; grid-template-columns: 1.6fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 48px; }
+    .footer-brand p { font-size: 14px; color: var(--muted); line-height: 1.7; max-width: 260px; margin-top: 12px; }
+    .footer-col h4 { font-size: 12px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 16px; }
+    .footer-col a { display: block; font-size: 14px; color: var(--muted); padding: 5px 0; transition: color 0.2s; }
     .footer-col a:hover { color: var(--orange); }
-    .footer-bottom {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding-top: 24px;
-      border-top: 1px solid rgba(255,255,255,0.04);
-      font-size: 13px;
-      color: var(--text-muted);
-    }
-    .footer-socials {
-      display: flex;
-      gap: 16px;
-    }
-    .footer-socials a {
-      width: 36px;
-      height: 36px;
-      border-radius: 8px;
-      background: rgba(255,255,255,0.04);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background 0.2s;
-    }
-    .footer-socials a:hover { background: rgba(241, 95, 34, 0.15); }
-    .footer-socials svg {
-      width: 16px;
-      height: 16px;
-      fill: var(--text-muted);
-    }
+    .footer-newsletter { margin-top: 20px; }
+    .footer-newsletter p { font-size: 13px; color: var(--muted); margin-bottom: 12px; }
+    .footer-newsletter-form { display: flex; gap: 8px; }
+    .footer-newsletter-form input { flex: 1; padding: 10px 14px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 8px; font-size: 13px; color: var(--text); font-family: inherit; outline: none; }
+    .footer-newsletter-form input:focus { border-color: var(--orange); }
+    .footer-newsletter-form input::placeholder { color: var(--muted2); }
+    .footer-newsletter-form button { padding: 10px 16px; background: var(--orange); border: none; border-radius: 8px; color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; font-family: inherit; }
+    .footer-bottom { display: flex; justify-content: space-between; align-items: center; padding-top: 24px; border-top: 1px solid var(--border); font-size: 13px; color: var(--muted2); }
+    .footer-socials { display: flex; gap: 10px; }
+    .footer-socials a { width: 34px; height: 34px; border-radius: 8px; background: rgba(255,255,255,0.04); display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
+    .footer-socials a:hover { background: rgba(241,95,34,0.15); }
+    .footer-socials svg { width: 15px; height: 15px; fill: var(--muted); }
 
-    /* ═══════════════════════════════════════
-       SCROLL ANIMATIONS
-    ═══════════════════════════════════════ */
-    .reveal {
-      opacity: 0;
-      transform: translateY(32px);
-      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    /* ══ RESPONSIVE ══ */
+    @media (max-width: 1024px) {
+      .features-stats { right: 0; }
+      .how-float { right: 0; }
     }
-    .reveal.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    .reveal-delay-1 { transition-delay: 0.1s; }
-    .reveal-delay-2 { transition-delay: 0.2s; }
-    .reveal-delay-3 { transition-delay: 0.3s; }
-    .reveal-delay-4 { transition-delay: 0.4s; }
-    .reveal-delay-5 { transition-delay: 0.5s; }
-    .reveal-scale {
-      opacity: 0;
-      transform: scale(0.92);
-      transition: opacity 0.7s ease, transform 0.7s ease;
-    }
-    .reveal-scale.visible {
-      opacity: 1;
-      transform: scale(1);
-    }
-    .reveal-left {
-      opacity: 0;
-      transform: translateX(-40px);
-      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .reveal-left.visible { opacity: 1; transform: translateX(0); }
-    .reveal-right {
-      opacity: 0;
-      transform: translateX(40px);
-      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .reveal-right.visible { opacity: 1; transform: translateX(0); }
-
-    /* ═══════════════════════════════════════
-       UNSPLASH IMAGES
-    ═══════════════════════════════════════ */
-    .img-section {
-      width: 100%;
-      border-radius: 12px;
-      object-fit: cover;
-      opacity: 0;
-      transition: opacity 0.6s ease;
-    }
-    .img-section.loaded { opacity: 1; }
-    .hero-image-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      grid-template-rows: 1fr 1fr;
-      gap: 12px;
-      height: 100%;
-      min-height: 380px;
-    }
-    .hero-image-grid img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      border-radius: 12px;
-      opacity: 0;
-      transition: opacity 0.6s ease;
-    }
-    .hero-image-grid img.loaded { opacity: 1; }
-    .hero-image-grid img:first-child {
-      grid-row: 1 / 3;
-      border-radius: 12px 0 0 12px;
-    }
-
-    /* ═══════════════════════════════════════
-       RESPONSIVE
-    ═══════════════════════════════════════ */
-    @media (max-width: 960px) {
-      .hero-inner { grid-template-columns: 1fr; text-align: center; }
-      .hero-content { max-width: 100%; margin: 0 auto; }
-      .hero p { margin: 0 auto 36px; }
-      .hero-buttons { justify-content: center; }
-      .hero-stats { justify-content: center; }
-      .hero-visual { display: none; }
-      .coverage-inner { grid-template-columns: 1fr; }
-      .coverage-map { max-width: 400px; margin: 0 auto; }
-      .steps::before { display: none; }
-      .footer-inner { grid-template-columns: 1fr 1fr; }
-    }
-    @media (max-width: 768px) {
+    @media (max-width: 900px) {
       .nav-links { display: none; }
       .mobile-toggle { display: block; }
-      .steps { grid-template-columns: 1fr; gap: 40px; }
-      .cta-cards { grid-template-columns: 1fr; }
-      .vehicles-grid { grid-template-columns: repeat(2, 1fr); }
-      .footer-inner { grid-template-columns: 1fr; }
-      .footer-bottom { flex-direction: column; gap: 16px; text-align: center; }
+      .hero-inner { grid-template-columns: 1fr; }
+      .hero-visual { display: none; }
+      .services-header { flex-direction: column; align-items: flex-start; }
+      .services-grid { grid-template-columns: 1fr 1fr; }
+      .how-inner, .features-inner, .coverage-inner { grid-template-columns: 1fr; }
+      .features-visual, .features-content { order: unset; }
+      .how-float, .features-stats { display: none; }
+      .get-started-cards { grid-template-columns: 1fr; }
+      .footer-top { grid-template-columns: 1fr 1fr; }
+      .testimonials-grid { grid-template-columns: 1fr 1fr; }
     }
-    @media (max-width: 480px) {
-      .vehicles-grid { grid-template-columns: 1fr; }
-      .hero-stats { flex-direction: column; align-items: center; gap: 24px; }
-      .hero-buttons { flex-direction: column; }
+    @media (max-width: 600px) {
+      .services-grid { grid-template-columns: 1fr; }
+      .testimonials-grid { grid-template-columns: 1fr; }
+      .hero-stats { flex-wrap: wrap; gap: 20px; }
+      .cta-band-inner { flex-direction: column; align-items: flex-start; }
+      .footer-top { grid-template-columns: 1fr; }
+      .footer-bottom { flex-direction: column; gap: 14px; }
+      .footer-newsletter-form { flex-direction: column; }
+      .hero-btns { flex-direction: column; }
       .btn { width: 100%; justify-content: center; }
-    }
-
-    /* Mobile menu */
-    .mobile-menu {
-      display: none;
-      position: fixed;
-      top: 72px;
-      left: 0;
-      width: 100%;
-      background: rgba(13, 13, 20, 0.98);
-      backdrop-filter: none;
-      padding: 24px;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
-      z-index: 999;
-    }
-    .mobile-menu.active { display: block; }
-    .mobile-menu a {
-      display: block;
-      padding: 12px 0;
-      font-size: 16px;
-      font-weight: 500;
-      color: var(--text-secondary);
-      border-bottom: 1px solid rgba(255,255,255,0.04);
-    }
-    .mobile-menu a:hover { color: var(--orange); }
-    .mobile-menu .btn {
-      margin-top: 16px;
-      width: 100%;
-      justify-content: center;
     }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -918,295 +293,424 @@
 </head>
 <body>
 
-  <!-- ═══════════ NAV ═══════════ -->
+  <!-- NAV -->
   <nav class="nav" id="nav">
     <div class="container nav-inner">
-      <a href="/" class="logo">
-        <img src="images/logo-light.png" alt="CapeLoad Logistics">
-      </a>
+      <a href="/" class="logo"><img src="images/logo-light.png" alt="CapeLoad Logistics"></a>
       <div class="nav-links">
-        <a href="#vehicles">Vehicles</a>
+        <a href="#services">Services</a>
         <a href="#how-it-works">How it works</a>
         <a href="#coverage">Coverage</a>
         <a href="#get-started">Get started</a>
         <div class="nav-divider"></div>
-        <a href="auth.html" id="nav-auth" style="font-weight:600;">Login</a>
-        <a href="booking.html" class="btn nav-cta">Get a Quote</a>
+        <a href="auth.html" id="nav-auth" class="nav-auth">Login</a>
+        <a href="booking.html" class="nav-cta">Get a Quote</a>
       </div>
-      <button class="mobile-toggle" id="mobileToggle" aria-label="Menu">
-        <span></span><span></span><span></span>
-      </button>
+      <button class="mobile-toggle" id="mobileToggle"><span></span><span></span><span></span></button>
     </div>
   </nav>
-
-  <!-- Mobile menu -->
   <div class="mobile-menu" id="mobileMenu">
-    <a href="#vehicles">Vehicles</a>
+    <a href="#services">Services</a>
     <a href="#how-it-works">How it works</a>
     <a href="#coverage">Coverage</a>
     <a href="#get-started">Get started</a>
     <a href="booking.html" class="btn btn-primary">Get a Quote</a>
   </div>
 
-  <!-- ═══════════ HERO ═══════════ -->
+  <!-- HERO -->
   <section class="hero">
+    <div class="hero-bg">
+      <img src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=1600&h=900&fit=crop" alt="" loading="eager" onload="this.classList.add('loaded')">
+    </div>
     <div class="container hero-inner">
-      <div class="hero-content reveal-left">
-        <div class="hero-badge">
-          <span class="dot"></span>
-          Now serving the Western Cape
-        </div>
-        <h1>Your load, <span class="highlight">our road.</span></h1>
-        <p>From a single parcel to a full house move — CapeLoad connects you with verified drivers and the right vehicle for every job. Get an instant quote in under 60 seconds.</p>
-        <div class="hero-buttons">
+      <div class="reveal-left">
+        <div class="hero-tag"><span class="dot"></span>Smart Logistics</div>
+        <h1>Smart Solutions<br>for <em>Moving</em> Your Load</h1>
+        <p class="hero-sub">From a single parcel to a full industrial haul — CapeLoad connects you with verified drivers and the right vehicle. Instant quotes, live tracking, same-day service.</p>
+        <div class="hero-btns">
           <a href="booking.html" class="btn btn-primary">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             Book a Load
           </a>
-          <a href="driver-signup.html" class="btn btn-secondary">Register Your Vehicle</a>
+          <a href="driver-signup.html" class="btn btn-ghost">Register Your Vehicle</a>
         </div>
         <div class="hero-stats">
-          <div>
-            <div class="hero-stat-value">6+</div>
-            <div class="hero-stat-label">Vehicle types</div>
-          </div>
-          <div>
-            <div class="hero-stat-value">60s</div>
-            <div class="hero-stat-label">Instant quotes</div>
-          </div>
-          <div>
-            <div class="hero-stat-value">24/7</div>
-            <div class="hero-stat-label">WhatsApp support</div>
-          </div>
+          <div class="hero-stat"><strong>6+</strong><span>Vehicle types</span></div>
+          <div class="hero-stat"><strong>60s</strong><span>Instant quotes</span></div>
+          <div class="hero-stat"><strong>24/7</strong><span>WhatsApp support</span></div>
+          <div class="hero-stat"><strong>WC</strong><span>Fully covered</span></div>
         </div>
       </div>
       <div class="hero-visual reveal-right">
-        <div class="hero-image-grid">
-          <img src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=600&h=800&fit=crop" alt="Delivery truck on road" loading="lazy" onload="this.classList.add('loaded')">
-          <img src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=400&h=380&fit=crop" alt="Warehouse logistics" loading="lazy" onload="this.classList.add('loaded')">
-          <img src="https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=400&h=380&fit=crop" alt="Delivery driver" loading="lazy" onload="this.classList.add('loaded')">
+        <img src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=800&h=920&fit=crop" alt="Logistics fleet" loading="eager" onload="this.classList.add('loaded')">
+        <div class="hero-float">
+          <div class="hero-float-icon">
+            <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          </div>
+          <div>
+            <strong>Live Tracking</strong>
+            <span>Driver en route — 12 min away</span>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ═══════════ VEHICLES ═══════════ -->
-  <section class="vehicles" id="vehicles">
+  <!-- SERVICES -->
+  <section class="services" id="services">
     <div class="container">
-      <div class="vehicles-header reveal">
-        <div class="section-label">Our Fleet</div>
-        <h2 class="section-title">The right vehicle for every load</h2>
-        <p class="section-subtitle">Whether it's a small courier run or a full industrial haul, we've got you covered with owner-registered, verified vehicles.</p>
+      <div class="services-header reveal">
+        <div>
+          <span class="section-tag">Logistics Solutions</span>
+          <h2>Our Services</h2>
+        </div>
+        <p>Our goods-delivered swiftly across cities and regions with our reliable trucking network and real-time tracking.</p>
       </div>
-      <div class="vehicles-grid">
-        <!-- Motorbike -->
-        <div class="vehicle-card reveal reveal-delay-1">
-          <img class="vehicle-img" src="https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=400&h=240&fit=crop" alt="Motorbike courier" loading="lazy" onload="this.classList.add('loaded')">
-          <h3>Motorbike</h3>
-          <p>Courier runs &amp; small parcels</p>
-          <span class="capacity">Up to 30 kg</span>
-        </div>
-        <!-- Bakkie / LDV -->
-        <div class="vehicle-card reveal reveal-delay-2">
-          <img class="vehicle-img" src="images/Bakkie  LDV.png" alt="Bakkie pickup truck" loading="lazy" onload="this.classList.add('loaded')">
-          <h3>Bakkie / LDV</h3>
-          <p>Small loads &amp; quick trips</p>
-          <span class="capacity">Up to 1 ton</span>
-        </div>
-        <!-- Panel Van -->
-        <div class="vehicle-card reveal reveal-delay-3">
-          <img class="vehicle-img" src="images/Panel Van.png" alt="Panel van delivery" loading="lazy" onload="this.classList.add('loaded')">
-          <h3>Panel Van</h3>
-          <p>Furniture, boxes &amp; goods</p>
-          <span class="capacity">Up to 2 tons</span>
-        </div>
-        <!-- 4-Ton Truck -->
-        <div class="vehicle-card reveal reveal-delay-4">
-          <img class="vehicle-img" src="images/4-Ton Truck.png" alt="Medium truck" loading="lazy" onload="this.classList.add('loaded')">
-          <h3>4-Ton Truck</h3>
-          <p>Medium hauls &amp; moves</p>
-          <span class="capacity">Up to 4 tons</span>
-        </div>
-        <!-- 8-Ton Truck -->
-        <div class="vehicle-card reveal reveal-delay-5">
-          <img class="vehicle-img" src="images/8-Ton Truck.png" alt="Large truck" loading="lazy" onload="this.classList.add('loaded')">
-          <h3>8-Ton Truck</h3>
-          <p>Large hauls &amp; bulk loads</p>
-          <span class="capacity">Up to 8 tons</span>
-        </div>
-        <!-- Flatbed / Super -->
-        <div class="vehicle-card reveal reveal-delay-5">
-          <img class="vehicle-img" src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=400&h=240&fit=crop" alt="Flatbed truck" loading="lazy" onload="this.classList.add('loaded')">
-          <h3>Flatbed / Super</h3>
-          <p>Industrial &amp; oversize loads</p>
-          <span class="capacity">8+ tons</span>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ═══════════ HOW IT WORKS ═══════════ -->
-  <section class="how-it-works" id="how-it-works">
-    <div class="container">
-      <div class="how-header reveal">
-        <div class="section-label">How It Works</div>
-        <h2 class="section-title">Three steps to move your load</h2>
-        <p class="section-subtitle">No call centres, no waiting around. Tell us what you need, get a quote, and we handle the rest.</p>
-      </div>
-      <div class="steps">
-        <div class="step reveal reveal-delay-1">
-          <div class="step-number">
-            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg>
-          </div>
-          <h3>Tell us your load</h3>
-          <p>Choose your job type, select the right vehicle, and enter your pickup and drop-off locations.</p>
-        </div>
-        <div class="step reveal reveal-delay-2">
-          <div class="step-number">
-            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
-          </div>
-          <h3>Get an instant quote</h3>
-          <p>We calculate your price upfront in Rands. No hidden fees, no surprises. Pay via EFT, card, or Ozow.</p>
-        </div>
-        <div class="step reveal reveal-delay-3">
-          <div class="step-number">
-            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-          </div>
-          <h3>We dispatch &amp; deliver</h3>
-          <p>A verified driver is assigned to your job. Track live via WhatsApp and get confirmation on delivery.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ═══════════ COVERAGE ═══════════ -->
-  <section class="coverage" id="coverage">
-    <div class="container coverage-inner">
-      <div class="coverage-content reveal-left">
-        <div class="section-label">Coverage</div>
-        <h2 class="section-title">Western Cape &amp; expanding nationally</h2>
-        <p class="section-subtitle">We started in Cape Town and are growing fast. Our network of owner-operators covers the entire Western Cape with national routes coming soon.</p>
-        <div class="coverage-list">
-          <div class="coverage-item">
-            <div class="check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
-            <div class="text">
-              <h4>Cape Town Metro</h4>
-              <p>CBD, Northern &amp; Southern suburbs, Cape Flats, Helderberg</p>
+      <div class="services-grid">
+        <div class="service-card reveal reveal-d1">
+          <img src="https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=600&h=800&fit=crop" alt="Courier and local delivery" loading="lazy" onload="this.classList.add('loaded')">
+          <div class="service-card-overlay"></div>
+          <div class="service-card-body">
+            <div class="service-card-icon">
+              <svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+            </div>
+            <div class="service-card-bottom">
+              <h3>Courier &amp; Local Delivery</h3>
+              <p>Same-day deliveries with motorbikes and bakkies. Fast, affordable and tracked.</p>
+              <span class="service-tag">From R85</span>
             </div>
           </div>
-          <div class="coverage-item">
-            <div class="check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
-            <div class="text">
-              <h4>Greater Western Cape</h4>
-              <p>Stellenbosch, Paarl, Worcester, Saldanha, Hermanus</p>
+        </div>
+        <div class="service-card reveal reveal-d2">
+          <img src="https://images.unsplash.com/photo-1616432043562-3671ea2e5242?w=600&h=800&fit=crop" alt="Regional transport" loading="lazy" onload="this.classList.add('loaded')">
+          <div class="service-card-overlay"></div>
+          <div class="service-card-body">
+            <div class="service-card-icon">
+              <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a4 4 0 00-8 0v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
+            </div>
+            <div class="service-card-bottom">
+              <h3>Regional Transport</h3>
+              <p>Panel vans and 4-ton trucks for office moves, furniture, and bulk goods across the Western Cape.</p>
+              <span class="service-tag">From R550</span>
             </div>
           </div>
-          <div class="coverage-item">
-            <div class="check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
-            <div class="text">
-              <h4>National Routes</h4>
-              <p>Cape Town to JHB, Durban, PE &amp; Bloemfontein (coming soon)</p>
+        </div>
+        <div class="service-card reveal reveal-d3">
+          <img src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=600&h=800&fit=crop" alt="Heavy haul and industrial" loading="lazy" onload="this.classList.add('loaded')">
+          <div class="service-card-overlay"></div>
+          <div class="service-card-body">
+            <div class="service-card-icon">
+              <svg viewBox="0 0 24 24"><path d="M1 3h15v13H1z"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+            </div>
+            <div class="service-card-bottom">
+              <h3>Heavy Haul &amp; Industrial</h3>
+              <p>8-ton trucks and flatbeds for construction materials, machinery, and oversized loads.</p>
+              <span class="service-tag">From R3,000</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="how" id="how-it-works">
+    <div class="container how-inner">
+      <div class="how-content reveal-left">
+        <span class="section-tag">How We Work</span>
+        <h2>We Manage Logistics Across the Western Cape</h2>
+        <p>Discover how CapeLoad streamlines logistics through efficient real-time tracking, seamless driver management, and tight integration with our growing fleet of owner-operators.</p>
+        <div class="how-steps">
+          <div class="how-step">
+            <div class="how-step-num">1</div>
+            <div>
+              <h4>Tell us your load</h4>
+              <p>Choose your job type, select a vehicle, and enter your pickup and drop-off. Takes under 60 seconds.</p>
+            </div>
+          </div>
+          <div class="how-step">
+            <div class="how-step-num">2</div>
+            <div>
+              <h4>Get an instant quote</h4>
+              <p>Your price is calculated upfront in Rands — no hidden fees. Pay via card, EFT, or Yoco.</p>
+            </div>
+          </div>
+          <div class="how-step">
+            <div class="how-step-num">3</div>
+            <div>
+              <h4>We dispatch &amp; deliver</h4>
+              <p>A verified driver is assigned. Track live and receive delivery confirmation on WhatsApp.</p>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;">
+          <a href="booking.html" class="btn btn-primary">
+            <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            Get Started
+          </a>
+          <a href="#get-started" class="btn btn-ghost">Learn more</a>
+        </div>
+      </div>
+      <div class="how-visual reveal-right">
+        <img src="https://images.unsplash.com/photo-1565891741441-64926e3838b0?w=800&h=960&fit=crop" alt="Logistics containers" loading="lazy" onload="this.classList.add('loaded')">
+        <div class="how-float">
+          <div class="how-float-label">Jobs completed</div>
+          <div class="how-float-stat">1,200+</div>
+          <div class="how-float-sub">This month across WC</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA BAND -->
+  <div class="cta-band">
+    <div class="container cta-band-inner">
+      <div>
+        <h2>Ready to <em>supercharge</em><br>your logistics?</h2>
+        <p>Join hundreds of businesses in the Western Cape who trust CapeLoad to move their goods, every day.</p>
+      </div>
+      <div class="cta-band-btns">
+        <a href="booking.html" class="btn btn-primary">
+          <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          Book a Load
+        </a>
+        <a href="driver-signup.html" class="btn btn-ghost">Register Vehicle</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- FEATURES -->
+  <section class="features">
+    <div class="container features-inner">
+      <div class="features-visual reveal-left">
+        <img src="https://images.unsplash.com/photo-1580060839134-75a5edca2e99?w=800&h=1000&fit=crop" alt="Cape Town logistics" loading="lazy" onload="this.classList.add('loaded')">
+        <div class="features-stats">
+          <div class="features-stat"><strong>6+</strong><span>Vehicle types</span></div>
+          <div class="features-stat"><strong>100%</strong><span>Verified drivers</span></div>
+          <div class="features-stat"><strong>24/7</strong><span>Support</span></div>
+          <div class="features-stat"><strong>WC</strong><span>Coverage</span></div>
+        </div>
+      </div>
+      <div class="features-content reveal-right">
+        <span class="section-tag">Step 2</span>
+        <h2>Optimise With Tailored Logistics Solutions</h2>
+        <p>Using your booking details and route insights, we match you with the most efficient driver and vehicle — saving time and cutting costs on every load.</p>
+        <div class="features-list">
+          <div class="feature-item">
+            <div class="feature-item-icon">
+              <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+            </div>
+            <div>
+              <h4>Instant upfront pricing</h4>
+              <p>Distance-based quotes calculated in real time. No surprises, no call-backs needed.</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-item-icon">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <div>
+              <h4>Real-time driver tracking</h4>
+              <p>Monitor your driver's location live and receive ETA updates directly on WhatsApp.</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-item-icon">
+              <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <div>
+              <h4>Verified owner-operators</h4>
+              <p>Every driver on our platform is vetted, vehicle-inspected, and insured before their first job.</p>
             </div>
           </div>
         </div>
         <a href="booking.html" class="btn btn-primary">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          Get Started
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- COVERAGE -->
+  <section class="coverage" id="coverage">
+    <div class="container coverage-inner">
+      <div class="coverage-content reveal-left">
+        <span class="section-tag">Coverage</span>
+        <h2>Western Cape &amp; Expanding Nationally</h2>
+        <p>We started in Cape Town and are growing fast. Our owner-operator network covers the entire Western Cape with national routes coming soon.</p>
+        <div class="coverage-areas">
+          <div class="coverage-area">
+            <div class="coverage-area-dot live"></div>
+            <div>
+              <h4>Cape Town Metro</h4>
+              <p>CBD, Northern &amp; Southern suburbs, Cape Flats, Helderberg</p>
+            </div>
+            <span class="coverage-area-badge live-badge">Live</span>
+          </div>
+          <div class="coverage-area">
+            <div class="coverage-area-dot live"></div>
+            <div>
+              <h4>Greater Western Cape</h4>
+              <p>Stellenbosch, Paarl, Worcester, Saldanha, Hermanus</p>
+            </div>
+            <span class="coverage-area-badge live-badge">Live</span>
+          </div>
+          <div class="coverage-area">
+            <div class="coverage-area-dot soon"></div>
+            <div>
+              <h4>National Routes</h4>
+              <p>JHB, Durban, Port Elizabeth &amp; Bloemfontein</p>
+            </div>
+            <span class="coverage-area-badge soon-badge">Coming soon</span>
+          </div>
+        </div>
+        <a href="booking.html" class="btn btn-primary">
+          <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           Check Your Route
         </a>
       </div>
-      <div class="coverage-map reveal-right" style="padding: 0; overflow: hidden; position: relative;">
-        <img src="https://images.unsplash.com/photo-1580060839134-75a5edca2e99?w=600&h=600&fit=crop" alt="Cape Town aerial view" loading="lazy" onload="this.classList.add('loaded')" style="width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 0.6s;">
-        <div style="position:absolute;inset:0;background:rgba(13,13,20,0.7);display:flex;flex-direction:column;justify-content:flex-end;padding:32px;">
-          <div class="map-label">Western Cape</div>
-          <div class="map-sublabel">Cape Town HQ</div>
-          <div class="map-regions">
-            <span class="map-region active">WC Live</span>
-            <span class="map-region soon">Gauteng Soon</span>
-            <span class="map-region soon">KZN Soon</span>
+      <div class="coverage-visual reveal-right">
+        <img src="https://images.unsplash.com/photo-1580060839134-75a5edca2e99?w=800&h=960&fit=crop" alt="Cape Town aerial" loading="lazy" onload="this.classList.add('loaded')">
+        <div class="coverage-visual-overlay">
+          <h3>Western Cape</h3>
+          <p>Cape Town HQ — serving the region since 2025</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section class="testimonials">
+    <div class="container">
+      <div class="testimonials-header reveal">
+        <span class="section-tag">Testimonials</span>
+        <h2>What Our Customers Say</h2>
+        <p>CapeLoad delivers reliable, on-time logistics services and remarkable results. Here's what our clients have to say.</p>
+      </div>
+      <div class="testimonials-grid">
+        <div class="testi-card reveal reveal-d1">
+          <div class="testi-stars">
+            <svg class="testi-star" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg class="testi-star" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg class="testi-star" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg class="testi-star" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg class="testi-star" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </div>
+          <blockquote>"CapeLoad has completely changed the way we manage our warehouse logistics. The platform is easy to use and the tracking system keeps us updated at every step."</blockquote>
+          <div class="testi-author">
+            <div class="testi-avatar">S</div>
+            <div>
+              <div class="testi-name">Sipho Ndlovu</div>
+              <div class="testi-role">Warehouse Manager, Epping</div>
+            </div>
+          </div>
+        </div>
+        <div class="testi-card reveal reveal-d2">
+          <div class="testi-stars">
+            <svg class="testi-star" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg class="testi-star" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg class="testi-star" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg class="testi-star" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg class="testi-star" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </div>
+          <blockquote>"From booking to final delivery, CapeLoad delivers every time. Their support team is incredibly reliable. It's the logistics platform I've been looking for."</blockquote>
+          <div class="testi-author">
+            <div class="testi-avatar" style="background:rgba(43,57,144,0.2);color:#7a8fd4;">N</div>
+            <div>
+              <div class="testi-name">Nadia Botha</div>
+              <div class="testi-role">Small Business Owner, Stellenbosch</div>
+            </div>
+          </div>
+        </div>
+        <div class="testi-card reveal reveal-d3">
+          <div class="testi-stars">
+            <svg class="testi-star" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg class="testi-star" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg class="testi-star" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg class="testi-star" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg class="testi-star" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </div>
+          <blockquote>"I registered my bakkie and started getting jobs the same week. The earnings are fair, the app is dead simple, and the CapeLoad team actually cares."</blockquote>
+          <div class="testi-author">
+            <div class="testi-avatar" style="background:rgba(34,197,94,0.1);color:#22c55e;">T</div>
+            <div>
+              <div class="testi-name">Thabo Dlamini</div>
+              <div class="testi-role">Owner-Operator Driver, Cape Town</div>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ═══════════ CTA SPLIT ═══════════ -->
-  <section class="cta-split" id="get-started">
+  <!-- GET STARTED -->
+  <section class="get-started" id="get-started">
     <div class="container">
-      <div class="cta-header reveal">
-        <div class="section-label">Get Started</div>
-        <h2 class="section-title">Ready to move?</h2>
-        <p class="section-subtitle">Whether you need a load moved or have a vehicle to put to work, CapeLoad is your platform.</p>
+      <div class="get-started-header reveal">
+        <span class="section-tag">Get Started</span>
+        <h2>Start Growing With CapeLoad</h2>
+        <p>Whether you need something moved or have a vehicle to put to work — CapeLoad is your platform.</p>
       </div>
-      <div class="cta-cards">
-        <!-- Client CTA -->
-        <div class="cta-card client-cta reveal reveal-delay-1">
-          <img src="https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=600&h=200&fit=crop" alt="Delivery in progress" loading="lazy" onload="this.classList.add('loaded')" style="width:100%;height:140px;object-fit:cover;border-radius:10px;margin-bottom:20px;opacity:0;transition:opacity 0.5s;">
-          <h3>Book a Load</h3>
-          <p>Need something moved? Get an instant quote and have a verified driver at your door — same day or scheduled.</p>
-          <ul>
-            <li>
-              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-              Instant upfront pricing in Rands
-            </li>
-            <li>
-              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-              Verified drivers with rated vehicles
-            </li>
-            <li>
-              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-              Live WhatsApp tracking updates
-            </li>
-            <li>
-              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-              Pay via EFT, card, or Ozow
-            </li>
-          </ul>
-          <a href="booking.html" class="btn btn-blue">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-            Get a Quote Now
-          </a>
+      <div class="get-started-cards">
+        <div class="gs-card client reveal reveal-d1">
+          <img class="gs-card-img" src="https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=700&h=360&fit=crop" alt="Delivery in progress" loading="lazy" onload="this.classList.add('loaded')">
+          <div class="gs-card-body">
+            <div class="gs-icon">
+              <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a4 4 0 00-8 0v2"/></svg>
+            </div>
+            <h3>Book a Load</h3>
+            <p>Need something moved? Get an instant quote and have a verified driver at your door — same day or scheduled.</p>
+            <div class="gs-checklist">
+              <div class="gs-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Instant upfront pricing in Rands</div>
+              <div class="gs-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Verified drivers with rated vehicles</div>
+              <div class="gs-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Live WhatsApp tracking updates</div>
+              <div class="gs-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Pay via EFT, card, or Yoco</div>
+            </div>
+            <a href="booking.html" class="btn btn-blue">
+              <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              Get a Quote Now
+            </a>
+          </div>
         </div>
-        <!-- Driver CTA -->
-        <div class="cta-card driver-cta reveal reveal-delay-2">
-          <img src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=600&h=200&fit=crop" alt="Truck fleet" loading="lazy" onload="this.classList.add('loaded')" style="width:100%;height:140px;object-fit:cover;border-radius:10px;margin-bottom:20px;opacity:0;transition:opacity 0.5s;">
-          <h3>Register Your Vehicle</h3>
-          <p>Own a bakkie, van, or truck? Put it to work and earn. Join our fleet of verified owner-operators.</p>
-          <ul>
-            <li>
-              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-              Set your own availability
-            </li>
-            <li>
-              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-              Get job alerts via WhatsApp
-            </li>
-            <li>
-              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-              Weekly payouts to your account
-            </li>
-            <li>
-              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-              Free to register — earn per job
-            </li>
-          </ul>
-          <a href="driver-signup.html" class="btn btn-primary">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-            Join the Fleet
-          </a>
+        <div class="gs-card driver reveal reveal-d2">
+          <img class="gs-card-img" src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=700&h=360&fit=crop" alt="Truck fleet" loading="lazy" onload="this.classList.add('loaded')">
+          <div class="gs-card-body">
+            <div class="gs-icon">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+            </div>
+            <h3>Register Your Vehicle</h3>
+            <p>Own a bakkie, van, or truck? Put it to work and earn. Join our fleet of verified owner-operators.</p>
+            <div class="gs-checklist">
+              <div class="gs-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Set your own availability</div>
+              <div class="gs-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Get job alerts via WhatsApp</div>
+              <div class="gs-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Weekly payouts to your account</div>
+              <div class="gs-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Free to register — earn per job</div>
+            </div>
+            <a href="driver-signup.html" class="btn btn-primary">
+              <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              Join the Fleet
+            </a>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ═══════════ FOOTER ═══════════ -->
+  <!-- FOOTER -->
   <footer class="footer">
     <div class="container">
-      <div class="footer-inner">
+      <div class="footer-top">
         <div class="footer-brand">
-          <div class="logo">
-            <img src="images/logo-light.png" alt="CapeLoad Logistics">
-          </div>
+          <div class="logo"><img src="images/logo-light.png" alt="CapeLoad Logistics" style="height:120px;width:auto;"></div>
           <p>Your load, our road. From bikes to trucks, we move across the Western Cape and beyond. Built by Axious Creative.</p>
+          <div class="footer-newsletter">
+            <p>Get logistics tips &amp; updates:</p>
+            <div class="footer-newsletter-form">
+              <input type="email" placeholder="you@example.com">
+              <button type="button">Sign Up</button>
+            </div>
+          </div>
         </div>
         <div class="footer-col">
           <h4>Platform</h4>
@@ -1219,14 +723,14 @@
         <div class="footer-col">
           <h4>Company</h4>
           <a href="#how-it-works">How it Works</a>
-          <a href="#vehicles">Our Fleet</a>
+          <a href="#services">Our Services</a>
           <a href="#coverage">Coverage Areas</a>
           <a href="#">About Us</a>
         </div>
         <div class="footer-col">
           <h4>Support</h4>
           <a href="https://wa.me/27625692939" target="_blank">WhatsApp Us</a>
-          <a href="mailto:hello@capeload.co.za">hello@capeload.co.za</a>
+          <a href="mailto:info@capeload.co.za">info@capeload.co.za</a>
           <a href="#">Terms of Service</a>
           <a href="#">Privacy Policy</a>
         </div>
@@ -1234,88 +738,54 @@
       <div class="footer-bottom">
         <span>&copy; 2026 CapeLoad Logistics. Cape Town, Western Cape.</span>
         <div class="footer-socials">
-          <!-- Facebook -->
-          <a href="#" aria-label="Facebook">
-            <svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
-          </a>
-          <!-- Instagram -->
-          <a href="#" aria-label="Instagram">
-            <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1.5"/></svg>
-          </a>
-          <!-- WhatsApp -->
-          <a href="https://wa.me/27625692939" target="_blank" aria-label="WhatsApp">
-            <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.832-1.438A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg>
-          </a>
+          <a href="#" aria-label="Facebook"><svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg></a>
+          <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1.5"/></svg></a>
+          <a href="https://wa.me/27625692939" target="_blank" aria-label="WhatsApp"><svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.832-1.438A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg></a>
         </div>
       </div>
     </div>
   </footer>
 
-  <!-- ═══════════ SCRIPTS ═══════════ -->
   <script>
-    // Mobile menu toggle
-    const mobileToggle = document.getElementById('mobileToggle');
-    const mobileMenu = document.getElementById('mobileMenu');
-    mobileToggle.addEventListener('click', () => {
-      mobileMenu.classList.toggle('active');
-    });
+    // Mobile menu
+    var mobileToggle = document.getElementById('mobileToggle');
+    var mobileMenu = document.getElementById('mobileMenu');
+    mobileToggle.addEventListener('click', function() { mobileMenu.classList.toggle('active'); });
+    mobileMenu.querySelectorAll('a').forEach(function(l) { l.addEventListener('click', function() { mobileMenu.classList.remove('active'); }); });
 
-    // Close mobile menu on link click
-    mobileMenu.querySelectorAll('a').forEach(link => {
-      link.addEventListener('click', () => {
-        mobileMenu.classList.remove('active');
+    // Nav scroll
+    var nav = document.getElementById('nav');
+    window.addEventListener('scroll', function() { nav.classList.toggle('scrolled', window.scrollY > 50); });
+
+    // Smooth scroll
+    document.querySelectorAll('a[href^="#"]').forEach(function(a) {
+      a.addEventListener('click', function(e) {
+        var t = document.querySelector(this.getAttribute('href'));
+        if (t) { e.preventDefault(); t.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
       });
     });
 
-    // Nav scroll effect
-    const nav = document.getElementById('nav');
-    window.addEventListener('scroll', () => {
-      nav.classList.toggle('scrolled', window.scrollY > 50);
+    // Scroll reveal
+    var obs = new IntersectionObserver(function(entries) {
+      entries.forEach(function(e) { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+    document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach(function(el) {
+      var r = el.getBoundingClientRect();
+      if (r.top < window.innerHeight && r.bottom > 0) { setTimeout(function() { el.classList.add('visible'); }, 80); }
+      else { obs.observe(el); }
     });
 
-    // Smooth scroll for anchor links
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-      anchor.addEventListener('click', function(e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-      });
-    });
-
-    // Scroll reveal animations
-    const revealObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('visible');
-          revealObserver.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
-
-    document.querySelectorAll('.reveal, .reveal-scale, .reveal-left, .reveal-right').forEach(el => {
-      // Elements already in viewport get animated immediately with a tiny delay
-      const rect = el.getBoundingClientRect();
-      if (rect.top < window.innerHeight && rect.bottom > 0) {
-        setTimeout(() => el.classList.add('visible'), 100);
-      } else {
-        revealObserver.observe(el);
-      }
-    });
-
-    // Auth state — update nav Login link
+    // Auth state
     (async function() {
       try {
         var user = await getCurrentUser();
         var authLink = document.getElementById('nav-auth');
         if (user && authLink) {
           var profile = await getUserProfile(user.id);
-          var portalUrl = 'client-portal.html';
-          var label = 'My Portal';
-          if (isAdminUser(profile, user.email)) { portalUrl = 'admin.html'; label = 'Admin'; }
-          else if (profile && profile.role === 'driver') { portalUrl = 'driver-portal.html'; label = 'Dashboard'; }
-          authLink.href = portalUrl;
+          var url = 'client-portal.html', label = 'My Portal';
+          if (isAdminUser(profile, user.email)) { url = 'admin.html'; label = 'Admin'; }
+          else if (profile && profile.role === 'driver') { url = 'driver-portal.html'; label = 'Dashboard'; }
+          authLink.href = url;
           authLink.textContent = label;
         }
       } catch(e) {}
