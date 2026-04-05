@@ -29,7 +29,7 @@
     /* Nav */
     .nav { position: sticky; top: 0; z-index: 100; background: #fff; border-bottom: 1px solid var(--card-border); }
     .nav-inner { max-width: 1200px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; height: 72px; }
-    .logo img { height: 48px; width: auto; }
+    .logo img { height: 144px; width: auto; }
     .nav-right { display: flex; align-items: center; gap: 20px; }
     .nav-user { font-size: 14px; font-weight: 600; color: var(--text-secondary); }
     .nav-logout { font-size: 13px; color: var(--text-muted); cursor: pointer; transition: color 0.2s; }
@@ -308,7 +308,10 @@
         var card = document.createElement('div');
         card.className = 'job-card';
         card.id = 'job-' + b.id;
-        card.innerHTML = '<div class="job-header"><span class="job-type">' + jobType + ' — ' + vehicle + '</span><span class="badge badge-orange">New</span></div><div class="job-details"><div class="job-detail">' + route + '</div><div class="job-detail">' + (b.booking_date || 'Flexible') + ' at ' + (b.booking_time || 'Flexible') + '</div><div class="job-detail">You earn: ' + formatRand(b.driver_payout) + '</div><div class="job-detail">' + (b.client_name || 'Guest') + '</div></div><div class="job-actions"><button class="btn btn-green btn-sm" onclick="acceptJob(\'' + b.id + '\')">Accept</button><button class="btn btn-outline btn-sm" onclick="declineJob(\'' + b.id + '\')">Decline</button></div>';
+        var isCash = b.payment_method === 'cash_pickup' || b.payment_method === 'cash_delivery';
+        var cashTag = isCash ? '<div style="background:#fff8f0;border:1px solid #f0a050;border-radius:8px;padding:8px 12px;margin:8px 0;font-size:11px;color:#8a6a3a;"><strong>Cash job</strong> — collect ' + formatRand(b.total) + ', you owe CapeLoad ' + formatRand(b.commission) + '</div>' : '';
+        var payLabel = isCash ? 'You keep: ' + formatRand(b.driver_payout) : 'You earn: ' + formatRand(b.driver_payout);
+        card.innerHTML = '<div class="job-header"><span class="job-type">' + jobType + ' — ' + vehicle + '</span><span class="badge badge-orange">New</span></div><div class="job-details"><div class="job-detail">' + route + '</div><div class="job-detail">' + (b.booking_date || 'Flexible') + ' at ' + (b.booking_time || 'Flexible') + '</div><div class="job-detail">' + payLabel + '</div><div class="job-detail">' + (b.client_name || 'Guest') + '</div></div>' + cashTag + '<div class="job-actions"><button class="btn btn-green btn-sm" onclick="acceptJob(\'' + b.id + '\')">Accept</button><button class="btn btn-outline btn-sm" onclick="declineJob(\'' + b.id + '\')">Decline</button></div>';
         list.appendChild(card);
       });
     }
@@ -347,9 +350,24 @@
         var jobType = b.job_type ? b.job_type.charAt(0).toUpperCase() + b.job_type.slice(1) : 'Job';
         var vehicle = vehicleLabels[b.vehicle_type] || b.vehicle_type;
         var route = (b.pickup_address || '?').split(',')[0] + ' &rarr; ' + (b.dropoff_address || '?').split(',')[0];
+        var isCash = b.payment_method === 'cash_pickup' || b.payment_method === 'cash_delivery';
+        var cashNotice = '';
+        if (isCash) {
+          var collectAt = b.payment_method === 'cash_pickup' ? 'Collect cash at pickup' : 'Collect cash on delivery';
+          cashNotice = '<div style="background:#fff8f0;border:1px solid #f0a050;border-radius:10px;padding:10px 14px;margin:8px 0;font-size:12px;color:#8a6a3a;">' +
+            '<strong>Cash job — collect ' + formatRand(b.total) + '</strong><br>' +
+            collectAt + '<br>' +
+            'You owe CapeLoad: <strong>' + formatRand(b.commission) + '</strong> | You keep: <strong>' + formatRand(b.driver_payout) + '</strong>' +
+            '</div>';
+        }
+        var payInfo = '';
+        if (!isCash && b.payment_method === 'yoco') {
+          payInfo = '<div style="background:#f0f8f0;border:1px solid #50a050;border-radius:10px;padding:10px 14px;margin:8px 0;font-size:12px;color:#2a6a2a;">' +
+            '<strong>Yoco payment</strong> — Your payout: <strong>' + formatRand(b.driver_payout) + '</strong></div>';
+        }
         var card = document.createElement('div');
         card.className = 'job-card';
-        card.innerHTML = '<div class="job-header"><span class="job-type">' + jobType + ' — ' + vehicle + '</span><span class="badge badge-blue">In Progress</span></div><div class="job-details"><div class="job-detail">' + route + '</div><div class="job-detail">' + formatRand(b.driver_payout) + '</div><div class="job-detail">' + (b.client_name || 'Client') + ' — ' + (b.client_phone || '') + '</div></div><div class="job-actions"><button class="btn btn-primary btn-sm" onclick="completeJob(\'' + b.id + '\')">Mark Delivered</button></div>';
+        card.innerHTML = '<div class="job-header"><span class="job-type">' + jobType + ' — ' + vehicle + '</span><span class="badge badge-blue">In Progress</span></div><div class="job-details"><div class="job-detail">' + route + '</div><div class="job-detail">Payout: ' + formatRand(b.driver_payout) + '</div><div class="job-detail">' + (b.client_name || 'Client') + ' — ' + (b.client_phone || '') + '</div></div>' + cashNotice + payInfo + '<div class="job-actions"><button class="btn btn-primary btn-sm" onclick="completeJob(\'' + b.id + '\')">Mark Delivered</button></div>';
         list.appendChild(card);
       });
     }

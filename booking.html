@@ -24,7 +24,7 @@
 
     /* Logo floating top-left */
     .map-logo { position: absolute; top: 16px; left: 16px; z-index: 10; background: rgba(13,13,20,0.85); padding: 8px 14px; border-radius: 12px; }
-    .map-logo img { height: 36px; width: auto; }
+    .map-logo img { height: 108px; width: auto; }
 
     /* Side panel */
     .sheet {
@@ -192,10 +192,13 @@
         </div>
 
         <div class="sheet-subtitle">Payment method</div>
-        <div class="pay-options">
-          <div class="pay-option selected" onclick="pickPay('eft',this)">EFT</div>
-          <div class="pay-option" onclick="pickPay('card',this)">Card</div>
-          <div class="pay-option" onclick="pickPay('cash',this)">Cash</div>
+        <div class="pay-options" style="flex-wrap:wrap;">
+          <div class="pay-option selected" onclick="pickPay('yoco',this)">Yoco (Card)</div>
+          <div class="pay-option" onclick="pickPay('cash_pickup',this)">Cash at Pickup</div>
+          <div class="pay-option" onclick="pickPay('cash_delivery',this)">Cash on Delivery</div>
+        </div>
+        <div id="cash-notice" style="display:none;background:#fff8f0;border:1px solid #f0a050;border-radius:10px;padding:10px 14px;font-size:12px;color:#8a6a3a;margin-bottom:12px;">
+          <strong>Cash booking:</strong> The driver will collect payment. A commission of <strong id="cash-commission">R0</strong> will be owed to CapeLoad by the driver.
         </div>
 
         <button class="btn-next" onclick="confirmBooking()">Confirm Booking</button>
@@ -231,7 +234,7 @@
     var pickupCoords = null, dropoffCoords = null;
     var searchTimeout = null;
     var selectedVehicle = '';
-    var selectedPay = 'eft';
+    var selectedPay = 'yoco';
     var selectedJobType = '';
     var quoteData = null;
 
@@ -430,6 +433,15 @@
       document.querySelectorAll('.pay-option').forEach(function(p) { p.classList.remove('selected'); });
       el.classList.add('selected');
       selectedPay = method;
+      // Show cash notice with commission amount
+      var notice = document.getElementById('cash-notice');
+      if (method === 'cash_pickup' || method === 'cash_delivery') {
+        var comm = quoteData ? quoteData.commission : 0;
+        document.getElementById('cash-commission').textContent = 'R' + comm.toLocaleString();
+        notice.style.display = 'block';
+      } else {
+        notice.style.display = 'none';
+      }
     }
 
     // ══════════════════════════════════════════
