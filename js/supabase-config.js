@@ -1,8 +1,8 @@
 // CapeLoad — Supabase Client Configuration
 // Loaded on every page that uses Supabase
 
-const SUPABASE_URL = 'https://kudjacibkfztvdvwunuh.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1ZGphY2lia2Z6dHZkdnd1bnVoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyNDEzNzksImV4cCI6MjA5MDgxNzM3OX0._jFmir_W-XirkG_6DrDPb4AaIuEbk6jAo8Yw6u2WcHY';
+const SUPABASE_URL = 'https://mwkqsygjuvsdsxdqenar.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im13a3FzeWdqdXZzZHN4ZHFlbmFyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyMjgzMzYsImV4cCI6MjA5MDgwNDMzNn0.8EFjvjQ1uI3mfq-zBySqHz26yPVlOlntlF2Njqx629A';
 const ADMIN_EMAIL = 'capeload.za@gmail.com';
 
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
