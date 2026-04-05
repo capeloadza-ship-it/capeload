@@ -7,85 +7,170 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Inter', sans-serif; background: #f5f5f3; color: #1a1a1a; line-height: 1.6; }
+    body { font-family: 'Inter', sans-serif; background: #f0ede8; color: #1a1a1a; line-height: 1.6; }
     a { text-decoration: none; color: inherit; }
 
     :root {
-      --orange: #f15f22; --orange-light: #fff1eb; --blue: #2b3990; --blue-light: #eef0f9;
-      --green: #22c55e; --green-light: #dcfce7; --red: #ef4444; --red-light: #fee2e2;
+      --orange: #f15f22; --orange-light: #fff1eb;
+      --blue: #2b3990; --blue-light: #eef0f9;
+      --green: #22c55e; --green-light: #dcfce7;
+      --red: #ef4444; --red-light: #fee2e2;
       --yellow: #f59e0b; --yellow-light: #fef3c7;
-      --card-bg: #fff; --card-border: #e8e8e5; --text-secondary: #666; --text-muted: #999;
+      --card-bg: #fff; --card-border: #e5e2dd;
+      --text-secondary: #555; --text-muted: #888;
+      --sidebar-bg: #0d0d1a;
     }
 
-    /* Sidebar */
-    .sidebar { position: fixed; top: 0; left: 0; width: 240px; height: 100vh; background: #1a1a2e; padding: 20px 0; overflow-y: auto; z-index: 50; }
-    .sidebar-logo { padding: 0 20px 24px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    /* ═══ SIDEBAR ═══ */
+    .sidebar {
+      position: fixed; top: 0; left: 0;
+      width: 256px; height: 100vh;
+      background: var(--sidebar-bg);
+      overflow-y: auto; z-index: 50;
+      display: flex; flex-direction: column;
+    }
+    .sidebar-logo { padding: 24px 20px 20px; border-bottom: 1px solid rgba(255,255,255,0.06); }
     .sidebar-logo img { height: 144px; width: auto; }
-    .sidebar-nav { padding: 16px 0; }
-    .sidebar-link { display: flex; align-items: center; gap: 10px; padding: 10px 20px; font-size: 14px; font-weight: 500; color: #888; cursor: pointer; transition: all 0.2s; border-left: 3px solid transparent; }
-    .sidebar-link:hover { color: #ddd; background: rgba(255,255,255,0.03); }
-    .sidebar-link.active { color: var(--orange); background: rgba(241,95,34,0.06); border-left-color: var(--orange); }
-    .sidebar-link svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; min-width: 18px; }
-    .sidebar-section { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: #555; padding: 20px 20px 8px; }
+    .sidebar-nav { padding: 12px; flex: 1; }
+    .sidebar-section { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: #444; padding: 16px 8px 6px; }
+    .sidebar-link {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px; font-size: 13px; font-weight: 500;
+      color: #777; cursor: pointer; transition: all 0.15s;
+      border-radius: 8px; margin-bottom: 2px;
+    }
+    .sidebar-link:hover { color: #ccc; background: rgba(255,255,255,0.04); }
+    .sidebar-link.active { color: #fff; background: var(--orange); }
+    .sidebar-link svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; min-width: 16px; }
+    .sidebar-bottom { padding: 16px 20px; border-top: 1px solid rgba(255,255,255,0.06); }
+    .admin-chip { display: flex; align-items: center; gap: 10px; }
+    .admin-avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--orange); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; color: #fff; flex-shrink: 0; }
+    .admin-name { font-size: 13px; font-weight: 600; color: #ddd; }
+    .admin-role { font-size: 11px; color: #555; }
 
-    /* Main */
-    .main { margin-left: 240px; min-height: 100vh; }
-    .topbar { background: var(--card-bg); border-bottom: 1px solid var(--card-border); padding: 0 32px; height: 56px; display: flex; align-items: center; justify-content: space-between; }
-    .topbar-title { font-size: 16px; font-weight: 700; }
-    .topbar-right { display: flex; align-items: center; gap: 16px; font-size: 13px; color: var(--text-muted); }
+    /* ═══ MAIN ═══ */
+    .main { margin-left: 256px; min-height: 100vh; }
+    .topbar {
+      background: var(--card-bg); border-bottom: 1px solid var(--card-border);
+      padding: 0 32px; height: 56px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 10;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 10px; }
+    .topbar-dot { width: 7px; height: 7px; background: var(--orange); border-radius: 50%; }
+    .topbar-title { font-size: 15px; font-weight: 700; }
+    .topbar-right { display: flex; align-items: center; gap: 16px; }
+    .topbar-time { font-size: 12px; color: var(--text-muted); }
+    .logout-btn { font-size: 12px; font-weight: 600; color: var(--red); cursor: pointer; }
 
-    .content { padding: 32px; }
+    .content { padding: 28px 32px; }
 
-    /* Stats */
-    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
-    .stat-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 10px; padding: 20px; }
-    .stat-label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-    .stat-value { font-size: 28px; font-weight: 800; margin-top: 4px; }
-    .stat-value.orange { color: var(--orange); }
-    .stat-value.green { color: var(--green); }
-    .stat-value.blue { color: var(--blue); }
-    .stat-value.yellow { color: var(--yellow); }
+    /* ═══ STATS ═══ */
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
+    .stat-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 20px; display: flex; align-items: center; gap: 16px; }
+    .stat-icon { width: 48px; height: 48px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .stat-icon svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .stat-icon.orange { background: var(--orange-light); color: var(--orange); }
+    .stat-icon.blue { background: var(--blue-light); color: var(--blue); }
+    .stat-icon.yellow { background: var(--yellow-light); color: var(--yellow); }
+    .stat-icon.green { background: var(--green-light); color: var(--green); }
+    .stat-label { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .stat-value { font-size: 26px; font-weight: 800; margin-top: 2px; color: #1a1a1a; }
 
-    /* Panel */
+    /* ═══ PANEL ═══ */
     .panel { display: none; }
     .panel.active { display: block; }
 
-    /* Card / Table */
-    .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 10px; padding: 24px; margin-bottom: 24px; }
-    .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-    .card-title { font-size: 15px; font-weight: 700; }
+    /* ═══ CARD ═══ */
+    .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+    .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .card-title { font-size: 14px; font-weight: 700; }
+    .card-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
 
+    /* ═══ TABLE ═══ */
     .table-wrap { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    th { text-align: left; padding: 10px 12px; font-weight: 600; color: var(--text-muted); border-bottom: 1px solid var(--card-border); font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
-    td { padding: 12px; border-bottom: 1px solid #f0f0ee; vertical-align: middle; }
+    th { text-align: left; padding: 10px 14px; font-weight: 600; color: var(--text-muted); border-bottom: 2px solid var(--card-border); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+    td { padding: 13px 14px; border-bottom: 1px solid #f5f3ef; vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tbody tr:hover td { background: #faf9f7; }
 
-    .badge { display: inline-block; padding: 4px 10px; border-radius: 100px; font-size: 11px; font-weight: 600; }
+    /* ═══ BADGES ═══ */
+    .badge { display: inline-block; padding: 3px 10px; border-radius: 100px; font-size: 11px; font-weight: 600; }
     .badge-green { background: var(--green-light); color: #16a34a; }
     .badge-orange { background: var(--orange-light); color: var(--orange); }
     .badge-red { background: var(--red-light); color: var(--red); }
     .badge-blue { background: var(--blue-light); color: var(--blue); }
     .badge-yellow { background: var(--yellow-light); color: #b45309; }
 
-    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; border: none; cursor: pointer; transition: opacity 0.2s; font-family: inherit; }
-    .btn:hover { opacity: 0.85; }
+    /* ═══ BUTTONS ═══ */
+    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; border: none; cursor: pointer; transition: opacity 0.15s; font-family: inherit; }
+    .btn:hover { opacity: 0.82; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
     .btn-primary { background: var(--orange); color: #fff; }
     .btn-green { background: var(--green); color: #fff; }
     .btn-red { background: var(--red); color: #fff; }
     .btn-outline { background: transparent; color: var(--text-secondary); border: 1px solid var(--card-border); }
-    .btn svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .btn svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
-    .driver-row { display: flex; align-items: center; gap: 10px; }
-    .driver-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--orange-light); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: var(--orange); }
+    /* ═══ USER ROW ═══ */
+    .user-row { display: flex; align-items: center; gap: 10px; }
+    .user-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--orange-light); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: var(--orange); flex-shrink: 0; }
 
+    /* ═══ ACTIVITY ═══ */
+    .activity-list { display: flex; flex-direction: column; }
+    .activity-item { display: flex; align-items: flex-start; gap: 12px; padding: 11px 0; border-bottom: 1px solid #f5f3ef; }
+    .activity-item:last-child { border-bottom: none; }
+    .activity-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+    .activity-dot.orange { background: var(--orange); }
+    .activity-dot.green { background: var(--green); }
+    .activity-dot.blue { background: var(--blue); }
+    .activity-dot.red { background: var(--red); }
+    .activity-text { font-size: 13px; line-height: 1.5; }
+    .activity-time { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+    /* ═══ QUICK ACTIONS ═══ */
+    .quick-actions { display: flex; gap: 10px; margin-bottom: 24px; flex-wrap: wrap; }
+    .qa-btn { display: flex; align-items: center; gap: 8px; padding: 10px 16px; background: var(--card-bg); border: 1.5px solid var(--card-border); border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; transition: border-color 0.15s; font-family: inherit; }
+    .qa-btn:hover { border-color: var(--orange); color: var(--orange); }
+    .qa-btn svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* ═══ OVERVIEW GRID ═══ */
+    .overview-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+
+    /* ═══ PROMOTIONS ═══ */
+    .promo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+    .promo-preview { background: #f9f7f5; border: 1px solid var(--card-border); border-radius: 12px; padding: 20px; }
+    .promo-preview-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 12px; }
+    .email-preview { background: #fff; border: 1px solid var(--card-border); border-radius: 8px; padding: 20px; }
+    .ep-logo { height: 36px; margin-bottom: 16px; }
+    .ep-subject { font-weight: 700; font-size: 15px; margin-bottom: 10px; color: #1a1a1a; }
+    .ep-body { font-size: 13px; color: #444; white-space: pre-wrap; line-height: 1.7; }
+    .ep-footer { margin-top: 20px; padding-top: 12px; border-top: 1px solid #eee; font-size: 11px; color: #999; }
+
+    .field { margin-bottom: 16px; }
+    .field label { display: block; font-size: 11px; font-weight: 700; margin-bottom: 6px; color: #333; text-transform: uppercase; letter-spacing: 0.3px; }
+    .field select, .field input, .field textarea { width: 100%; padding: 10px 14px; border: 1.5px solid #e0ddd8; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; transition: border-color 0.15s; background: #fff; }
+    .field select:focus, .field input:focus, .field textarea:focus { border-color: var(--orange); }
+    .field textarea { resize: vertical; min-height: 130px; line-height: 1.6; }
+
+    .info-note { margin-top: 12px; padding: 10px 14px; background: #f9f7f5; border-radius: 8px; font-size: 12px; color: var(--text-muted); }
+    .info-note a { color: var(--orange); font-weight: 600; }
+
+    /* ═══ RESPONSIVE ═══ */
+    @media (max-width: 1100px) {
+      .promo-grid { grid-template-columns: 1fr; }
+      .overview-grid { grid-template-columns: 1fr; }
+    }
     @media (max-width: 960px) {
       .sidebar { display: none; }
       .main { margin-left: 0; }
       .stats-row { grid-template-columns: repeat(2, 1fr); }
     }
     @media (max-width: 640px) {
-      .stats-row { grid-template-columns: 1fr; }
-      .content { padding: 20px 16px; }
+      .stats-row { grid-template-columns: 1fr 1fr; }
+      .content { padding: 16px; }
+      .topbar { padding: 0 16px; }
     }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -94,335 +179,565 @@
   <script src="js/auth-guard.js"></script>
 </head>
 <body>
-  <!-- Sidebar -->
-  <aside class="sidebar">
-    <div class="sidebar-logo">
-      <a href="index.html"><img src="images/logo-light.png" alt="CapeLoad"></a>
+
+<!-- ═══ SIDEBAR ═══ -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <a href="index.html"><img src="images/logo-light.png" alt="CapeLoad"></a>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="sidebar-section">Overview</div>
+    <div class="sidebar-link active" data-panel="overview" onclick="showPanel('overview', this)">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
     </div>
-    <nav class="sidebar-nav">
-      <div class="sidebar-section">Overview</div>
-      <div class="sidebar-link active" onclick="showPanel('bookings', this)">
-        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-        Bookings
-      </div>
-      <div class="sidebar-link" onclick="showPanel('fleet', this)">
-        <svg viewBox="0 0 24 24"><rect x="1" y="6" width="15" height="13" rx="2"/><path d="M16 10h4l3 4v5h-7V10z"/><circle cx="5.5" cy="19.5" r="2.5"/><circle cx="18.5" cy="19.5" r="2.5"/></svg>
-        Fleet
-      </div>
-      <div class="sidebar-link" onclick="showPanel('drivers', this)">
-        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
-        Drivers
-      </div>
-      <div class="sidebar-link" onclick="showPanel('clients', this)">
-        <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        Clients
-      </div>
-      <div class="sidebar-section">Operations</div>
-      <div class="sidebar-link" onclick="showPanel('notifications', this)">
-        <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
-        Notifications
-      </div>
-    </nav>
-  </aside>
-
-  <!-- Main -->
-  <div class="main">
-    <div class="topbar">
-      <div class="topbar-title">Admin Panel</div>
-      <div class="topbar-right">
-        <span id="admin-name">Admin</span>
-        <a href="#" onclick="logout()" style="color: var(--red); font-weight: 600;">Log out</a>
-      </div>
+    <div class="sidebar-link" data-panel="bookings" onclick="showPanel('bookings', this)">
+      <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Bookings
     </div>
-
-    <div class="content">
-      <!-- Stats -->
-      <div class="stats-row">
-        <div class="stat-card"><div class="stat-label">Today's bookings</div><div class="stat-value orange" id="stat-today">—</div></div>
-        <div class="stat-card"><div class="stat-label">Active vehicles</div><div class="stat-value blue" id="stat-vehicles">—</div></div>
-        <div class="stat-card"><div class="stat-label">Pending approvals</div><div class="stat-value yellow" id="stat-pending">—</div></div>
-        <div class="stat-card"><div class="stat-label">Weekly revenue</div><div class="stat-value green" id="stat-revenue">—</div></div>
-      </div>
-
-      <!-- Bookings Panel -->
-      <div class="panel active" id="panel-bookings">
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">All Bookings</div>
-            <button class="btn btn-primary"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> New Booking</button>
-          </div>
-          <div class="table-wrap">
-            <table>
-              <thead><tr><th>Ref</th><th>Client</th><th>Type</th><th>Route</th><th>Vehicle</th><th>Status</th><th>Actions</th></tr></thead>
-              <tbody id="bookings-tbody">
-                <tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:32px;">Loading...</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- Fleet Panel -->
-      <div class="panel" id="panel-fleet">
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">Fleet Overview</div>
-          </div>
-          <div class="table-wrap">
-            <table>
-              <thead><tr><th>Vehicle</th><th>Owner</th><th>Type</th><th>Plate</th><th>Status</th><th>Available</th></tr></thead>
-              <tbody id="fleet-tbody">
-                <tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:32px;">Loading...</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- Drivers Panel -->
-      <div class="panel" id="panel-drivers">
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">Driver Management</div>
-          </div>
-          <div class="table-wrap">
-            <table>
-              <thead><tr><th>Driver</th><th>Vehicles</th><th>Jobs Done</th><th>Rating</th><th>Status</th><th>Actions</th></tr></thead>
-              <tbody id="drivers-tbody">
-                <tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:32px;">Loading...</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- Clients Panel -->
-      <div class="panel" id="panel-clients">
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">Client Accounts</div>
-          </div>
-          <div class="table-wrap">
-            <table>
-              <thead><tr><th>Client</th><th>Type</th><th>Jobs</th><th>Total Spent</th><th>Status</th></tr></thead>
-              <tbody id="clients-tbody">
-                <tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:32px;">Loading...</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- Notifications Panel -->
-      <div class="panel" id="panel-notifications">
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">Send Notification</div>
-          </div>
-          <div style="display:grid; gap:16px;">
-            <div>
-              <label style="display:block;font-size:13px;font-weight:600;margin-bottom:6px;">Recipient</label>
-              <select style="width:100%;padding:12px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;font-family:inherit;outline:none;">
-                <option>Select recipient</option>
-                <option>Sipho Ndlovu (Driver)</option>
-                <option>John Doe (Client)</option>
-                <option>All active drivers</option>
-                <option>All clients</option>
-              </select>
-            </div>
-            <div>
-              <label style="display:block;font-size:13px;font-weight:600;margin-bottom:6px;">Channel</label>
-              <div style="display:flex;gap:12px;">
-                <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;"><input type="radio" name="channel" value="whatsapp" checked> WhatsApp</label>
-                <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;"><input type="radio" name="channel" value="sms"> SMS</label>
-              </div>
-            </div>
-            <div>
-              <label style="display:block;font-size:13px;font-weight:600;margin-bottom:6px;">Message</label>
-              <textarea style="width:100%;padding:12px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;font-family:inherit;outline:none;min-height:100px;resize:vertical;" placeholder="Type your message..."></textarea>
-            </div>
-            <button class="btn btn-primary" style="align-self:flex-start;padding:12px 24px;">Send notification</button>
-          </div>
-        </div>
+    <div class="sidebar-link" data-panel="fleet" onclick="showPanel('fleet', this)">
+      <svg viewBox="0 0 24 24"><rect x="1" y="6" width="15" height="13" rx="2"/><path d="M16 10h4l3 4v5h-7V10z"/><circle cx="5.5" cy="19.5" r="2.5"/><circle cx="18.5" cy="19.5" r="2.5"/></svg>
+      Fleet
+    </div>
+    <div class="sidebar-section">People</div>
+    <div class="sidebar-link" data-panel="drivers" onclick="showPanel('drivers', this)">
+      <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+      Drivers
+    </div>
+    <div class="sidebar-link" data-panel="clients" onclick="showPanel('clients', this)">
+      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Clients
+    </div>
+    <div class="sidebar-section">Marketing</div>
+    <div class="sidebar-link" data-panel="promotions" onclick="showPanel('promotions', this)">
+      <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.95 10.5a19.79 19.79 0 01-3.07-8.67A2 2 0 012.85 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.46 6.46l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+      Promotions
+    </div>
+  </nav>
+  <div class="sidebar-bottom">
+    <div class="admin-chip">
+      <div class="admin-avatar" id="admin-avatar">A</div>
+      <div>
+        <div class="admin-name" id="admin-name">Admin</div>
+        <div class="admin-role">Super Admin</div>
       </div>
     </div>
   </div>
+</aside>
 
-  <script>
-    var vehicleLabels = { motorbike: 'Motorbike', bakkie: 'Bakkie', 'panel-van': 'Panel Van', '4-ton': '4-Ton', '8-ton': '8-Ton', flatbed: 'Flatbed' };
-    var statusBadge = { pending: ['badge-orange','Pending'], assigned: ['badge-blue','Assigned'], in_progress: ['badge-blue','In Progress'], completed: ['badge-green','Completed'], cancelled: ['badge-red','Cancelled'] };
-    var driverBadge = { pending: ['badge-yellow','Pending'], approved: ['badge-green','Approved'], suspended: ['badge-red','Suspended'], rejected: ['badge-red','Rejected'] };
+<!-- ═══ MAIN ═══ -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-dot"></div>
+      <div class="topbar-title" id="topbar-title">Dashboard</div>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-time" id="topbar-time"></div>
+      <div class="logout-btn" onclick="logout()">Log out</div>
+    </div>
+  </div>
 
-    function showPanel(name, el) {
-      document.querySelectorAll('.sidebar-link').forEach(function(l) { l.classList.remove('active'); });
-      document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
-      el.classList.add('active');
-      document.getElementById('panel-' + name).classList.add('active');
-      document.querySelector('.topbar-title').textContent = el.textContent.trim();
+  <div class="content">
 
-      if (name === 'fleet') loadFleet();
-      if (name === 'drivers') loadDrivers();
-      if (name === 'clients') loadClients();
-    }
+    <!-- Stats (always visible) -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-icon orange">
+          <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </div>
+        <div><div class="stat-label">Today's Bookings</div><div class="stat-value" id="stat-today">—</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon blue">
+          <svg viewBox="0 0 24 24"><rect x="1" y="6" width="15" height="13" rx="2"/><path d="M16 10h4l3 4v5h-7V10z"/><circle cx="5.5" cy="19.5" r="2.5"/><circle cx="18.5" cy="19.5" r="2.5"/></svg>
+        </div>
+        <div><div class="stat-label">Active Vehicles</div><div class="stat-value" id="stat-vehicles">—</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon yellow">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        </div>
+        <div><div class="stat-label">Pending Approvals</div><div class="stat-value" id="stat-pending">—</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon green">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+        </div>
+        <div><div class="stat-label">Weekly Revenue</div><div class="stat-value" id="stat-revenue">—</div></div>
+      </div>
+    </div>
 
-    // ═══ Wait for auth ═══
-    document.addEventListener('auth-ready', async function() {
-      var name = window.currentUserProfile?.full_name || 'Admin';
-      document.getElementById('admin-name').textContent = name;
-      await loadBookings();
-      await loadStats();
+    <!-- ─── Dashboard ─── -->
+    <div class="panel active" id="panel-overview">
+      <div class="quick-actions">
+        <button class="qa-btn" onclick="showPanel('bookings', document.querySelector('[data-panel=bookings]'))">
+          <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          All Bookings
+        </button>
+        <button class="qa-btn" onclick="showPanel('drivers', document.querySelector('[data-panel=drivers]'))">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Pending Drivers
+        </button>
+        <button class="qa-btn" onclick="showPanel('promotions', document.querySelector('[data-panel=promotions]'))">
+          <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.95 10.5a19.79 19.79 0 01-3.07-8.67A2 2 0 012.85 0h3a2 2 0 012 1.72"/></svg>
+          Send Promo Email
+        </button>
+      </div>
 
-      // Realtime: new bookings
-      sb.channel('admin-bookings').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'bookings' }, function(payload) {
+      <div class="overview-grid">
+        <div class="card">
+          <div class="card-header">
+            <div><div class="card-title">Recent Bookings</div><div class="card-sub">Last 10</div></div>
+            <button class="btn btn-outline" onclick="showPanel('bookings', document.querySelector('[data-panel=bookings]'))">View all</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Ref</th><th>Client</th><th>Vehicle</th><th>Status</th></tr></thead>
+              <tbody id="recent-tbody"><tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:24px;">Loading...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div><div class="card-title">Activity</div><div class="card-sub">Live feed</div></div>
+          </div>
+          <div class="activity-list" id="activity-feed">
+            <div style="text-align:center;color:var(--text-muted);padding:24px;font-size:13px;">Loading...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── Bookings ─── -->
+    <div class="panel" id="panel-bookings">
+      <div class="card">
+        <div class="card-header">
+          <div><div class="card-title">All Bookings</div><div class="card-sub">Manage and assign bookings</div></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Ref</th><th>Client</th><th>Type</th><th>Route</th><th>Vehicle</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="bookings-tbody"><tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:32px;">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── Fleet ─── -->
+    <div class="panel" id="panel-fleet">
+      <div class="card">
+        <div class="card-header">
+          <div><div class="card-title">Fleet Overview</div><div class="card-sub">All registered vehicles</div></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Vehicle</th><th>Owner</th><th>Type</th><th>Plate</th><th>Status</th><th>Available</th></tr></thead>
+            <tbody id="fleet-tbody"><tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:32px;">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── Drivers ─── -->
+    <div class="panel" id="panel-drivers">
+      <div class="card">
+        <div class="card-header">
+          <div><div class="card-title">Driver Management</div><div class="card-sub">Approve, suspend, or remove drivers</div></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Driver</th><th>Contact</th><th>Jobs</th><th>Rating</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="drivers-tbody"><tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:32px;">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── Clients ─── -->
+    <div class="panel" id="panel-clients">
+      <div class="card">
+        <div class="card-header">
+          <div><div class="card-title">Client Accounts</div><div class="card-sub">All registered clients</div></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Client</th><th>Email</th><th>Role</th><th>Joined</th><th>Actions</th></tr></thead>
+            <tbody id="clients-tbody"><tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:32px;">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── Promotions ─── -->
+    <div class="panel" id="panel-promotions">
+      <div class="promo-grid">
+        <div class="card" style="margin-bottom:0;">
+          <div class="card-header">
+            <div><div class="card-title">Compose Email</div><div class="card-sub">Send promotional email to clients and/or drivers</div></div>
+          </div>
+          <div class="field">
+            <label>Send To</label>
+            <select id="promo-audience">
+              <option value="all">Everyone — Clients + Drivers</option>
+              <option value="clients">Clients only</option>
+              <option value="drivers">Drivers only</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Subject</label>
+            <input type="text" id="promo-subject" placeholder="e.g. Special offer this weekend!" oninput="updatePreview()">
+          </div>
+          <div class="field">
+            <label>Message</label>
+            <textarea id="promo-message" placeholder="Write your promotional message here..." oninput="updatePreview()"></textarea>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;">
+            <button class="btn btn-primary" id="promo-send-btn" onclick="sendPromotion()" style="padding:11px 22px;">
+              <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              Send Email
+            </button>
+            <span id="promo-status" style="font-size:12px;color:var(--text-muted);"></span>
+          </div>
+          <div class="info-note">
+            Requires <strong>RESEND_API_KEY</strong> set in Supabase → Edge Functions → Secrets.
+            <a href="https://resend.com" target="_blank">Get a free key at resend.com →</a>
+          </div>
+        </div>
+
+        <div class="promo-preview">
+          <div class="promo-preview-label">Email Preview</div>
+          <div class="email-preview">
+            <img src="images/logo dark.png" class="ep-logo" alt="CapeLoad">
+            <div class="ep-subject" id="preview-subject">Your subject will appear here</div>
+            <div class="ep-body" id="preview-body">Your message will appear here...</div>
+            <div class="ep-footer">CapeLoad Logistics · Cape Town, South Africa<br>You're receiving this because you're registered on our platform.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div><div class="card-title">Sent Campaigns</div><div class="card-sub">History of promotional emails</div></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Date</th><th>Subject</th><th>Audience</th><th>Recipients</th><th>Status</th></tr></thead>
+            <tbody id="promo-history-tbody">
+              <tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:24px;">No campaigns sent yet</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  var vehicleLabels = { motorbike:'Motorbike', bakkie:'Bakkie', 'panel-van':'Panel Van', '4-ton':'4-Ton', '8-ton':'8-Ton', flatbed:'Flatbed' };
+  var statusBadge = { pending:['badge-orange','Pending'], assigned:['badge-blue','Assigned'], in_progress:['badge-blue','In Progress'], completed:['badge-green','Completed'], cancelled:['badge-red','Cancelled'] };
+  var driverBadge = { pending:['badge-yellow','Pending'], approved:['badge-green','Approved'], suspended:['badge-red','Suspended'], rejected:['badge-red','Rejected'] };
+
+  // ── Clock ──
+  function updateClock() {
+    var now = new Date();
+    document.getElementById('topbar-time').textContent =
+      now.toLocaleTimeString('en-ZA', { hour: '2-digit', minute: '2-digit' }) +
+      ' · ' + now.toLocaleDateString('en-ZA', { weekday: 'short', day: 'numeric', month: 'short' });
+  }
+  updateClock(); setInterval(updateClock, 60000);
+
+  // ── Panel switching ──
+  function showPanel(name, el) {
+    document.querySelectorAll('.sidebar-link').forEach(function(l) { l.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
+    if (el) el.classList.add('active');
+    document.getElementById('panel-' + name).classList.add('active');
+    document.getElementById('topbar-title').textContent = el ? el.textContent.trim() : name;
+    if (name === 'fleet') loadFleet();
+    if (name === 'drivers') loadDrivers();
+    if (name === 'clients') loadClients();
+    if (name === 'promotions') loadPromoHistory();
+  }
+
+  // ── Auth ready ──
+  document.addEventListener('auth-ready', async function() {
+    var name = window.currentUserProfile?.full_name || 'Admin';
+    document.getElementById('admin-name').textContent = name;
+    document.getElementById('admin-avatar').textContent = name.split(' ').map(function(n) { return n[0]; }).join('').slice(0,2).toUpperCase();
+    await Promise.all([loadBookings(), loadStats()]);
+    loadRecentBookings();
+    loadActivityFeed();
+
+    sb.channel('admin-bookings')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'bookings' }, function(payload) {
         renderBookingRow(payload.new, true);
         showToast('New booking: ' + payload.new.ref, 'info');
-        loadStats();
-      }).on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'bookings' }, function() {
-        loadBookings();
-        loadStats();
-      }).subscribe();
-    });
+        loadStats(); loadRecentBookings(); loadActivityFeed();
+      })
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'bookings' }, function() {
+        loadBookings(); loadStats();
+      })
+      .subscribe();
+  });
 
-    // ═══ BOOKINGS ═══
-    async function loadBookings() {
-      var { data } = await sb.from('bookings').select('*').order('created_at', { ascending: false }).limit(100);
-      var tbody = document.getElementById('bookings-tbody');
-      if (!data || data.length === 0) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:32px;">No bookings yet</td></tr>'; return; }
-      tbody.innerHTML = '';
-      data.forEach(function(b) { renderBookingRow(b, false); });
-    }
+  // ── Stats ──
+  async function loadStats() {
+    var today = new Date().toISOString().slice(0, 10);
+    var weekAgo = new Date(Date.now() - 7 * 86400000).toISOString();
+    var [todayRes, vehicleRes, pendingRes, revenueRes] = await Promise.all([
+      sb.from('bookings').select('id', { count: 'exact', head: true }).gte('created_at', today),
+      sb.from('vehicles').select('id', { count: 'exact', head: true }).eq('availability_status', 'available'),
+      sb.from('drivers').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
+      sb.from('bookings').select('total').gte('created_at', weekAgo)
+    ]);
+    document.getElementById('stat-today').textContent = todayRes.count || 0;
+    document.getElementById('stat-vehicles').textContent = vehicleRes.count || 0;
+    document.getElementById('stat-pending').textContent = pendingRes.count || 0;
+    var rev = (revenueRes.data || []).reduce(function(s, b) { return s + (b.total || 0); }, 0);
+    document.getElementById('stat-revenue').textContent = formatRand(rev);
+  }
 
-    function renderBookingRow(b, prepend) {
-      var tbody = document.getElementById('bookings-tbody');
-      var emptyRow = tbody.querySelector('td[colspan]');
-      if (emptyRow) emptyRow.closest('tr').remove();
-
-      var tr = document.createElement('tr');
+  // ── Recent bookings (dashboard) ──
+  async function loadRecentBookings() {
+    var { data } = await sb.from('bookings').select('*').order('created_at', { ascending: false }).limit(10);
+    var tbody = document.getElementById('recent-tbody');
+    if (!data || data.length === 0) { tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:24px;">No bookings yet</td></tr>'; return; }
+    tbody.innerHTML = '';
+    data.forEach(function(b) {
       var s = statusBadge[b.status] || ['badge-orange','Pending'];
-      var jobType = b.job_type ? b.job_type.charAt(0).toUpperCase() + b.job_type.slice(1) : '—';
-      var vehicle = vehicleLabels[b.vehicle_type] || b.vehicle_type || '—';
-      var route = (b.pickup_address || '?').split(',')[0] + ' → ' + (b.dropoff_address || '?').split(',')[0];
-      var action = b.status === 'pending'
-        ? '<button class="btn btn-primary" onclick="assignBooking(\'' + b.id + '\')">Assign</button> <button class="btn btn-red" onclick="cancelBooking(\'' + b.id + '\')">Cancel</button>'
-        : '<button class="btn btn-outline">View</button>';
+      var tr = document.createElement('tr');
+      tr.innerHTML = '<td style="font-weight:600;font-size:12px;">' + (b.ref||'—') + '</td><td>' + (b.client_name||'Guest') + '</td><td>' + (vehicleLabels[b.vehicle_type]||b.vehicle_type||'—') + '</td><td><span class="badge ' + s[0] + '">' + s[1] + '</span></td>';
+      tbody.appendChild(tr);
+    });
+  }
 
-      tr.innerHTML = '<td>' + b.ref + '</td><td>' + (b.client_name || 'Guest') + '</td><td>' + jobType + '</td><td>' + route + '</td><td>' + vehicle + '</td><td><span class="badge ' + s[0] + '">' + s[1] + '</span></td><td>' + action + '</td>';
-      if (prepend) tbody.insertBefore(tr, tbody.firstChild);
-      else tbody.appendChild(tr);
-    }
+  // ── Activity feed ──
+  async function loadActivityFeed() {
+    var { data } = await sb.from('bookings').select('ref, status, client_name, created_at').order('created_at', { ascending: false }).limit(12);
+    var feed = document.getElementById('activity-feed');
+    if (!data || data.length === 0) { feed.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:24px;font-size:13px;">No activity yet</div>'; return; }
+    feed.innerHTML = '';
+    data.forEach(function(b) {
+      var dot = b.status === 'completed' ? 'green' : b.status === 'cancelled' ? 'red' : b.status === 'in_progress' ? 'blue' : 'orange';
+      var text = b.status === 'completed' ? 'Booking <strong>' + b.ref + '</strong> completed'
+        : b.status === 'cancelled' ? 'Booking <strong>' + b.ref + '</strong> cancelled'
+        : b.status === 'in_progress' ? 'Booking <strong>' + b.ref + '</strong> in progress'
+        : b.status === 'assigned' ? 'Booking <strong>' + b.ref + '</strong> assigned'
+        : 'New booking <strong>' + b.ref + '</strong> from ' + (b.client_name || 'Guest');
+      var time = new Date(b.created_at).toLocaleString('en-ZA', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
+      var item = document.createElement('div');
+      item.className = 'activity-item';
+      item.innerHTML = '<div class="activity-dot ' + dot + '"></div><div><div class="activity-text">' + text + '</div><div class="activity-time">' + time + '</div></div>';
+      feed.appendChild(item);
+    });
+  }
 
-    async function assignBooking(id) {
-      // For now, just set status to assigned (admin can manually pick driver later)
-      var { error } = await sb.from('bookings').update({ status: 'assigned' }).eq('id', id);
-      if (error) { showToast('Assign failed: ' + error.message, 'error'); return; }
-      showToast('Booking assigned', 'success');
-      loadBookings();
-      loadStats();
-    }
+  // ── Bookings ──
+  async function loadBookings() {
+    var { data } = await sb.from('bookings').select('*').order('created_at', { ascending: false }).limit(100);
+    var tbody = document.getElementById('bookings-tbody');
+    if (!data || data.length === 0) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:32px;">No bookings yet</td></tr>'; return; }
+    tbody.innerHTML = '';
+    data.forEach(function(b) { renderBookingRow(b, false); });
+  }
 
-    async function cancelBooking(id) {
-      if (!confirm('Cancel this booking?')) return;
-      var { error } = await sb.from('bookings').update({ status: 'cancelled', cancelled_reason: 'Cancelled by admin' }).eq('id', id);
-      if (error) { showToast('Cancel failed: ' + error.message, 'error'); return; }
-      showToast('Booking cancelled', 'success');
-      loadBookings();
-      loadStats();
-    }
+  function renderBookingRow(b, prepend) {
+    var tbody = document.getElementById('bookings-tbody');
+    var emptyRow = tbody.querySelector('td[colspan]');
+    if (emptyRow) emptyRow.closest('tr').remove();
+    var s = statusBadge[b.status] || ['badge-orange','Pending'];
+    var jobType = b.job_type ? b.job_type.charAt(0).toUpperCase() + b.job_type.slice(1) : '—';
+    var route = (b.pickup_address||'?').split(',')[0] + ' → ' + (b.dropoff_address||'?').split(',')[0];
+    var action = b.status === 'pending'
+      ? '<button class="btn btn-primary" onclick="assignBooking(\'' + b.id + '\')">Assign</button> <button class="btn btn-red" onclick="cancelBooking(\'' + b.id + '\')">Cancel</button>'
+      : '<button class="btn btn-outline">View</button>';
+    var tr = document.createElement('tr');
+    tr.innerHTML = '<td style="font-weight:600;font-size:12px;">' + b.ref + '</td><td>' + (b.client_name||'Guest') + '</td><td>' + jobType + '</td><td style="font-size:12px;color:var(--text-muted);">' + route + '</td><td>' + (vehicleLabels[b.vehicle_type]||b.vehicle_type||'—') + '</td><td><span class="badge ' + s[0] + '">' + s[1] + '</span></td><td>' + action + '</td>';
+    if (prepend) tbody.insertBefore(tr, tbody.firstChild);
+    else tbody.appendChild(tr);
+  }
 
-    // ═══ STATS ═══
-    async function loadStats() {
-      var today = new Date().toISOString().slice(0, 10);
-      var weekAgo = new Date(Date.now() - 7 * 86400000).toISOString();
+  async function assignBooking(id) {
+    var { error } = await sb.from('bookings').update({ status: 'assigned' }).eq('id', id);
+    if (error) { showToast('Error: ' + error.message, 'error'); return; }
+    showToast('Booking assigned', 'success');
+    loadBookings(); loadStats();
+  }
 
-      var [todayRes, vehicleRes, pendingRes, revenueRes] = await Promise.all([
-        sb.from('bookings').select('id', { count: 'exact', head: true }).gte('created_at', today),
-        sb.from('vehicles').select('id', { count: 'exact', head: true }).eq('availability_status', 'available'),
-        sb.from('drivers').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
-        sb.from('bookings').select('total').gte('created_at', weekAgo)
-      ]);
+  async function cancelBooking(id) {
+    if (!confirm('Cancel this booking?')) return;
+    await sb.from('bookings').update({ status: 'cancelled', cancelled_reason: 'Cancelled by admin' }).eq('id', id);
+    showToast('Booking cancelled', 'success');
+    loadBookings(); loadStats();
+  }
 
-      document.getElementById('stat-today').textContent = todayRes.count || 0;
-      document.getElementById('stat-vehicles').textContent = vehicleRes.count || 0;
-      document.getElementById('stat-pending').textContent = pendingRes.count || 0;
-      var rev = (revenueRes.data || []).reduce(function(s, b) { return s + (b.total || 0); }, 0);
-      document.getElementById('stat-revenue').textContent = formatRand(rev);
-    }
+  // ── Fleet ──
+  async function loadFleet() {
+    var { data } = await sb.from('vehicles').select('*, drivers!vehicles_owner_id_fkey(user_id, users!drivers_user_id_fkey(full_name))').order('created_at', { ascending: false });
+    var tbody = document.getElementById('fleet-tbody');
+    if (!data || data.length === 0) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:32px;">No vehicles</td></tr>'; return; }
+    tbody.innerHTML = '';
+    data.forEach(function(v) {
+      var owner = v.drivers?.users?.full_name || 'Unknown';
+      var avail = v.availability_status === 'available' ? ['badge-green','Available'] : ['badge-red','Unavailable'];
+      var st = v.status === 'approved' ? ['badge-green','Approved'] : ['badge-yellow','Pending'];
+      var tr = document.createElement('tr');
+      tr.innerHTML = '<td><strong>' + (v.make||'') + ' ' + (v.model||'') + '</strong></td><td>' + owner + '</td><td>' + (vehicleLabels[v.type]||v.type) + '</td><td style="font-family:monospace;font-size:12px;">' + (v.reg_plate||'') + '</td><td><span class="badge ' + st[0] + '">' + st[1] + '</span></td><td><span class="badge ' + avail[0] + '">' + avail[1] + '</span></td>';
+      tbody.appendChild(tr);
+    });
+  }
 
-    // ═══ FLEET ═══
-    async function loadFleet() {
-      var { data } = await sb.from('vehicles').select('*, drivers!vehicles_owner_id_fkey(user_id, users!drivers_user_id_fkey(full_name))').order('created_at', { ascending: false });
-      var tbody = document.getElementById('fleet-tbody');
-      if (!data || data.length === 0) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:32px;">No vehicles</td></tr>'; return; }
-      tbody.innerHTML = '';
-      data.forEach(function(v) {
-        var owner = v.drivers?.users?.full_name || 'Unknown';
-        var avail = v.availability_status === 'available' ? ['badge-green','Yes'] : ['badge-red','No'];
-        var st = v.status === 'approved' ? ['badge-green','Approved'] : ['badge-yellow','Pending'];
-        var tr = document.createElement('tr');
-        tr.innerHTML = '<td>' + (v.make || '') + ' ' + (v.model || '') + '</td><td>' + owner + '</td><td>' + (vehicleLabels[v.type] || v.type) + '</td><td>' + (v.reg_plate || '') + '</td><td><span class="badge ' + st[0] + '">' + st[1] + '</span></td><td><span class="badge ' + avail[0] + '">' + avail[1] + '</span></td>';
-        tbody.appendChild(tr);
+  // ── Drivers ──
+  async function loadDrivers() {
+    var { data } = await sb.from('drivers').select('*, users!drivers_user_id_fkey(full_name, phone, email)').neq('status', 'deleted').order('created_at', { ascending: false });
+    var tbody = document.getElementById('drivers-tbody');
+    if (!data || data.length === 0) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:32px;">No drivers</td></tr>'; return; }
+    tbody.innerHTML = '';
+    data.forEach(function(d) {
+      var name = d.users?.full_name || 'Unknown';
+      var phone = d.users?.phone || '—';
+      var initials = name.split(' ').map(function(n) { return n[0]; }).join('').slice(0,2).toUpperCase();
+      var st = driverBadge[d.status] || ['badge-yellow','Pending'];
+      var actions = '';
+      if (d.status === 'pending') {
+        actions = '<button class="btn btn-green" onclick="approveDriver(\'' + d.id + '\',\'' + d.user_id + '\')">Approve</button> <button class="btn btn-red" onclick="rejectDriver(\'' + d.id + '\')">Reject</button>';
+      } else if (d.status === 'approved') {
+        actions = '<button class="btn btn-red" onclick="suspendDriver(\'' + d.id + '\')">Suspend</button> <button class="btn btn-outline" onclick="deleteDriver(\'' + d.id + '\',\'' + d.user_id + '\')">Delete</button>';
+      } else if (d.status === 'suspended') {
+        actions = '<button class="btn btn-green" onclick="approveDriver(\'' + d.id + '\',\'' + d.user_id + '\')">Reinstate</button> <button class="btn btn-outline" onclick="deleteDriver(\'' + d.id + '\',\'' + d.user_id + '\')">Delete</button>';
+      } else {
+        actions = '<button class="btn btn-outline" onclick="deleteDriver(\'' + d.id + '\',\'' + d.user_id + '\')">Delete</button>';
+      }
+      var tr = document.createElement('tr');
+      tr.innerHTML = '<td><div class="user-row"><div class="user-avatar">' + initials + '</div><strong>' + name + '</strong></div></td><td style="font-size:12px;color:var(--text-muted);">' + phone + '</td><td>' + (d.total_jobs||0) + '</td><td>' + (d.rating ? '⭐ ' + d.rating : '—') + '</td><td><span class="badge ' + st[0] + '">' + st[1] + '</span></td><td style="white-space:nowrap;">' + actions + '</td>';
+      tbody.appendChild(tr);
+    });
+  }
+
+  async function approveDriver(driverId, userId) {
+    await sb.from('drivers').update({ status: 'approved' }).eq('id', driverId);
+    await sb.from('users').update({ role: 'driver' }).eq('id', userId);
+    showToast('Driver approved', 'success');
+    loadDrivers(); loadStats();
+  }
+
+  async function rejectDriver(driverId) {
+    if (!confirm('Reject this driver?')) return;
+    await sb.from('drivers').update({ status: 'rejected' }).eq('id', driverId);
+    showToast('Driver rejected', 'success');
+    loadDrivers();
+  }
+
+  async function suspendDriver(driverId) {
+    if (!confirm('Suspend this driver? They will lose portal access.')) return;
+    await sb.from('drivers').update({ status: 'suspended' }).eq('id', driverId);
+    showToast('Driver suspended', 'success');
+    loadDrivers();
+  }
+
+  async function deleteDriver(driverId, userId) {
+    if (!confirm('Permanently remove this driver? This cannot be undone.')) return;
+    await sb.from('drivers').update({ status: 'deleted' }).eq('id', driverId);
+    await sb.from('users').update({ role: 'deleted' }).eq('id', userId);
+    showToast('Driver removed', 'success');
+    loadDrivers();
+  }
+
+  // ── Clients ──
+  async function loadClients() {
+    var { data } = await sb.from('users').select('*').in('role', ['client', 'guest']).order('created_at', { ascending: false });
+    var tbody = document.getElementById('clients-tbody');
+    if (!data || data.length === 0) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:32px;">No clients</td></tr>'; return; }
+    tbody.innerHTML = '';
+    data.forEach(function(c) {
+      var joined = new Date(c.created_at).toLocaleDateString('en-ZA', { day:'numeric', month:'short', year:'numeric' });
+      var tr = document.createElement('tr');
+      tr.innerHTML = '<td><div class="user-row"><div class="user-avatar" style="background:var(--blue-light);color:var(--blue);">' + ((c.full_name||'U')[0].toUpperCase()) + '</div><strong>' + (c.full_name||'Unknown') + '</strong></div></td><td style="font-size:12px;color:var(--text-muted);">' + (c.email||'—') + '</td><td><span class="badge badge-blue">' + c.role + '</span></td><td style="font-size:12px;color:var(--text-muted);">' + joined + '</td><td><button class="btn btn-outline" onclick="deleteClient(\'' + c.id + '\')">Delete</button></td>';
+      tbody.appendChild(tr);
+    });
+  }
+
+  async function deleteClient(userId) {
+    if (!confirm('Remove this client account? This cannot be undone.')) return;
+    await sb.from('users').update({ role: 'deleted' }).eq('id', userId);
+    showToast('Client removed', 'success');
+    loadClients();
+  }
+
+  // ── Promotions ──
+  function updatePreview() {
+    document.getElementById('preview-subject').textContent = document.getElementById('promo-subject').value || 'Your subject will appear here';
+    document.getElementById('preview-body').textContent = document.getElementById('promo-message').value || 'Your message will appear here...';
+  }
+
+  async function sendPromotion() {
+    var audience = document.getElementById('promo-audience').value;
+    var subject = document.getElementById('promo-subject').value.trim();
+    var message = document.getElementById('promo-message').value.trim();
+    var btn = document.getElementById('promo-send-btn');
+    var statusEl = document.getElementById('promo-status');
+
+    if (!subject) { showToast('Please enter a subject', 'error'); return; }
+    if (!message) { showToast('Please enter a message', 'error'); return; }
+
+    btn.disabled = true; btn.textContent = 'Sending...';
+    statusEl.textContent = 'Fetching recipients...';
+
+    try {
+      var emails = [];
+      if (audience === 'clients' || audience === 'all') {
+        var { data: clients } = await sb.from('users').select('email').in('role', ['client', 'guest']).not('email', 'is', null);
+        if (clients) emails = emails.concat(clients.map(function(c) { return c.email; }).filter(Boolean));
+      }
+      if (audience === 'drivers' || audience === 'all') {
+        var { data: drivers } = await sb.from('users').select('email').eq('role', 'driver').not('email', 'is', null);
+        if (drivers) emails = emails.concat(drivers.map(function(d) { return d.email; }).filter(Boolean));
+      }
+      emails = [...new Set(emails)];
+
+      if (emails.length === 0) { showToast('No recipients found', 'error'); return; }
+
+      statusEl.textContent = 'Sending to ' + emails.length + ' recipients...';
+
+      var { error: fnError } = await sb.functions.invoke('send-promo', {
+        body: { emails: emails, subject: subject, message: message }
       });
-    }
 
-    // ═══ DRIVERS ═══
-    async function loadDrivers() {
-      var { data } = await sb.from('drivers').select('*, users!drivers_user_id_fkey(full_name, phone, email)').order('created_at', { ascending: false });
-      var tbody = document.getElementById('drivers-tbody');
-      if (!data || data.length === 0) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:32px;">No drivers</td></tr>'; return; }
-      tbody.innerHTML = '';
-      data.forEach(function(d) {
-        var name = d.users?.full_name || 'Unknown';
-        var phone = d.users?.phone || '';
-        var initials = name.split(' ').map(function(n) { return n[0]; }).join('').slice(0, 2).toUpperCase();
-        var st = driverBadge[d.status] || ['badge-yellow','Pending'];
-        var actions = '';
-        if (d.status === 'pending') {
-          actions = '<button class="btn btn-green" onclick="approveDriver(\'' + d.id + '\', \'' + d.user_id + '\')">Approve</button> <button class="btn btn-red" onclick="rejectDriver(\'' + d.id + '\')">Reject</button>';
-        } else if (d.status === 'approved') {
-          actions = '<button class="btn btn-red" style="font-size:11px;" onclick="suspendDriver(\'' + d.id + '\')">Suspend</button>';
-        } else {
-          actions = '<button class="btn btn-outline">' + d.status + '</button>';
-        }
-        var tr = document.createElement('tr');
-        tr.innerHTML = '<td><div class="driver-row"><div class="driver-avatar">' + initials + '</div><div><div style="font-weight:600">' + name + '</div><div style="font-size:11px;color:var(--text-muted)">' + phone + '</div></div></div></td><td>—</td><td>' + (d.total_jobs || 0) + '</td><td>' + (d.rating || '—') + '</td><td><span class="badge ' + st[0] + '">' + st[1] + '</span></td><td>' + actions + '</td>';
-        tbody.appendChild(tr);
-      });
-    }
+      if (fnError) throw fnError;
 
-    async function approveDriver(driverId, userId) {
-      await sb.from('drivers').update({ status: 'approved' }).eq('id', driverId);
-      await sb.from('users').update({ role: 'driver' }).eq('id', userId);
-      showToast('Driver approved', 'success');
-      loadDrivers();
-      loadStats();
-    }
+      // Log to promotions table (if it exists)
+      await sb.from('promotions').insert({ subject: subject, message: message, audience: audience, recipient_count: emails.length, status: 'sent' }).then(function() {});
 
-    async function rejectDriver(driverId) {
-      if (!confirm('Reject this driver?')) return;
-      await sb.from('drivers').update({ status: 'rejected' }).eq('id', driverId);
-      showToast('Driver rejected', 'success');
-      loadDrivers();
+      showToast('Sent to ' + emails.length + ' recipients!', 'success');
+      document.getElementById('promo-subject').value = '';
+      document.getElementById('promo-message').value = '';
+      updatePreview();
+      loadPromoHistory();
+    } catch (err) {
+      showToast('Failed: ' + (err.message || 'Unknown error'), 'error');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Send Email';
+      statusEl.textContent = '';
     }
+  }
 
-    async function suspendDriver(driverId) {
-      if (!confirm('Suspend this driver?')) return;
-      await sb.from('drivers').update({ status: 'suspended' }).eq('id', driverId);
-      showToast('Driver suspended', 'success');
-      loadDrivers();
-    }
-
-    // ═══ CLIENTS ═══
-    async function loadClients() {
-      var { data } = await sb.from('users').select('*').in('role', ['client', 'guest']).order('created_at', { ascending: false });
-      var tbody = document.getElementById('clients-tbody');
-      if (!data || data.length === 0) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:32px;">No clients</td></tr>'; return; }
-      tbody.innerHTML = '';
-      data.forEach(function(c) {
-        var tr = document.createElement('tr');
-        tr.innerHTML = '<td>' + (c.full_name || c.email || 'Unknown') + '</td><td><span class="badge badge-blue">' + c.role + '</span></td><td>—</td><td>—</td><td><span class="badge badge-green">Active</span></td>';
-        tbody.appendChild(tr);
-      });
-    }
-  </script>
+  async function loadPromoHistory() {
+    var { data } = await sb.from('promotions').select('*').order('created_at', { ascending: false }).limit(20);
+    var tbody = document.getElementById('promo-history-tbody');
+    if (!data || data.length === 0) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:24px;">No campaigns yet</td></tr>'; return; }
+    tbody.innerHTML = '';
+    data.forEach(function(p) {
+      var date = new Date(p.created_at).toLocaleDateString('en-ZA', { day:'numeric', month:'short', year:'numeric' });
+      var aud = p.audience === 'all' ? 'Everyone' : p.audience === 'clients' ? 'Clients' : 'Drivers';
+      var tr = document.createElement('tr');
+      tr.innerHTML = '<td style="font-size:12px;color:var(--text-muted);">' + date + '</td><td style="font-weight:600;">' + p.subject + '</td><td><span class="badge badge-blue">' + aud + '</span></td><td>' + (p.recipient_count||0) + '</td><td><span class="badge badge-green">Sent</span></td>';
+      tbody.appendChild(tr);
+    });
+  }
+</script>
 </body>
 </html>
