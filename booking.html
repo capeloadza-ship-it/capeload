@@ -10,41 +10,44 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Inter', sans-serif; background: #111118; color: #fff; height: 100vh; overflow: hidden; }
+    body { font-family: 'Inter', sans-serif; background: #eeeef3; color: #111118; height: 100vh; overflow: hidden; }
     a { text-decoration: none; color: inherit; }
 
     :root {
-      --orange: #f15f22; --orange-dark: #c44a18; --orange-light: rgba(241,95,34,0.12);
+      --orange: #f15f22; --orange-dark: #c44a18; --orange-light: rgba(241,95,34,0.10);
       --green: #22c55e; --red: #ef4444;
-      --surface: #1c1c26; --surface2: #24242f; --surface3: #2e2e3a;
-      --border: rgba(255,255,255,0.07); --muted: #8a8a9a;
+      --surface: #ffffff; --surface2: #f5f5fa; --surface3: #e6e6ef;
+      --border: rgba(0,0,0,0.07); --muted: #8a8a9a;
     }
 
     /* ── Map ─────────────────────────────────── */
-    #map { position: absolute; inset: 0; z-index: 1; filter: brightness(0.85); }
+    #map { position: absolute; inset: 0; z-index: 1; }
 
     /* ── Top bar ─────────────────────────────── */
     .top-bar {
       position: absolute; top: 0; left: 0; right: 0; z-index: 10;
       display: flex; align-items: center; justify-content: space-between;
       padding: 16px 20px;
-      background: linear-gradient(to bottom, rgba(17,17,24,0.95) 60%, transparent);
+      background: linear-gradient(to bottom, rgba(255,255,255,0.97) 65%, transparent);
     }
     .top-bar img { height: 120px; }
     .top-bar-right { display: flex; gap: 10px; }
     .icon-btn {
-      width: 40px; height: 40px; border-radius: 12px; background: var(--surface);
-      border: 1px solid var(--border); display: flex; align-items: center; justify-content: center;
-      cursor: pointer; color: var(--muted);
+      width: 40px; height: 40px; border-radius: 12px; background: #fff;
+      border: 1px solid rgba(0,0,0,0.10); display: flex; align-items: center; justify-content: center;
+      cursor: pointer; color: #555; box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     }
     .icon-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; }
 
     /* ── Bottom sheet ────────────────────────── */
     .sheet {
       position: absolute; bottom: 0; left: 0; right: 0; z-index: 10;
-      background: var(--surface);
+      background: rgba(255,255,255,0.96);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
       border-radius: 24px 24px 0 0;
-      border-top: 1px solid var(--border);
+      border-top: 2.5px solid var(--orange);
+      box-shadow: 0 -4px 32px rgba(0,0,0,0.10);
       max-height: 72vh;
       overflow-y: auto;
       transition: transform 0.3s cubic-bezier(.4,0,.2,1);
@@ -72,7 +75,7 @@
 
     /* Step header */
     .step-label { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--orange); margin-bottom: 4px; }
-    .step-title { font-size: 22px; font-weight: 900; color: #fff; margin-bottom: 18px; line-height: 1.2; }
+    .step-title { font-size: 22px; font-weight: 900; color: #111118; margin-bottom: 18px; line-height: 1.2; }
 
     /* ── Inputs ──────────────────────────────── */
     .addr-card {
@@ -86,7 +89,7 @@
     .addr-dot.dropoff { background: var(--orange); box-shadow: 0 0 0 3px rgba(241,95,34,0.2); }
     .addr-row input {
       flex: 1; background: transparent; border: none; outline: none;
-      font-size: 14px; font-family: inherit; color: #fff; font-weight: 500;
+      font-size: 14px; font-family: inherit; color: #111118; font-weight: 500;
     }
     .addr-row input::placeholder { color: var(--muted); font-weight: 400; }
 
@@ -96,16 +99,16 @@
       border-radius: 14px; max-height: 180px; overflow-y: auto; z-index: 20; display: none;
       margin-top: 4px; box-shadow: 0 8px 32px rgba(0,0,0,0.4);
     }
-    .ac-list div { padding: 11px 14px; font-size: 13px; color: #ccc; cursor: pointer; border-bottom: 1px solid var(--border); }
+    .ac-list div { padding: 11px 14px; font-size: 13px; color: #444; cursor: pointer; border-bottom: 1px solid var(--border); }
     .ac-list div:last-child { border-bottom: none; }
-    .ac-list div:hover { background: var(--surface3); color: #fff; }
+    .ac-list div:hover { background: var(--surface3); color: #111118; }
 
     /* Date/time row */
     .dt-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
     .dt-field label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 6px; }
     .dt-field input {
       width: 100%; padding: 13px 14px; background: var(--surface2); border: 1px solid var(--border);
-      border-radius: 14px; font-size: 14px; font-family: inherit; outline: none; color: #fff;
+      border-radius: 14px; font-size: 14px; font-family: inherit; outline: none; color: #111118;
     }
     .dt-field input:focus { border-color: var(--orange); }
 
@@ -127,7 +130,7 @@
     .v-option:hover { border-color: var(--surface3); }
     .v-option.selected { border-color: var(--orange); background: var(--orange-light); }
     .v-icon { font-size: 24px; margin-bottom: 6px; display: block; }
-    .v-option h4 { font-size: 12px; font-weight: 700; color: #fff; margin-bottom: 2px; }
+    .v-option h4 { font-size: 12px; font-weight: 700; color: #111118; margin-bottom: 2px; }
     .v-option span { font-size: 10px; color: var(--muted); }
 
     /* ── Contact fields ───────────────────────── */
@@ -135,7 +138,7 @@
     .field label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 6px; }
     .field input, .field textarea {
       width: 100%; padding: 13px 14px; background: var(--surface2); border: 1px solid var(--border);
-      border-radius: 14px; font-size: 14px; font-family: inherit; outline: none; color: #fff;
+      border-radius: 14px; font-size: 14px; font-family: inherit; outline: none; color: #111118;
     }
     .field input:focus, .field textarea:focus { border-color: var(--orange); }
     .field textarea { resize: none; height: 60px; }
@@ -155,8 +158,8 @@
     .quote-label { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,0.7); margin-bottom: 4px; }
     .quote-amount { font-size: 42px; font-weight: 900; color: #fff; line-height: 1; margin-bottom: 14px; }
     .quote-rows { background: rgba(0,0,0,0.15); border-radius: 12px; padding: 10px 12px; }
-    .quote-row { display: flex; justify-content: space-between; font-size: 13px; color: rgba(255,255,255,0.8); padding: 4px 0; }
-    .quote-row.total { color: #fff; font-weight: 700; border-top: 1px solid rgba(255,255,255,0.15); margin-top: 4px; padding-top: 8px; }
+    .quote-row { display: flex; justify-content: space-between; font-size: 13px; color: rgba(255,255,255,0.85); padding: 4px 0; }
+    .quote-row.total { color: #fff; font-weight: 700; border-top: 1px solid rgba(255,255,255,0.2); margin-top: 4px; padding-top: 8px; }
 
     /* ── Payment ──────────────────────────────── */
     .section-label { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
@@ -202,7 +205,7 @@
     .confirm-badge {
       display: inline-block; background: var(--surface2); border: 1px solid var(--border);
       border-radius: 100px; padding: 8px 20px; font-size: 20px; font-weight: 900;
-      color: #fff; letter-spacing: 1px; margin-bottom: 10px;
+      color: #111118; letter-spacing: 1px; margin-bottom: 10px;
     }
     .confirm-sub { font-size: 14px; color: var(--muted); margin-bottom: 24px; line-height: 1.6; }
     .confirm-actions { display: flex; gap: 10px; }
@@ -213,7 +216,7 @@
     }
     .btn-home {
       flex: 1; padding: 15px; border-radius: 14px; text-align: center;
-      font-size: 14px; font-weight: 700; background: var(--surface2); color: #fff;
+      font-size: 14px; font-weight: 700; background: var(--surface2); color: #111118;
       border: 1px solid var(--border);
     }
 
@@ -222,7 +225,9 @@
       .sheet {
         right: 24px; bottom: 24px; left: auto; top: 90px;
         width: 390px; border-radius: 24px; max-height: calc(100vh - 114px);
-        box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+        box-shadow: 0 8px 48px rgba(0,0,0,0.14);
+        border: 1.5px solid rgba(0,0,0,0.06);
+        border-top: 2.5px solid var(--orange);
       }
       .sheet-drag { display: none; }
     }
@@ -234,7 +239,7 @@
 
 <!-- Top bar -->
 <div class="top-bar">
-  <a href="index.html"><img src="images/logo-light.png" alt="CapeLoad"></a>
+  <a href="index.html"><img src="images/logo dark.png" alt="CapeLoad"></a>
   <div class="top-bar-right">
     <a href="client-portal.html" class="icon-btn" title="My bookings">
       <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
@@ -397,7 +402,7 @@
   // MAP
   // ══════════════════════════════════════════
   var map = L.map('map', { zoomControl: false }).setView([-33.925, 18.42], 12);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
     attribution: '&copy; OSM &copy; CARTO', maxZoom: 19
   }).addTo(map);
 
@@ -509,7 +514,7 @@
       if (window._altLine) map.removeLayer(window._altLine);
       if (data.routes.length > 1) {
         var altCoords = data.routes[1].geometry.coordinates.map(function(c) { return [c[1], c[0]]; });
-        window._altLine = L.polyline(altCoords, { color: '#444', weight: 3, opacity: 0.5 }).addTo(map);
+        window._altLine = L.polyline(altCoords, { color: '#bbb', weight: 3, opacity: 0.7 }).addTo(map);
       }
       var coords = data.routes[0].geometry.coordinates.map(function(c) { return [c[1], c[0]]; });
       routeLine = L.polyline(coords, { color: '#f15f22', weight: 4, opacity: 0.95 }).addTo(map);
