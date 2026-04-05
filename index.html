@@ -170,7 +170,7 @@
     }
     .srv-card-inner {
       position: absolute; inset: 0; padding: 20px;
-      display: flex; flex-direction: column; justify-content: space-between;
+      display: flex; flex-direction: column; justify-content: flex-end;
     }
     .srv-card-bottom { }
     .srv-card-bottom h3 { font-size: 18px; font-weight: 800; color: #fff; margin-bottom: 6px; }
@@ -774,16 +774,19 @@
         <img src="images/logo-light.png" alt="CapeLoad Logistics">
         <p>Your load, our road. From bikes to trucks, we move across the Western Cape and beyond. Built by Axious Creative.</p>
         <div class="footer-socials">
-          <a href="#" aria-label="Facebook"><svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg></a>
-          <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1.5"/></svg></a>
+          <a href="https://facebook.com/capeload" target="_blank" aria-label="Facebook"><svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg></a>
+          <a href="https://instagram.com/capeload.za" target="_blank" aria-label="Instagram"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1.5"/></svg></a>
+          <a href="https://tiktok.com/@capeload.za" target="_blank" aria-label="TikTok"><svg viewBox="0 0 24 24" fill="var(--sub)"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.77a4.85 4.85 0 01-1.01-.08z"/></svg></a>
+          <a href="https://x.com/capeload.za" target="_blank" aria-label="X (Twitter)"><svg viewBox="0 0 24 24" fill="var(--sub)"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.844L1.254 2.25H8.08l4.253 5.623L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/></svg></a>
           <a href="https://wa.me/27625692939" target="_blank" aria-label="WhatsApp"><svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.832-1.438A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg></a>
         </div>
         <div style="margin-top:16px;">
           <p style="font-size:12px;color:var(--muted);margin-bottom:8px;">Subscribe to updates:</p>
           <div class="footer-newsletter-form">
-            <input type="email" placeholder="Enter your email">
-            <button type="button">Sign Up</button>
+            <input type="email" id="nl-email" placeholder="Enter your email">
+            <button type="button" id="nl-btn" onclick="subscribeNewsletter()">Sign Up</button>
           </div>
+          <p id="nl-msg" style="font-size:12px;margin-top:6px;display:none;"></p>
         </div>
       </div>
       <div class="footer-col">
@@ -921,6 +924,32 @@
     assignPos(0);
     resetAuto();
   })();
+
+  // Newsletter subscribe
+  async function subscribeNewsletter() {
+    var email = document.getElementById('nl-email').value.trim();
+    var btn = document.getElementById('nl-btn');
+    var msg = document.getElementById('nl-msg');
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      msg.textContent = 'Please enter a valid email.';
+      msg.style.color = '#ef4444'; msg.style.display = 'block'; return;
+    }
+    btn.disabled = true; btn.textContent = '...';
+    var { error } = await sb.from('subscribers').insert({ email: email, source: 'footer' });
+    btn.disabled = false; btn.textContent = 'Sign Up';
+    msg.style.display = 'block';
+    if (error && error.code === '23505') {
+      msg.textContent = 'You\'re already subscribed!';
+      msg.style.color = '#f15f22';
+    } else if (error) {
+      msg.textContent = 'Something went wrong. Try again.';
+      msg.style.color = '#ef4444';
+    } else {
+      msg.textContent = 'Subscribed! Thanks for joining.';
+      msg.style.color = '#22c55e';
+      document.getElementById('nl-email').value = '';
+    }
+  }
 
   // Auth state
   (async function() {

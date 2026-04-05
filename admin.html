@@ -506,11 +506,11 @@
 
     <!-- ─── Contacts ─── -->
     <div class="panel" id="panel-contacts">
-      <div class="card">
+      <div class="card" style="margin-bottom:20px;">
         <div class="card-header">
           <div>
-            <div class="card-title">Contacts</div>
-            <div class="card-sub">All registered emails from sign-ups</div>
+            <div class="card-title">Registered Users</div>
+            <div class="card-sub">Emails from account sign-ups</div>
           </div>
           <div style="display:flex;gap:8px;">
             <span id="contacts-count" style="font-size:12px;color:var(--text-muted);align-self:center;"></span>
@@ -522,6 +522,27 @@
             <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Joined</th></tr></thead>
             <tbody id="contacts-tbody">
               <tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:24px;">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Newsletter Subscribers</div>
+            <div class="card-sub">Emails from the website subscribe form</div>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <span id="subs-count" style="font-size:12px;color:var(--text-muted);align-self:center;"></span>
+            <button class="btn btn-outline" style="padding:7px 14px;font-size:12px;" onclick="exportSubscribersCSV()">Export CSV</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Email</th><th>Source</th><th>Subscribed</th></tr></thead>
+            <tbody id="subs-tbody">
+              <tr><td colspan="3" style="text-align:center;color:var(--text-muted);padding:24px;">Loading...</td></tr>
             </tbody>
           </table>
         </div>
@@ -557,7 +578,7 @@
     if (name === 'drivers') loadDrivers();
     if (name === 'clients') loadClients();
     if (name === 'promotions') loadPromoHistory();
-    if (name === 'contacts') loadContacts();
+    if (name === 'contacts') { loadContacts(); loadSubscribers(); }
   }
 
   // ── Auth ready ──
@@ -1047,6 +1068,42 @@
     var a = document.createElement('a');
     a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
     a.download = 'capeload-contacts-' + new Date().toISOString().split('T')[0] + '.csv';
+    a.click();
+  }
+
+  var _subscribers = [];
+  async function loadSubscribers() {
+    var tbody = document.getElementById('subs-tbody');
+    var countEl = document.getElementById('subs-count');
+    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--text-muted);padding:24px;">Loading...</td></tr>';
+    var { data } = await sb.from('subscribers').select('*').order('created_at', { ascending: false });
+    _subscribers = data || [];
+    if (_subscribers.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--text-muted);padding:24px;">No subscribers yet</td></tr>';
+      countEl.textContent = ''; return;
+    }
+    countEl.textContent = _subscribers.length + ' subscribers';
+    tbody.innerHTML = '';
+    _subscribers.forEach(function(s) {
+      var date = s.created_at ? new Date(s.created_at).toLocaleDateString('en-ZA', { day:'numeric', month:'short', year:'numeric' }) : '—';
+      var tr = document.createElement('tr');
+      tr.innerHTML = '<td style="color:var(--text-muted);">' + s.email + '</td>' +
+        '<td><span class="badge badge-blue">' + (s.source || 'website') + '</span></td>' +
+        '<td style="font-size:12px;color:var(--text-muted);">' + date + '</td>';
+      tbody.appendChild(tr);
+    });
+  }
+
+  function exportSubscribersCSV() {
+    if (!_subscribers.length) { showToast('No subscribers to export', 'error'); return; }
+    var rows = [['Email', 'Source', 'Subscribed']];
+    _subscribers.forEach(function(s) {
+      rows.push([s.email || '', s.source || 'website', s.created_at ? new Date(s.created_at).toLocaleDateString('en-ZA') : '']);
+    });
+    var csv = rows.map(function(r) { return r.map(function(c) { return '"' + String(c).replace(/"/g,'""') + '"'; }).join(','); }).join('\n');
+    var a = document.createElement('a');
+    a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+    a.download = 'capeload-subscribers-' + new Date().toISOString().split('T')[0] + '.csv';
     a.click();
   }
 
