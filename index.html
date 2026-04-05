@@ -138,9 +138,19 @@
       filter: brightness(0.45) saturate(0.7);
     }
     .hero-bg img.loaded { opacity: 1; }
+    .hero-bg::before {
+      content: ''; position: absolute; inset: 0; z-index: 1;
+      background-image: radial-gradient(rgba(241,95,34,0.08) 1px, transparent 1px);
+      background-size: 36px 36px;
+      animation: heroGrid 12s ease-in-out infinite;
+    }
+    @keyframes heroGrid {
+      0%, 100% { background-position: 0 0; }
+      50% { background-position: 18px 18px; }
+    }
     .hero-bg::after {
-      content: ''; position: absolute; inset: 0;
-      background: linear-gradient(to bottom, rgba(10,11,21,0.65) 0%, rgba(10,11,21,0.4) 50%, rgba(10,11,21,0.85) 100%);
+      content: ''; position: absolute; inset: 0; z-index: 2;
+      background: linear-gradient(to bottom, rgba(10,11,21,0.6) 0%, rgba(10,11,21,0.3) 45%, rgba(10,11,21,0.88) 100%);
     }
     .hero-inner {
       position: relative; z-index: 1;
@@ -377,7 +387,7 @@
     ══════════════════════════════════════ */
     .strans {
       opacity: 0;
-      transform: translateY(-55px);
+      transform: translateY(40px);
       transition: opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1);
     }
     .strans.st-visible {
@@ -386,7 +396,7 @@
     }
     .strans.st-exit {
       opacity: 0;
-      transform: translateY(55px);
+      transform: translateY(-30px);
       transition: opacity 0.4s ease, transform 0.4s ease;
     }
 
@@ -561,7 +571,7 @@
 <section class="stats-strip strans">
   <div class="container stats-inner reveal">
     <div class="stat-item">
-      <span class="stat-num">100+</span>
+      <span class="stat-num" id="stat-drivers">—</span>
       <span class="stat-label">Verified Drivers</span>
     </div>
     <div class="stat-divider"></div>
@@ -609,7 +619,16 @@
         </div>
       </div>
       <div class="srv-card reveal d2">
-        <img src="images/Bakkie%20%20LDV.png" alt="Bakkie / LDV" loading="lazy" onload="this.classList.add('loaded')">
+        <div class="srv-card-bg" style="background:linear-gradient(135deg,#0d1f12 0%,#112b1a 50%,#0a1a10 100%)">
+          <!-- Bakkie / LDV: pickup truck -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 12V8a1 1 0 011-1h7l3 5"/>
+            <path d="M13 12h8v3a1 1 0 01-1 1H2a1 1 0 01-1-1v-3h12z"/>
+            <path d="M9 7V5h4l2 2"/>
+            <circle cx="5.5" cy="16.5" r="1.5"/>
+            <circle cx="17.5" cy="16.5" r="1.5"/>
+          </svg>
+        </div>
         <div class="srv-card-shade"></div>
         <div class="srv-card-inner">
           <div class="srv-card-bottom">
@@ -620,7 +639,16 @@
         </div>
       </div>
       <div class="srv-card reveal d3">
-        <img src="images/Panel%20Van.png" alt="Panel Van" loading="lazy" onload="this.classList.add('loaded')">
+        <div class="srv-card-bg" style="background:linear-gradient(135deg,#0f1a2e 0%,#142240 50%,#0a1222 100%)">
+          <!-- Panel Van: enclosed van -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="1" y="8" width="15" height="9" rx="1"/>
+            <path d="M16 11h4.5a1 1 0 01.9.56l1.1 2.2V17h-6.5V11z"/>
+            <circle cx="5" cy="17" r="2"/>
+            <circle cx="19" cy="17" r="2"/>
+            <rect x="3" y="10" width="5" height="4" rx="0.5" opacity="0.5"/>
+          </svg>
+        </div>
         <div class="srv-card-shade"></div>
         <div class="srv-card-inner">
           <div class="srv-card-bottom">
@@ -631,7 +659,17 @@
         </div>
       </div>
       <div class="srv-card reveal d1">
-        <img src="images/4-Ton%20Truck.png" alt="4-Ton Truck" loading="lazy" onload="this.classList.add('loaded')">
+        <div class="srv-card-bg" style="background:linear-gradient(135deg,#1a120a 0%,#2a1e10 50%,#140d06 100%)">
+          <!-- 4-Ton Truck: box truck -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="1" y="7" width="13" height="10" rx="1"/>
+            <path d="M14 9h5.5a1 1 0 01.83.44l2.17 3.25V17H14V9z"/>
+            <circle cx="5" cy="17" r="2"/>
+            <circle cx="11" cy="17" r="2"/>
+            <circle cx="19" cy="17" r="2"/>
+            <line x1="1" y1="12" x2="14" y2="12"/>
+          </svg>
+        </div>
         <div class="srv-card-shade"></div>
         <div class="srv-card-inner">
           <div class="srv-card-bottom">
@@ -642,7 +680,18 @@
         </div>
       </div>
       <div class="srv-card reveal d2">
-        <img src="images/8-Ton%20Truck.png" alt="8-Ton Truck" loading="lazy" onload="this.classList.add('loaded')">
+        <div class="srv-card-bg" style="background:linear-gradient(135deg,#10101a 0%,#18182e 50%,#0c0c16 100%)">
+          <!-- 8-Ton Truck: large rigid truck -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="1" y="6" width="14" height="11" rx="1"/>
+            <path d="M15 8h4.5a1 1 0 01.85.47l2.15 3.53V17H15V8z"/>
+            <circle cx="4" cy="17" r="2"/>
+            <circle cx="10" cy="17" r="2"/>
+            <circle cx="19" cy="17" r="2"/>
+            <line x1="1" y1="11" x2="15" y2="11"/>
+            <line x1="7" y1="6" x2="7" y2="11"/>
+          </svg>
+        </div>
         <div class="srv-card-shade"></div>
         <div class="srv-card-inner">
           <div class="srv-card-bottom">
@@ -833,6 +882,54 @@
           </div>
         </div>
       </div>
+
+      <div class="testi-card" data-pos="back">
+        <div class="testi-top"><div class="testi-stars"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div><div class="g-logo"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09A6.97 6.97 0 015.48 12c0-.72.13-1.43.36-2.09V7.07H2.18A11.97 11.97 0 001 12c0 1.94.46 3.77 1.18 5.07l3.66-2.98z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg></div></div>
+        <p class="testi-text">"Booked a bakkie for a last-minute delivery to Bellville. Driver arrived on time, handled everything carefully. The app is super easy — got a quote in under a minute."</p>
+        <div class="testi-footer"><div class="testi-avatar" style="background:rgba(168,85,247,0.15);color:#a855f7;">Z</div><div><div class="testi-name">Zanele Dlamini</div><div class="testi-role">Retail Manager, Khayelitsha</div></div></div>
+      </div>
+
+      <div class="testi-card" data-pos="back">
+        <div class="testi-top"><div class="testi-stars"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div><div class="g-logo"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09A6.97 6.97 0 015.48 12c0-.72.13-1.43.36-2.09V7.07H2.18A11.97 11.97 0 001 12c0 1.94.46 3.77 1.18 5.07l3.66-2.98z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg></div></div>
+        <p class="testi-text">"We use CapeLoad weekly for construction material deliveries across the Cape. The flatbed drivers know exactly how to secure heavy loads. Absolutely reliable."</p>
+        <div class="testi-footer"><div class="testi-avatar" style="background:rgba(251,191,36,0.15);color:#fbbf24;">M</div><div><div class="testi-name">Marco van der Berg</div><div class="testi-role">Construction Site Manager, Bellville</div></div></div>
+      </div>
+
+      <div class="testi-card" data-pos="back">
+        <div class="testi-top"><div class="testi-stars"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div><div class="g-logo"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09A6.97 6.97 0 015.48 12c0-.72.13-1.43.36-2.09V7.07H2.18A11.97 11.97 0 001 12c0 1.94.46 3.77 1.18 5.07l3.66-2.98z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg></div></div>
+        <p class="testi-text">"Running an online store means I need fast, reliable deliveries. CapeLoad panel van drivers have never let me down — always on time and professional with every order."</p>
+        <div class="testi-footer"><div class="testi-avatar" style="background:rgba(236,72,153,0.15);color:#ec4899;">F</div><div><div class="testi-name">Fatima Adams</div><div class="testi-role">E-commerce Owner, Tygervalley</div></div></div>
+      </div>
+
+      <div class="testi-card" data-pos="back">
+        <div class="testi-top"><div class="testi-stars"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div><div class="g-logo"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09A6.97 6.97 0 015.48 12c0-.72.13-1.43.36-2.09V7.07H2.18A11.97 11.97 0 001 12c0 1.94.46 3.77 1.18 5.07l3.66-2.98z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg></div></div>
+        <p class="testi-text">"Organised a corporate event in Somerset West and needed equipment moved same-day. CapeLoad sorted it in 20 minutes. Couldn't believe how quick and stress-free it was."</p>
+        <div class="testi-footer"><div class="testi-avatar" style="background:rgba(20,184,166,0.15);color:#14b8a6;">L</div><div><div class="testi-name">Lungelo Sithole</div><div class="testi-role">Events Coordinator, Somerset West</div></div></div>
+      </div>
+
+      <div class="testi-card" data-pos="back">
+        <div class="testi-top"><div class="testi-stars"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div><div class="g-logo"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09A6.97 6.97 0 015.48 12c0-.72.13-1.43.36-2.09V7.07H2.18A11.97 11.97 0 001 12c0 1.94.46 3.77 1.18 5.07l3.66-2.98z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg></div></div>
+        <p class="testi-text">"We import goods regularly and CapeLoad handles the last-mile delivery flawlessly. Their 8-ton trucks are always clean, drivers are courteous, and documentation is spot on."</p>
+        <div class="testi-footer"><div class="testi-avatar" style="background:rgba(99,102,241,0.15);color:#6366f1;">P</div><div><div class="testi-name">Priya Naidoo</div><div class="testi-role">Import/Export Manager, Cape Town</div></div></div>
+      </div>
+
+      <div class="testi-card" data-pos="back">
+        <div class="testi-top"><div class="testi-stars"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div><div class="g-logo"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09A6.97 6.97 0 015.48 12c0-.72.13-1.43.36-2.09V7.07H2.18A11.97 11.97 0 001 12c0 1.94.46 3.77 1.18 5.07l3.66-2.98z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg></div></div>
+        <p class="testi-text">"CapeLoad moved a full harvest load from my farm in Paarl to Cape Town in under 3 hours. Flat rate, no hidden costs, and the bakkie was clean and ready at 6am. Exceptional service."</p>
+        <div class="testi-footer"><div class="testi-avatar" style="background:rgba(34,197,94,0.15);color:#22c55e;">K</div><div><div class="testi-name">Kobus Swart</div><div class="testi-role">Farm Manager, Paarl</div></div></div>
+      </div>
+
+      <div class="testi-card" data-pos="back">
+        <div class="testi-top"><div class="testi-stars"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div><div class="g-logo"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09A6.97 6.97 0 015.48 12c0-.72.13-1.43.36-2.09V7.07H2.18A11.97 11.97 0 001 12c0 1.94.46 3.77 1.18 5.07l3.66-2.98z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg></div></div>
+        <p class="testi-text">"We relocated our entire HR office in Milnerton using CapeLoad's 4-ton truck. Everything wrapped, loaded and delivered safely in one trip. The team was friendly and efficient."</p>
+        <div class="testi-footer"><div class="testi-avatar" style="background:rgba(241,95,34,0.15);color:var(--orange);">A</div><div><div class="testi-name">Amanda Khoza</div><div class="testi-role">HR Manager, Milnerton</div></div></div>
+      </div>
+
+      <div class="testi-card" data-pos="back">
+        <div class="testi-top"><div class="testi-stars"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div><div class="g-logo"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09A6.97 6.97 0 015.48 12c0-.72.13-1.43.36-2.09V7.07H2.18A11.97 11.97 0 001 12c0 1.94.46 3.77 1.18 5.07l3.66-2.98z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg></div></div>
+        <p class="testi-text">"Managing a transport fleet myself, I know quality when I see it. CapeLoad's platform is slick, pricing is fair, and their drivers are properly vetted. Will be recommending to all our partners."</p>
+        <div class="testi-footer"><div class="testi-avatar" style="background:rgba(43,57,144,0.2);color:#7a8fd4;">J</div><div><div class="testi-name">Johan Pretorius</div><div class="testi-role">Fleet Manager, Blouberg</div></div></div>
+      </div>
     </div>
 
     <!-- controls -->
@@ -919,6 +1016,11 @@
       <span>&copy; 2026 CapeLoad Logistics. Cape Town, South Africa.</span>
       <span>All Rights Reserved</span>
     </div>
+    <div style="text-align:center;padding-top:16px;font-size:11px;color:#3a3a4a;display:flex;align-items:center;justify-content:center;gap:6px;">
+      <span>Powered by</span>
+      <img src="images/axclogo.png" alt="Axious Creative Studio" style="height:12px;width:auto;opacity:0.45;vertical-align:middle;">
+      <span>Axious Creative Studio</span>
+    </div>
   </div>
 </footer>
 
@@ -930,15 +1032,19 @@
   // Hamburger
   var hamburger = document.getElementById('hamburger');
   var mobileMenu = document.getElementById('mobile-menu');
+  var waFloat = document.querySelector('.wa-float');
   hamburger.addEventListener('click', function() {
     hamburger.classList.toggle('open');
     mobileMenu.classList.toggle('open');
-    document.body.style.overflow = mobileMenu.classList.contains('open') ? 'hidden' : '';
+    var isOpen = mobileMenu.classList.contains('open');
+    document.body.style.overflow = isOpen ? 'hidden' : '';
+    if (waFloat) waFloat.style.display = isOpen ? 'none' : '';
   });
   function closeMobileMenu() {
     hamburger.classList.remove('open');
     mobileMenu.classList.remove('open');
     document.body.style.overflow = '';
+    if (waFloat) waFloat.style.display = '';
   }
 
   // Smooth scroll anchor links
@@ -1054,6 +1160,15 @@
       document.getElementById('nl-email').value = '';
     }
   }
+
+  // Live driver count
+  (async function() {
+    try {
+      var { count } = await sb.from('profiles').select('id', { count: 'exact', head: true }).eq('role', 'driver');
+      var el = document.getElementById('stat-drivers');
+      if (el && count !== null) el.textContent = count > 0 ? count + (count >= 10 ? '+' : '') : '—';
+    } catch(e) {}
+  })();
 
   // Auth state
   (async function() {
