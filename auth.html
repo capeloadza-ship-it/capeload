@@ -364,10 +364,14 @@
     document.getElementById('auth-subtitle').textContent = 'Access your fleet dashboard, jobs, and earnings.';
     // Hide signup tab for drivers (they register via driver-signup)
     document.getElementById('tabs').style.display = 'none';
+    document.getElementById('google-btn').style.display = 'none';
+    document.querySelector('.divider').style.display = 'none';
   } else if (redirectPage.includes('admin')) {
     document.getElementById('auth-title').textContent = 'Admin Login';
     document.getElementById('auth-subtitle').textContent = 'Admin access only.';
     document.getElementById('tabs').style.display = 'none';
+    document.getElementById('google-btn').style.display = 'none';
+    document.querySelector('.divider').style.display = 'none';
   }
 </script>
 
