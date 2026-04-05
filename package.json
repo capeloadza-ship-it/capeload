@@ -1,0 +1,9 @@
+{
+  "name": "capeload",
+  "private": true,
+  "scripts": {
+    "dev": "cd nextjs-app && npm run dev",
+    "build": "cd nextjs-app && npm run build",
+    "start": "cd nextjs-app && npm run start"
+  }
+}

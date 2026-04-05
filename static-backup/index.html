@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CapeLoad Logistics | Your Load, Our Road</title>
+  <meta name="description" content="CapeLoad Logistics — your load, our road. From bikes to trucks, we move your load across the Western Cape and beyond. Get an instant quote in 60 seconds.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    /* ═══════════════════════════════════════
+       RESET & BASE
+    ═══════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', Arial, Helvetica, sans-serif;
+      background: #0d0d14;
+      color: #e0e0e0;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    a { text-decoration: none; color: inherit; }
+    img { max-width: 100%; display: block; }
+    ul { list-style: none; }
+
+    /* ═══════════════════════════════════════
+       BRAND COLORS
+    ═══════════════════════════════════════ */
+    :root {
+      --orange: #f15f22;
+      --orange-dark: #c44a18;
+      --blue: #2b3990;
+      --blue-light: #3d4db3;
+      --charcoal: #414042;
+      --dark-bg: #0d0d14;
+      --card-bg: #14141f;
+      --card-border: #1e1e2e;
+      --text-primary: #f0f0f0;
+      --text-secondary: #999;
+      --text-muted: #666;
+    }
+
+    /* ═══════════════════════════════════════
+       UTILITY
+    ═══════════════════════════════════════ */
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+    .section-label {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--orange);
+      margin-bottom: 12px;
+    }
+    .section-title {
+      font-size: clamp(28px, 4vw, 42px);
+      font-weight: 800;
+      color: var(--text-primary);
+      line-height: 1.2;
+      margin-bottom: 16px;
+    }
+    .section-subtitle {
+      font-size: 16px;
+      color: var(--text-secondary);
+      max-width: 600px;
+      line-height: 1.7;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 32px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.2s, background 0.2s;
+    }
+    .btn:hover { opacity: 0.85; }
+    .btn-primary {
+      background: var(--orange);
+      color: #fff;
+    }
+    .btn-secondary {
+      background: rgba(255,255,255,0.06);
+      color: var(--text-primary);
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+    .btn-secondary:hover {
+      border-color: rgba(255,255,255,0.25);
+      opacity: 1;
+    }
+    .btn-blue {
+      background: var(--blue);
+      color: #fff;
+    }
+    .btn svg { width: 18px; height: 18px; }
+
+    /* ═══════════════════════════════════════
+       NAV
+    ═══════════════════════════════════════ */
+    .nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1000;
+      background: rgba(13, 13, 20, 0.7);
+      backdrop-filter: blur(24px) saturate(1.4);
+      -webkit-backdrop-filter: blur(24px) saturate(1.4);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      transition: all 0.4s ease;
+    }
+    .nav.scrolled {
+      background: rgba(13, 13, 20, 0.95);
+      box-shadow: 0 4px 30px rgba(0,0,0,0.3);
+      border-bottom-color: rgba(241, 95, 34, 0.08);
+    }
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 80px;
+      transition: height 0.3s;
+    }
+    .nav.scrolled .nav-inner { height: 68px; }
+    .logo {
+      display: flex;
+      align-items: center;
+    }
+    .logo img {
+      height: 48px;
+      width: auto;
+      transition: height 0.3s;
+    }
+    .nav.scrolled .logo img { height: 40px; }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .nav-links a {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      transition: all 0.25s;
+      padding: 8px 16px;
+      border-radius: 8px;
+      position: relative;
+    }
+    .nav-links a:not(.nav-cta):hover {
+      color: var(--text-primary);
+      background: rgba(255,255,255,0.05);
+    }
+    .nav-links a:not(.nav-cta)::after {
+      content: '';
+      position: absolute;
+      bottom: 2px;
+      left: 50%;
+      width: 0;
+      height: 2px;
+      background: var(--orange);
+      border-radius: 2px;
+      transition: all 0.3s;
+      transform: translateX(-50%);
+    }
+    .nav-links a:not(.nav-cta):hover::after {
+      width: 20px;
+    }
+    .nav-cta {
+      padding: 10px 28px !important;
+      font-size: 13px !important;
+      margin-left: 8px;
+      border-radius: 10px !important;
+      background: rgba(255, 255, 255, 0.08) !important;
+      color: #fff !important;
+      border: 1px solid rgba(255, 255, 255, 0.15) !important;
+      box-shadow: none !important;
+    }
+    .nav-cta:hover {
+      background: rgba(255, 255, 255, 0.14) !important;
+      border-color: rgba(255, 255, 255, 0.25) !important;
+      box-shadow: none !important;
+      color: #fff !important;
+    }
+    .nav-divider {
+      width: 1px;
+      height: 24px;
+      background: rgba(255,255,255,0.08);
+      margin: 0 8px;
+    }
+    .mobile-toggle {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 10px;
+      border-radius: 8px;
+      transition: background 0.2s;
+    }
+    .mobile-toggle:hover { background: rgba(255,255,255,0.05); }
+    .mobile-toggle span {
+      display: block;
+      width: 22px;
+      height: 2px;
+      background: var(--text-primary);
+      margin: 5px 0;
+      transition: 0.3s;
+      border-radius: 2px;
+    }
+
+    /* ═══════════════════════════════════════
+       HERO
+    ═══════════════════════════════════════ */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding-top: 80px;
+      overflow: hidden;
+    }
+    .hero::before { display: none; }
+    .hero::after { display: none; }
+    .hero-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+    }
+    .hero-content { max-width: 560px; }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      border-radius: 100px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 24px;
+    }
+    .hero-badge .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #22c55e;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    .hero h1 {
+      font-size: clamp(36px, 5vw, 56px);
+      font-weight: 900;
+      line-height: 1.1;
+      color: var(--text-primary);
+      margin-bottom: 20px;
+    }
+    .hero h1 .highlight { color: #fff; text-decoration: underline; text-decoration-color: var(--orange); text-underline-offset: 6px; text-decoration-thickness: 3px; }
+    .hero p {
+      font-size: 17px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin-bottom: 36px;
+      max-width: 480px;
+    }
+    .hero-buttons { display: flex; gap: 16px; flex-wrap: wrap; }
+    .hero-stats {
+      display: flex;
+      gap: 40px;
+      margin-top: 48px;
+      padding-top: 32px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+    .hero-stat-value {
+      font-size: 32px;
+      font-weight: 800;
+      color: var(--text-primary);
+      line-height: 1;
+    }
+    .hero-stat-label {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+
+    /* Hero visual */
+    .hero-visual {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .hero-graphic {
+      width: 100%;
+      max-width: 480px;
+      aspect-ratio: 1;
+      position: relative;
+    }
+    .hero-graphic .ring {
+      position: absolute;
+      border-radius: 50%;
+      border: 1px solid rgba(241, 95, 34, 0.1);
+    }
+    .hero-graphic .ring-1 { inset: 0; animation: spin 40s linear infinite; }
+    .hero-graphic .ring-2 { inset: 15%; border-color: rgba(43, 57, 144, 0.1); animation: spin 30s linear infinite reverse; }
+    .hero-graphic .ring-3 { inset: 30%; animation: spin 20s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .hero-graphic .center-icon {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 100px;
+      height: 100px;
+      background: rgba(241, 95, 34, 0.1);
+      border: 2px solid var(--orange);
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .hero-graphic .center-icon svg {
+      width: 48px;
+      height: 48px;
+      fill: none;
+      stroke: var(--orange);
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    /* Floating vehicle labels */
+    .vehicle-float {
+      position: absolute;
+      padding: 8px 16px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+      animation: float 4s ease-in-out infinite;
+    }
+    .vehicle-float:nth-child(4) { top: 8%; left: 10%; animation-delay: 0s; color: var(--orange); }
+    .vehicle-float:nth-child(5) { top: 20%; right: 5%; animation-delay: 1s; color: #7a8fd4; }
+    .vehicle-float:nth-child(6) { bottom: 25%; left: 2%; animation-delay: 0.5s; color: var(--orange); }
+    .vehicle-float:nth-child(7) { bottom: 10%; right: 10%; animation-delay: 1.5s; color: #7a8fd4; }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    /* ═══════════════════════════════════════
+       VEHICLES SECTION
+    ═══════════════════════════════════════ */
+    .vehicles {
+      padding: 100px 0;
+      border-top: 1px solid rgba(255,255,255,0.04);
+    }
+    .vehicles-header {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+    .vehicles-header .section-subtitle { margin: 0 auto; }
+    .vehicles-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 20px;
+    }
+    .vehicle-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 28px 20px;
+      text-align: center;
+      transition: all 0.3s ease;
+      cursor: default;
+    }
+    .vehicle-card:hover {
+      border-color: var(--orange);
+    }
+    .vehicle-img {
+      width: 100%;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 14px;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+    .vehicle-img.loaded { opacity: 1; }
+    .vehicle-card h3 {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+    .vehicle-card p {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    .vehicle-card .capacity {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 4px 12px;
+      border-radius: 100px;
+      font-size: 11px;
+      font-weight: 600;
+      background: rgba(43, 57, 144, 0.12);
+      color: #7a8fd4;
+    }
+
+    /* ═══════════════════════════════════════
+       HOW IT WORKS
+    ═══════════════════════════════════════ */
+    .how-it-works {
+      padding: 100px 0;
+      background: #0a0a12;
+      border-top: 1px solid rgba(255,255,255,0.04);
+    }
+    .how-header {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+    .how-header .section-subtitle { margin: 0 auto; }
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+      position: relative;
+    }
+    /* Connector line */
+    .steps::before {
+      content: '';
+      position: absolute;
+      top: 44px;
+      left: 16.5%;
+      right: 16.5%;
+      height: 2px;
+      background: rgba(255,255,255,0.08);
+      opacity: 0.3;
+    }
+    .step {
+      text-align: center;
+      position: relative;
+    }
+    .step-number {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: 900;
+      margin: 0 auto 24px;
+      position: relative;
+      z-index: 1;
+    }
+    .step:nth-child(1) .step-number {
+      background: rgba(241, 95, 34, 0.15);
+      color: var(--orange);
+      border: 2px solid rgba(241, 95, 34, 0.3);
+    }
+    .step:nth-child(2) .step-number {
+      background: rgba(43, 57, 144, 0.15);
+      color: #7a8fd4;
+      border: 2px solid rgba(43, 57, 144, 0.3);
+    }
+    .step:nth-child(3) .step-number {
+      background: rgba(241, 95, 34, 0.15);
+      color: var(--orange);
+      border: 2px solid rgba(241, 95, 34, 0.3);
+    }
+    .step h3 {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 10px;
+    }
+    .step p {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      max-width: 280px;
+      margin: 0 auto;
+    }
+
+    /* ═══════════════════════════════════════
+       COVERAGE
+    ═══════════════════════════════════════ */
+    .coverage {
+      padding: 100px 0;
+      border-top: 1px solid rgba(255,255,255,0.04);
+    }
+    .coverage-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+    }
+    .coverage-content { max-width: 480px; }
+    .coverage-content .section-subtitle { margin-bottom: 32px; }
+    .coverage-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    .coverage-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .coverage-item .check {
+      width: 24px;
+      height: 24px;
+      min-width: 24px;
+      border-radius: 6px;
+      background: rgba(241, 95, 34, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 2px;
+    }
+    .coverage-item .check svg {
+      width: 14px;
+      height: 14px;
+      stroke: var(--orange);
+      fill: none;
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .coverage-item .text h4 {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .coverage-item .text p {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    /* Map placeholder */
+    .coverage-map {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 40px;
+      aspect-ratio: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .coverage-map::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 40% 50%, rgba(241, 95, 34, 0.06) 0%, transparent 60%),
+                  radial-gradient(circle at 70% 40%, rgba(43, 57, 144, 0.06) 0%, transparent 60%);
+    }
+    .map-pin {
+      position: relative;
+      z-index: 1;
+    }
+    .map-pin svg {
+      width: 80px;
+      height: 80px;
+      stroke: var(--orange);
+      fill: none;
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .map-label {
+      position: relative;
+      z-index: 1;
+      margin-top: 16px;
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+    .map-sublabel {
+      position: relative;
+      z-index: 1;
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+    .map-regions {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+    .map-region {
+      padding: 6px 14px;
+      border-radius: 100px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .map-region.active {
+      background: rgba(241, 95, 34, 0.15);
+      color: var(--orange);
+      border: 1px solid rgba(241, 95, 34, 0.3);
+    }
+    .map-region.soon {
+      background: rgba(43, 57, 144, 0.1);
+      color: #7a8fd4;
+      border: 1px solid rgba(43, 57, 144, 0.2);
+    }
+
+    /* ═══════════════════════════════════════
+       CTA SPLIT
+    ═══════════════════════════════════════ */
+    .cta-split {
+      padding: 100px 0;
+      background: #0a0a12;
+      border-top: 1px solid rgba(255,255,255,0.04);
+    }
+    .cta-header {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+    .cta-header .section-subtitle { margin: 0 auto; }
+    .cta-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+    }
+    .cta-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 48px 40px;
+      transition: all 0.3s ease;
+    }
+    .cta-card.client-cta:hover {
+      border-color: var(--blue);
+    }
+    .cta-card.driver-cta:hover {
+      border-color: var(--orange);
+    }
+    .cta-card-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+    .client-cta .cta-card-icon {
+      background: rgba(43, 57, 144, 0.12);
+    }
+    .driver-cta .cta-card-icon {
+      background: rgba(241, 95, 34, 0.12);
+    }
+    .cta-card-icon svg {
+      width: 32px;
+      height: 32px;
+      fill: none;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .client-cta .cta-card-icon svg { stroke: var(--blue); }
+    .driver-cta .cta-card-icon svg { stroke: var(--orange); }
+    .cta-card h3 {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-bottom: 12px;
+    }
+    .cta-card p {
+      font-size: 15px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin-bottom: 28px;
+    }
+    .cta-card ul {
+      margin-bottom: 32px;
+    }
+    .cta-card ul li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      color: var(--text-secondary);
+      padding: 6px 0;
+    }
+    .cta-card ul li svg {
+      width: 16px;
+      height: 16px;
+      fill: none;
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      min-width: 16px;
+    }
+    .client-cta ul li svg { stroke: var(--blue); }
+    .driver-cta ul li svg { stroke: var(--orange); }
+
+    /* ═══════════════════════════════════════
+       FOOTER
+    ═══════════════════════════════════════ */
+    .footer {
+      padding: 60px 0 32px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+    .footer-inner {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr 1fr;
+      gap: 40px;
+      margin-bottom: 48px;
+    }
+    .footer-brand .logo { margin-bottom: 16px; }
+    .footer-brand p {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.7;
+      max-width: 280px;
+    }
+    .footer-col h4 {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+    }
+    .footer-col a {
+      display: block;
+      font-size: 14px;
+      color: var(--text-muted);
+      padding: 4px 0;
+      transition: color 0.2s;
+    }
+    .footer-col a:hover { color: var(--orange); }
+    .footer-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 24px;
+      border-top: 1px solid rgba(255,255,255,0.04);
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    .footer-socials {
+      display: flex;
+      gap: 16px;
+    }
+    .footer-socials a {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.04);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+    .footer-socials a:hover { background: rgba(241, 95, 34, 0.15); }
+    .footer-socials svg {
+      width: 16px;
+      height: 16px;
+      fill: var(--text-muted);
+    }
+
+    /* ═══════════════════════════════════════
+       SCROLL ANIMATIONS
+    ═══════════════════════════════════════ */
+    .reveal {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.4s; }
+    .reveal-delay-5 { transition-delay: 0.5s; }
+    .reveal-scale {
+      opacity: 0;
+      transform: scale(0.92);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal-scale.visible {
+      opacity: 1;
+      transform: scale(1);
+    }
+    .reveal-left {
+      opacity: 0;
+      transform: translateX(-40px);
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .reveal-left.visible { opacity: 1; transform: translateX(0); }
+    .reveal-right {
+      opacity: 0;
+      transform: translateX(40px);
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .reveal-right.visible { opacity: 1; transform: translateX(0); }
+
+    /* ═══════════════════════════════════════
+       UNSPLASH IMAGES
+    ═══════════════════════════════════════ */
+    .img-section {
+      width: 100%;
+      border-radius: 12px;
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity 0.6s ease;
+    }
+    .img-section.loaded { opacity: 1; }
+    .hero-image-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      gap: 12px;
+      height: 100%;
+      min-height: 380px;
+    }
+    .hero-image-grid img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 12px;
+      opacity: 0;
+      transition: opacity 0.6s ease;
+    }
+    .hero-image-grid img.loaded { opacity: 1; }
+    .hero-image-grid img:first-child {
+      grid-row: 1 / 3;
+      border-radius: 12px 0 0 12px;
+    }
+
+    /* ═══════════════════════════════════════
+       RESPONSIVE
+    ═══════════════════════════════════════ */
+    @media (max-width: 960px) {
+      .hero-inner { grid-template-columns: 1fr; text-align: center; }
+      .hero-content { max-width: 100%; margin: 0 auto; }
+      .hero p { margin: 0 auto 36px; }
+      .hero-buttons { justify-content: center; }
+      .hero-stats { justify-content: center; }
+      .hero-visual { display: none; }
+      .coverage-inner { grid-template-columns: 1fr; }
+      .coverage-map { max-width: 400px; margin: 0 auto; }
+      .steps::before { display: none; }
+      .footer-inner { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .mobile-toggle { display: block; }
+      .steps { grid-template-columns: 1fr; gap: 40px; }
+      .cta-cards { grid-template-columns: 1fr; }
+      .vehicles-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-inner { grid-template-columns: 1fr; }
+      .footer-bottom { flex-direction: column; gap: 16px; text-align: center; }
+    }
+    @media (max-width: 480px) {
+      .vehicles-grid { grid-template-columns: 1fr; }
+      .hero-stats { flex-direction: column; align-items: center; gap: 24px; }
+      .hero-buttons { flex-direction: column; }
+      .btn { width: 100%; justify-content: center; }
+    }
+
+    /* Mobile menu */
+    .mobile-menu {
+      display: none;
+      position: fixed;
+      top: 72px;
+      left: 0;
+      width: 100%;
+      background: rgba(13, 13, 20, 0.98);
+      backdrop-filter: blur(20px);
+      padding: 24px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      z-index: 999;
+    }
+    .mobile-menu.active { display: block; }
+    .mobile-menu a {
+      display: block;
+      padding: 12px 0;
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .mobile-menu a:hover { color: var(--orange); }
+    .mobile-menu .btn {
+      margin-top: 16px;
+      width: 100%;
+      justify-content: center;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════ NAV ═══════════ -->
+  <nav class="nav" id="nav">
+    <div class="container nav-inner">
+      <a href="/" class="logo">
+        <img src="images/logo-light.svg" alt="CapeLoad Logistics">
+      </a>
+      <div class="nav-links">
+        <a href="#vehicles">Vehicles</a>
+        <a href="#how-it-works">How it works</a>
+        <a href="#coverage">Coverage</a>
+        <a href="#get-started">Get started</a>
+        <div class="nav-divider"></div>
+        <a href="booking.html" class="btn nav-cta">Get a Quote</a>
+      </div>
+      <button class="mobile-toggle" id="mobileToggle" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile menu -->
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#vehicles">Vehicles</a>
+    <a href="#how-it-works">How it works</a>
+    <a href="#coverage">Coverage</a>
+    <a href="#get-started">Get started</a>
+    <a href="booking.html" class="btn btn-primary">Get a Quote</a>
+  </div>
+
+  <!-- ═══════════ HERO ═══════════ -->
+  <section class="hero">
+    <div class="container hero-inner">
+      <div class="hero-content reveal-left">
+        <div class="hero-badge">
+          <span class="dot"></span>
+          Now serving the Western Cape
+        </div>
+        <h1>Your load, <span class="highlight">our road.</span></h1>
+        <p>From a single parcel to a full house move — CapeLoad connects you with verified drivers and the right vehicle for every job. Get an instant quote in under 60 seconds.</p>
+        <div class="hero-buttons">
+          <a href="booking.html" class="btn btn-primary">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            Book a Load
+          </a>
+          <a href="driver-signup.html" class="btn btn-secondary">Register Your Vehicle</a>
+        </div>
+        <div class="hero-stats">
+          <div>
+            <div class="hero-stat-value">6+</div>
+            <div class="hero-stat-label">Vehicle types</div>
+          </div>
+          <div>
+            <div class="hero-stat-value">60s</div>
+            <div class="hero-stat-label">Instant quotes</div>
+          </div>
+          <div>
+            <div class="hero-stat-value">24/7</div>
+            <div class="hero-stat-label">WhatsApp support</div>
+          </div>
+        </div>
+      </div>
+      <div class="hero-visual reveal-right">
+        <div class="hero-image-grid">
+          <img src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=600&h=800&fit=crop" alt="Delivery truck on road" loading="lazy" onload="this.classList.add('loaded')">
+          <img src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=400&h=380&fit=crop" alt="Warehouse logistics" loading="lazy" onload="this.classList.add('loaded')">
+          <img src="https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=400&h=380&fit=crop" alt="Delivery driver" loading="lazy" onload="this.classList.add('loaded')">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ VEHICLES ═══════════ -->
+  <section class="vehicles" id="vehicles">
+    <div class="container">
+      <div class="vehicles-header reveal">
+        <div class="section-label">Our Fleet</div>
+        <h2 class="section-title">The right vehicle for every load</h2>
+        <p class="section-subtitle">Whether it's a small courier run or a full industrial haul, we've got you covered with owner-registered, verified vehicles.</p>
+      </div>
+      <div class="vehicles-grid">
+        <!-- Motorbike -->
+        <div class="vehicle-card reveal reveal-delay-1">
+          <img class="vehicle-img" src="https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=400&h=240&fit=crop" alt="Motorbike courier" loading="lazy" onload="this.classList.add('loaded')">
+          <h3>Motorbike</h3>
+          <p>Courier runs &amp; small parcels</p>
+          <span class="capacity">Up to 30 kg</span>
+        </div>
+        <!-- Bakkie / LDV -->
+        <div class="vehicle-card reveal reveal-delay-2">
+          <img class="vehicle-img" src="https://images.unsplash.com/photo-1612817288484-6f916006741a?w=400&h=240&fit=crop" alt="Bakkie pickup truck" loading="lazy" onload="this.classList.add('loaded')">
+          <h3>Bakkie / LDV</h3>
+          <p>Small loads &amp; quick trips</p>
+          <span class="capacity">Up to 1 ton</span>
+        </div>
+        <!-- Panel Van -->
+        <div class="vehicle-card reveal reveal-delay-3">
+          <img class="vehicle-img" src="https://images.unsplash.com/photo-1632276536839-84cad7fd03b0?w=400&h=240&fit=crop" alt="Panel van delivery" loading="lazy" onload="this.classList.add('loaded')">
+          <h3>Panel Van</h3>
+          <p>Furniture, boxes &amp; goods</p>
+          <span class="capacity">Up to 2 tons</span>
+        </div>
+        <!-- 4-Ton Truck -->
+        <div class="vehicle-card reveal reveal-delay-4">
+          <img class="vehicle-img" src="https://images.unsplash.com/photo-1592838064575-70ed626d3a0e?w=400&h=240&fit=crop" alt="Medium truck" loading="lazy" onload="this.classList.add('loaded')">
+          <h3>4-Ton Truck</h3>
+          <p>Medium hauls &amp; moves</p>
+          <span class="capacity">Up to 4 tons</span>
+        </div>
+        <!-- 8-Ton Truck -->
+        <div class="vehicle-card reveal reveal-delay-5">
+          <img class="vehicle-img" src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=400&h=240&fit=crop" alt="Large truck" loading="lazy" onload="this.classList.add('loaded')">
+          <h3>8-Ton Truck</h3>
+          <p>Large hauls &amp; bulk loads</p>
+          <span class="capacity">Up to 8 tons</span>
+        </div>
+        <!-- Flatbed / Super -->
+        <div class="vehicle-card reveal reveal-delay-5">
+          <img class="vehicle-img" src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=400&h=240&fit=crop" alt="Flatbed truck" loading="lazy" onload="this.classList.add('loaded')">
+          <h3>Flatbed / Super</h3>
+          <p>Industrial &amp; oversize loads</p>
+          <span class="capacity">8+ tons</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ HOW IT WORKS ═══════════ -->
+  <section class="how-it-works" id="how-it-works">
+    <div class="container">
+      <div class="how-header reveal">
+        <div class="section-label">How It Works</div>
+        <h2 class="section-title">Three steps to move your load</h2>
+        <p class="section-subtitle">No call centres, no waiting around. Tell us what you need, get a quote, and we handle the rest.</p>
+      </div>
+      <div class="steps">
+        <div class="step reveal reveal-delay-1">
+          <div class="step-number">
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg>
+          </div>
+          <h3>Tell us your load</h3>
+          <p>Choose your job type, select the right vehicle, and enter your pickup and drop-off locations.</p>
+        </div>
+        <div class="step reveal reveal-delay-2">
+          <div class="step-number">
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+          </div>
+          <h3>Get an instant quote</h3>
+          <p>We calculate your price upfront in Rands. No hidden fees, no surprises. Pay via EFT, card, or Ozow.</p>
+        </div>
+        <div class="step reveal reveal-delay-3">
+          <div class="step-number">
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          </div>
+          <h3>We dispatch &amp; deliver</h3>
+          <p>A verified driver is assigned to your job. Track live via WhatsApp and get confirmation on delivery.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ COVERAGE ═══════════ -->
+  <section class="coverage" id="coverage">
+    <div class="container coverage-inner">
+      <div class="coverage-content reveal-left">
+        <div class="section-label">Coverage</div>
+        <h2 class="section-title">Western Cape &amp; expanding nationally</h2>
+        <p class="section-subtitle">We started in Cape Town and are growing fast. Our network of owner-operators covers the entire Western Cape with national routes coming soon.</p>
+        <div class="coverage-list">
+          <div class="coverage-item">
+            <div class="check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="text">
+              <h4>Cape Town Metro</h4>
+              <p>CBD, Northern &amp; Southern suburbs, Cape Flats, Helderberg</p>
+            </div>
+          </div>
+          <div class="coverage-item">
+            <div class="check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="text">
+              <h4>Greater Western Cape</h4>
+              <p>Stellenbosch, Paarl, Worcester, Saldanha, Hermanus</p>
+            </div>
+          </div>
+          <div class="coverage-item">
+            <div class="check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="text">
+              <h4>National Routes</h4>
+              <p>Cape Town to JHB, Durban, PE &amp; Bloemfontein (coming soon)</p>
+            </div>
+          </div>
+        </div>
+        <a href="booking.html" class="btn btn-primary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          Check Your Route
+        </a>
+      </div>
+      <div class="coverage-map reveal-right" style="padding: 0; overflow: hidden; position: relative;">
+        <img src="https://images.unsplash.com/photo-1580060839134-75a5edca2e99?w=600&h=600&fit=crop" alt="Cape Town aerial view" loading="lazy" onload="this.classList.add('loaded')" style="width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 0.6s;">
+        <div style="position:absolute;inset:0;background:linear-gradient(to top, rgba(13,13,20,0.85) 0%, rgba(13,13,20,0.2) 50%, transparent 100%);display:flex;flex-direction:column;justify-content:flex-end;padding:32px;">
+          <div class="map-label">Western Cape</div>
+          <div class="map-sublabel">Cape Town HQ</div>
+          <div class="map-regions">
+            <span class="map-region active">WC Live</span>
+            <span class="map-region soon">Gauteng Soon</span>
+            <span class="map-region soon">KZN Soon</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ CTA SPLIT ═══════════ -->
+  <section class="cta-split" id="get-started">
+    <div class="container">
+      <div class="cta-header reveal">
+        <div class="section-label">Get Started</div>
+        <h2 class="section-title">Ready to move?</h2>
+        <p class="section-subtitle">Whether you need a load moved or have a vehicle to put to work, CapeLoad is your platform.</p>
+      </div>
+      <div class="cta-cards">
+        <!-- Client CTA -->
+        <div class="cta-card client-cta reveal reveal-delay-1">
+          <img src="https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=600&h=200&fit=crop" alt="Delivery in progress" loading="lazy" onload="this.classList.add('loaded')" style="width:100%;height:140px;object-fit:cover;border-radius:10px;margin-bottom:20px;opacity:0;transition:opacity 0.5s;">
+          <h3>Book a Load</h3>
+          <p>Need something moved? Get an instant quote and have a verified driver at your door — same day or scheduled.</p>
+          <ul>
+            <li>
+              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+              Instant upfront pricing in Rands
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+              Verified drivers with rated vehicles
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+              Live WhatsApp tracking updates
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+              Pay via EFT, card, or Ozow
+            </li>
+          </ul>
+          <a href="booking.html" class="btn btn-blue">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            Get a Quote Now
+          </a>
+        </div>
+        <!-- Driver CTA -->
+        <div class="cta-card driver-cta reveal reveal-delay-2">
+          <img src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=600&h=200&fit=crop" alt="Truck fleet" loading="lazy" onload="this.classList.add('loaded')" style="width:100%;height:140px;object-fit:cover;border-radius:10px;margin-bottom:20px;opacity:0;transition:opacity 0.5s;">
+          <h3>Register Your Vehicle</h3>
+          <p>Own a bakkie, van, or truck? Put it to work and earn. Join our fleet of verified owner-operators.</p>
+          <ul>
+            <li>
+              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+              Set your own availability
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+              Get job alerts via WhatsApp
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+              Weekly payouts to your account
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+              Free to register — earn per job
+            </li>
+          </ul>
+          <a href="driver-signup.html" class="btn btn-primary">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            Join the Fleet
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ FOOTER ═══════════ -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <div class="logo">
+            <img src="images/logo-light.svg" alt="CapeLoad Logistics">
+          </div>
+          <p>Your load, our road. From bikes to trucks, we move across the Western Cape and beyond. Built by Axious Creative.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Platform</h4>
+          <a href="booking.html">Book a Load</a>
+          <a href="driver-signup.html">Register Vehicle</a>
+          <a href="client-portal.html">Client Portal</a>
+          <a href="driver-portal.html">Driver Portal</a>
+        </div>
+        <div class="footer-col">
+          <h4>Company</h4>
+          <a href="#how-it-works">How it Works</a>
+          <a href="#vehicles">Our Fleet</a>
+          <a href="#coverage">Coverage Areas</a>
+          <a href="#">About Us</a>
+        </div>
+        <div class="footer-col">
+          <h4>Support</h4>
+          <a href="#">WhatsApp Us</a>
+          <a href="mailto:hello@capeload.co.za">hello@capeload.co.za</a>
+          <a href="#">Terms of Service</a>
+          <a href="#">Privacy Policy</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>&copy; 2026 CapeLoad Logistics. Cape Town, Western Cape.</span>
+        <div class="footer-socials">
+          <!-- Facebook -->
+          <a href="#" aria-label="Facebook">
+            <svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
+          </a>
+          <!-- Instagram -->
+          <a href="#" aria-label="Instagram">
+            <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1.5"/></svg>
+          </a>
+          <!-- WhatsApp -->
+          <a href="#" aria-label="WhatsApp">
+            <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.832-1.438A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ═══════════ SCRIPTS ═══════════ -->
+  <script>
+    // Mobile menu toggle
+    const mobileToggle = document.getElementById('mobileToggle');
+    const mobileMenu = document.getElementById('mobileMenu');
+    mobileToggle.addEventListener('click', () => {
+      mobileMenu.classList.toggle('active');
+    });
+
+    // Close mobile menu on link click
+    mobileMenu.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        mobileMenu.classList.remove('active');
+      });
+    });
+
+    // Nav scroll effect
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 50);
+    });
+
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+
+    // Scroll reveal animations
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+    document.querySelectorAll('.reveal, .reveal-scale, .reveal-left, .reveal-right').forEach(el => {
+      // Elements already in viewport get animated immediately with a tiny delay
+      const rect = el.getBoundingClientRect();
+      if (rect.top < window.innerHeight && rect.bottom > 0) {
+        setTimeout(() => el.classList.add('visible'), 100);
+      } else {
+        revealObserver.observe(el);
+      }
+    });
+  </script>
+</body>
+</html>

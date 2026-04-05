@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Driver Portal | CapeLoad Logistics</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: #f5f5f3; color: #1a1a1a; line-height: 1.6; }
+    a { text-decoration: none; color: inherit; }
+
+    :root {
+      --orange: #f15f22;
+      --orange-light: #fff1eb;
+      --blue: #2b3990;
+      --blue-light: #eef0f9;
+      --green: #22c55e;
+      --green-light: #dcfce7;
+      --red: #ef4444;
+      --red-light: #fee2e2;
+      --card-bg: #fff;
+      --card-border: #e8e8e5;
+      --text-secondary: #666;
+      --text-muted: #999;
+      --input-bg: #fafaf9;
+    }
+
+    /* Nav */
+    .nav { position: sticky; top: 0; z-index: 100; background: #fff; border-bottom: 1px solid var(--card-border); }
+    .nav-inner { max-width: 1200px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; height: 72px; }
+    .logo img { height: 48px; width: auto; }
+    .nav-right { display: flex; align-items: center; gap: 20px; }
+    .nav-user { font-size: 14px; font-weight: 600; color: var(--text-secondary); }
+    .nav-logout { font-size: 13px; color: var(--text-muted); cursor: pointer; transition: color 0.2s; }
+    .nav-logout:hover { color: var(--red); }
+
+    /* Layout */
+    .portal-layout { max-width: 1100px; margin: 0 auto; padding: 32px 24px 80px; }
+    .portal-header { margin-bottom: 32px; }
+    .portal-header h1 { font-size: 24px; font-weight: 800; }
+    .portal-header p { font-size: 14px; color: var(--text-secondary); }
+
+    /* Stats row */
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+    .stat-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 10px; padding: 20px; }
+    .stat-label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .stat-value { font-size: 28px; font-weight: 800; margin-top: 4px; }
+    .stat-value.orange { color: var(--orange); }
+    .stat-value.green { color: var(--green); }
+    .stat-value.blue { color: var(--blue); }
+
+    /* Tabs */
+    .tabs { display: flex; gap: 4px; margin-bottom: 24px; border-bottom: 1px solid var(--card-border); }
+    .tab { padding: 10px 20px; font-size: 14px; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; }
+    .tab:hover { color: #1a1a1a; }
+    .tab.active { color: var(--orange); border-bottom-color: var(--orange); }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* Cards */
+    .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 10px; padding: 24px; margin-bottom: 16px; }
+    .card-title { font-size: 15px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+
+    /* Vehicle cards */
+    .vehicle-card { display: flex; align-items: center; justify-content: space-between; padding: 16px; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 10px; margin-bottom: 12px; }
+    .vehicle-info { display: flex; align-items: center; gap: 14px; }
+    .vehicle-info-icon { width: 44px; height: 44px; border-radius: 10px; background: var(--orange-light); display: flex; align-items: center; justify-content: center; }
+    .vehicle-info-icon svg { width: 22px; height: 22px; stroke: var(--orange); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .vehicle-name { font-size: 14px; font-weight: 700; }
+    .vehicle-plate { font-size: 12px; color: var(--text-muted); }
+    .vehicle-actions { display: flex; align-items: center; gap: 12px; }
+
+    /* Toggle */
+    .toggle { position: relative; width: 48px; height: 26px; cursor: pointer; }
+    .toggle input { display: none; }
+    .toggle-track { width: 48px; height: 26px; border-radius: 13px; background: #ddd; transition: background 0.2s; position: absolute; top: 0; left: 0; }
+    .toggle input:checked + .toggle-track { background: var(--green); }
+    .toggle-thumb { width: 22px; height: 22px; border-radius: 50%; background: #fff; position: absolute; top: 2px; left: 2px; transition: transform 0.2s; }
+    .toggle input:checked ~ .toggle-thumb { transform: translateX(22px); }
+
+    /* Status badge */
+    .badge { display: inline-block; padding: 4px 10px; border-radius: 100px; font-size: 11px; font-weight: 600; }
+    .badge-green { background: var(--green-light); color: #16a34a; }
+    .badge-orange { background: var(--orange-light); color: var(--orange); }
+    .badge-red { background: var(--red-light); color: var(--red); }
+    .badge-blue { background: var(--blue-light); color: var(--blue); }
+
+    /* Job cards */
+    .job-card { padding: 16px; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 10px; margin-bottom: 12px; }
+    .job-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .job-type { font-size: 14px; font-weight: 700; }
+    .job-details { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 13px; color: var(--text-secondary); }
+    .job-detail { display: flex; align-items: center; gap: 6px; }
+    .job-detail svg { width: 14px; height: 14px; stroke: var(--text-muted); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; min-width: 14px; }
+    .job-actions { display: flex; gap: 10px; margin-top: 14px; }
+
+    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; border: none; cursor: pointer; transition: opacity 0.2s; font-family: inherit; }
+    .btn:hover { opacity: 0.85; }
+    .btn-primary { background: var(--orange); color: #fff; }
+    .btn-green { background: var(--green); color: #fff; }
+    .btn-outline { background: transparent; color: var(--text-secondary); border: 1px solid var(--card-border); }
+    .btn-outline:hover { border-color: #bbb; opacity: 1; }
+    .btn-sm { padding: 8px 14px; font-size: 12px; }
+    .btn svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* Earnings table */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { text-align: left; padding: 10px 12px; font-weight: 600; color: var(--text-muted); border-bottom: 1px solid var(--card-border); font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+    td { padding: 12px; border-bottom: 1px solid #f0f0ee; }
+    td.amount { font-weight: 700; color: var(--green); }
+
+    /* Empty state */
+    .empty { text-align: center; padding: 40px 20px; color: var(--text-muted); }
+    .empty svg { width: 48px; height: 48px; stroke: #ddd; fill: none; stroke-width: 1.5; margin: 0 auto 12px; display: block; }
+    .empty p { font-size: 14px; }
+
+    @media (max-width: 768px) {
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+      .job-details { grid-template-columns: 1fr; }
+      .tabs { overflow-x: auto; }
+    }
+    @media (max-width: 480px) {
+      .stats-row { grid-template-columns: 1fr; }
+      .vehicle-card { flex-direction: column; align-items: flex-start; gap: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="index.html" class="logo"><img src="images/logo.svg" alt="CapeLoad Logistics"></a>
+      <div class="nav-right">
+        <span class="nav-user">Sipho N.</span>
+        <a href="index.html" class="nav-logout">Log out</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="portal-layout">
+    <div class="portal-header">
+      <h1>Welcome back, Sipho</h1>
+      <p>Manage your vehicles, availability, and jobs</p>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">Active vehicles</div>
+        <div class="stat-value orange">2</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Jobs this week</div>
+        <div class="stat-value blue">5</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Earnings this week</div>
+        <div class="stat-value green">R4,250</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Rating</div>
+        <div class="stat-value">4.8</div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('vehicles')">My Vehicles</div>
+      <div class="tab" onclick="switchTab('jobs')">Job Board</div>
+      <div class="tab" onclick="switchTab('active')">Active Jobs</div>
+      <div class="tab" onclick="switchTab('earnings')">Earnings</div>
+    </div>
+
+    <!-- Vehicles Tab -->
+    <div class="tab-panel active" id="tab-vehicles">
+      <div class="vehicle-card">
+        <div class="vehicle-info">
+          <div class="vehicle-info-icon">
+            <svg viewBox="0 0 24 24"><path d="M3 12V7a1 1 0 011-1h8l3 4h4a2 2 0 012 2v2"/><path d="M3 12h18v4a1 1 0 01-1 1H4a1 1 0 01-1-1v-4z"/><circle cx="7" cy="17" r="2.5"/><circle cx="17" cy="17" r="2.5"/></svg>
+          </div>
+          <div>
+            <div class="vehicle-name">Toyota Hilux 2.4 — <span class="badge badge-green">Approved</span></div>
+            <div class="vehicle-plate">CA 123 456 &middot; Bakkie / LDV</div>
+          </div>
+        </div>
+        <div class="vehicle-actions">
+          <span style="font-size: 12px; color: var(--text-muted);">Available</span>
+          <label class="toggle">
+            <input type="checkbox" checked>
+            <div class="toggle-track"></div>
+            <div class="toggle-thumb"></div>
+          </label>
+        </div>
+      </div>
+
+      <div class="vehicle-card">
+        <div class="vehicle-info">
+          <div class="vehicle-info-icon">
+            <svg viewBox="0 0 24 24"><rect x="2" y="6" width="14" height="12" rx="2"/><path d="M16 9h3l3 4v5h-6V9z"/><circle cx="6.5" cy="18.5" r="2"/><circle cx="18" cy="18.5" r="2"/></svg>
+          </div>
+          <div>
+            <div class="vehicle-name">VW Crafter — <span class="badge badge-green">Approved</span></div>
+            <div class="vehicle-plate">CA 789 012 &middot; Panel Van</div>
+          </div>
+        </div>
+        <div class="vehicle-actions">
+          <span style="font-size: 12px; color: var(--text-muted);">Available</span>
+          <label class="toggle">
+            <input type="checkbox">
+            <div class="toggle-track"></div>
+            <div class="toggle-thumb"></div>
+          </label>
+        </div>
+      </div>
+
+      <button class="btn btn-outline" style="margin-top: 8px;">
+        <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add another vehicle
+      </button>
+    </div>
+
+    <!-- Job Board Tab -->
+    <div class="tab-panel" id="tab-jobs">
+      <div class="job-card">
+        <div class="job-header">
+          <span class="job-type">Move — Panel Van</span>
+          <span class="badge badge-orange">New</span>
+        </div>
+        <div class="job-details">
+          <div class="job-detail">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 018 8c0 5.4-8 12-8 12S4 15.4 4 10a8 8 0 018-8z"/></svg>
+            Claremont → CBD
+          </div>
+          <div class="job-detail">
+            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Today, 14:00
+          </div>
+          <div class="job-detail">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+            R850
+          </div>
+          <div class="job-detail">
+            <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            John D.
+          </div>
+        </div>
+        <div class="job-actions">
+          <button class="btn btn-green btn-sm">Accept</button>
+          <button class="btn btn-outline btn-sm">Decline</button>
+        </div>
+      </div>
+
+      <div class="job-card">
+        <div class="job-header">
+          <span class="job-type">Courier — Bakkie</span>
+          <span class="badge badge-orange">New</span>
+        </div>
+        <div class="job-details">
+          <div class="job-detail">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 018 8c0 5.4-8 12-8 12S4 15.4 4 10a8 8 0 018-8z"/></svg>
+            Parow → Bellville
+          </div>
+          <div class="job-detail">
+            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Tomorrow, 09:00
+          </div>
+          <div class="job-detail">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+            R520
+          </div>
+          <div class="job-detail">
+            <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Sarah M.
+          </div>
+        </div>
+        <div class="job-actions">
+          <button class="btn btn-green btn-sm">Accept</button>
+          <button class="btn btn-outline btn-sm">Decline</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Active Jobs Tab -->
+    <div class="tab-panel" id="tab-active">
+      <div class="job-card">
+        <div class="job-header">
+          <span class="job-type">Move — Panel Van</span>
+          <span class="badge badge-blue">In Progress</span>
+        </div>
+        <div class="job-details">
+          <div class="job-detail">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 018 8c0 5.4-8 12-8 12S4 15.4 4 10a8 8 0 018-8z"/></svg>
+            Sea Point → Woodstock
+          </div>
+          <div class="job-detail">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Pickup at 10:00 — en route
+          </div>
+          <div class="job-detail">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+            R1,100
+          </div>
+          <div class="job-detail">
+            <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.79 19.79 0 012.12 4.11 2 2 0 014.11 2h3"/></svg>
+            Client: Mike T. — 072 345 6789
+          </div>
+        </div>
+        <div class="job-actions">
+          <button class="btn btn-primary btn-sm">Mark Delivered</button>
+          <button class="btn btn-outline btn-sm">Contact Client</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Earnings Tab -->
+    <div class="tab-panel" id="tab-earnings">
+      <div class="card">
+        <div class="card-title">This week's earnings</div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Date</th><th>Job</th><th>Route</th><th>Vehicle</th><th>Amount</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Mon 31 Mar</td><td>Move</td><td>Claremont → CBD</td><td>Bakkie</td><td class="amount">R850</td></tr>
+              <tr><td>Tue 1 Apr</td><td>Courier</td><td>Parow → Bellville</td><td>Bakkie</td><td class="amount">R520</td></tr>
+              <tr><td>Wed 2 Apr</td><td>Move</td><td>Sea Point → Woodstock</td><td>Panel Van</td><td class="amount">R1,100</td></tr>
+              <tr><td>Wed 2 Apr</td><td>Courier</td><td>Obs → Rondebosch</td><td>Bakkie</td><td class="amount">R380</td></tr>
+              <tr><td>Thu 3 Apr</td><td>Move</td><td>Pinelands → Milnerton</td><td>Panel Van</td><td class="amount">R1,400</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <div style="font-size: 13px; color: var(--text-muted);">Payout this Friday</div>
+            <div style="font-size: 28px; font-weight: 800; color: var(--green);">R4,250</div>
+          </div>
+          <span class="badge badge-green">Scheduled</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(name) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById('tab-' + name).classList.add('active');
+    }
+
+    // Load any bookings from localStorage into job board
+    function loadBookings() {
+      const bookings = JSON.parse(localStorage.getItem('capeload_bookings') || '[]');
+      const pending = bookings.filter(b => b.status === 'pending');
+      if (pending.length === 0) return;
+
+      const jobBoard = document.getElementById('tab-jobs');
+      const pricingLabels = { motorbike: 'Motorbike', bakkie: 'Bakkie', 'panel-van': 'Panel Van', '4-ton': '4-Ton', '8-ton': '8-Ton', flatbed: 'Flatbed' };
+
+      pending.forEach(b => {
+        const card = document.createElement('div');
+        card.className = 'job-card';
+        card.id = 'job-' + b.ref;
+        const jobType = b.jobType ? b.jobType.charAt(0).toUpperCase() + b.jobType.slice(1) : 'Job';
+        const vehicle = pricingLabels[b.vehicle] || b.vehicle;
+        const driverPay = b.driverPayout || Math.round(b.total * 0.85);
+        card.innerHTML = '<div class="job-header"><span class="job-type">' + jobType + ' — ' + vehicle + '</span><span class="badge badge-orange">New</span></div>' +
+          '<div class="job-details">' +
+          '<div class="job-detail"><svg viewBox="0 0 24 24"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 018 8c0 5.4-8 12-8 12S4 15.4 4 10a8 8 0 018-8z"/></svg>' + (b.pickup || '?') + ' → ' + (b.dropoff || '?') + '</div>' +
+          '<div class="job-detail"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>' + (b.date || 'Flexible') + ' at ' + (b.time || 'Flexible') + '</div>' +
+          '<div class="job-detail"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>You earn: R' + driverPay.toLocaleString() + '</div>' +
+          '<div class="job-detail"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>' + (b.name || 'Guest') + '</div>' +
+          '</div>' +
+          '<div class="job-actions"><button class="btn btn-green btn-sm" onclick="acceptJob(\'' + b.ref + '\')">Accept</button><button class="btn btn-outline btn-sm" onclick="declineJob(\'' + b.ref + '\')">Decline</button></div>';
+        jobBoard.insertBefore(card, jobBoard.firstChild);
+      });
+    }
+
+    function acceptJob(ref) {
+      const bookings = JSON.parse(localStorage.getItem('capeload_bookings') || '[]');
+      const idx = bookings.findIndex(b => b.ref === ref);
+      if (idx > -1) {
+        bookings[idx].status = 'active';
+        bookings[idx].driver = 'Sipho N.';
+        bookings[idx].acceptedAt = new Date().toISOString();
+        localStorage.setItem('capeload_bookings', JSON.stringify(bookings));
+      }
+      const card = document.getElementById('job-' + ref);
+      if (card) {
+        card.querySelector('.badge').className = 'badge badge-blue';
+        card.querySelector('.badge').textContent = 'Accepted';
+        card.querySelector('.job-actions').innerHTML = '<button class="btn btn-primary btn-sm" onclick="completeJob(\'' + ref + '\')">Mark Delivered</button>';
+      }
+      updateStats();
+    }
+
+    function declineJob(ref) {
+      const card = document.getElementById('job-' + ref);
+      if (card) card.remove();
+    }
+
+    function completeJob(ref) {
+      const bookings = JSON.parse(localStorage.getItem('capeload_bookings') || '[]');
+      const idx = bookings.findIndex(b => b.ref === ref);
+      if (idx > -1) {
+        bookings[idx].status = 'completed';
+        bookings[idx].completedAt = new Date().toISOString();
+        localStorage.setItem('capeload_bookings', JSON.stringify(bookings));
+      }
+      const card = document.getElementById('job-' + ref);
+      if (card) {
+        card.querySelector('.badge').className = 'badge badge-green';
+        card.querySelector('.badge').textContent = 'Completed';
+        card.querySelector('.job-actions').innerHTML = '<span style="font-size:13px;color:#22c55e;font-weight:600;">Delivered</span>';
+      }
+      updateStats();
+    }
+
+    function updateStats() {
+      const bookings = JSON.parse(localStorage.getItem('capeload_bookings') || '[]');
+      const activeCount = bookings.filter(b => b.status === 'active').length;
+      const completedWeek = bookings.filter(b => b.status === 'completed').length;
+      const earnings = bookings.filter(b => b.status === 'completed').reduce((sum, b) => sum + (b.driverPayout || 0), 0);
+      // Update stat cards (first 3)
+      const statValues = document.querySelectorAll('.stat-value');
+      if (statValues[1]) statValues[1].textContent = completedWeek + 5; // add to demo data
+      if (statValues[2]) statValues[2].textContent = 'R' + (4250 + earnings).toLocaleString();
+    }
+
+    // Availability toggle persistence
+    document.querySelectorAll('.toggle input').forEach((toggle, i) => {
+      const key = 'vehicle_avail_' + i;
+      const saved = localStorage.getItem(key);
+      if (saved !== null) toggle.checked = saved === 'true';
+      toggle.addEventListener('change', () => localStorage.setItem(key, toggle.checked));
+    });
+
+    loadBookings();
+    updateStats();
+  </script>
+</body>
+</html>

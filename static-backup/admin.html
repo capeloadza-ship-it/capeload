@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel | CapeLoad Logistics</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: #f5f5f3; color: #1a1a1a; line-height: 1.6; }
+    a { text-decoration: none; color: inherit; }
+
+    :root {
+      --orange: #f15f22; --orange-light: #fff1eb; --blue: #2b3990; --blue-light: #eef0f9;
+      --green: #22c55e; --green-light: #dcfce7; --red: #ef4444; --red-light: #fee2e2;
+      --yellow: #f59e0b; --yellow-light: #fef3c7;
+      --card-bg: #fff; --card-border: #e8e8e5; --text-secondary: #666; --text-muted: #999;
+    }
+
+    /* Sidebar */
+    .sidebar { position: fixed; top: 0; left: 0; width: 240px; height: 100vh; background: #1a1a2e; padding: 20px 0; overflow-y: auto; z-index: 50; }
+    .sidebar-logo { padding: 0 20px 24px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .sidebar-logo img { height: 48px; width: auto; }
+    .sidebar-nav { padding: 16px 0; }
+    .sidebar-link { display: flex; align-items: center; gap: 10px; padding: 10px 20px; font-size: 14px; font-weight: 500; color: #888; cursor: pointer; transition: all 0.2s; border-left: 3px solid transparent; }
+    .sidebar-link:hover { color: #ddd; background: rgba(255,255,255,0.03); }
+    .sidebar-link.active { color: var(--orange); background: rgba(241,95,34,0.06); border-left-color: var(--orange); }
+    .sidebar-link svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; min-width: 18px; }
+    .sidebar-section { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: #555; padding: 20px 20px 8px; }
+
+    /* Main */
+    .main { margin-left: 240px; min-height: 100vh; }
+    .topbar { background: var(--card-bg); border-bottom: 1px solid var(--card-border); padding: 0 32px; height: 56px; display: flex; align-items: center; justify-content: space-between; }
+    .topbar-title { font-size: 16px; font-weight: 700; }
+    .topbar-right { display: flex; align-items: center; gap: 16px; font-size: 13px; color: var(--text-muted); }
+
+    .content { padding: 32px; }
+
+    /* Stats */
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+    .stat-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 10px; padding: 20px; }
+    .stat-label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .stat-value { font-size: 28px; font-weight: 800; margin-top: 4px; }
+    .stat-value.orange { color: var(--orange); }
+    .stat-value.green { color: var(--green); }
+    .stat-value.blue { color: var(--blue); }
+    .stat-value.yellow { color: var(--yellow); }
+
+    /* Panel */
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Card / Table */
+    .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 10px; padding: 24px; margin-bottom: 24px; }
+    .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .card-title { font-size: 15px; font-weight: 700; }
+
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { text-align: left; padding: 10px 12px; font-weight: 600; color: var(--text-muted); border-bottom: 1px solid var(--card-border); font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+    td { padding: 12px; border-bottom: 1px solid #f0f0ee; vertical-align: middle; }
+
+    .badge { display: inline-block; padding: 4px 10px; border-radius: 100px; font-size: 11px; font-weight: 600; }
+    .badge-green { background: var(--green-light); color: #16a34a; }
+    .badge-orange { background: var(--orange-light); color: var(--orange); }
+    .badge-red { background: var(--red-light); color: var(--red); }
+    .badge-blue { background: var(--blue-light); color: var(--blue); }
+    .badge-yellow { background: var(--yellow-light); color: #b45309; }
+
+    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; border: none; cursor: pointer; transition: opacity 0.2s; font-family: inherit; }
+    .btn:hover { opacity: 0.85; }
+    .btn-primary { background: var(--orange); color: #fff; }
+    .btn-green { background: var(--green); color: #fff; }
+    .btn-red { background: var(--red); color: #fff; }
+    .btn-outline { background: transparent; color: var(--text-secondary); border: 1px solid var(--card-border); }
+    .btn svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    .driver-row { display: flex; align-items: center; gap: 10px; }
+    .driver-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--orange-light); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: var(--orange); }
+
+    @media (max-width: 960px) {
+      .sidebar { display: none; }
+      .main { margin-left: 0; }
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 640px) {
+      .stats-row { grid-template-columns: 1fr; }
+      .content { padding: 20px 16px; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <a href="index.html"><img src="images/logo-light.svg" alt="CapeLoad"></a>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section">Overview</div>
+      <div class="sidebar-link active" onclick="showPanel('bookings', this)">
+        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Bookings
+      </div>
+      <div class="sidebar-link" onclick="showPanel('fleet', this)">
+        <svg viewBox="0 0 24 24"><rect x="1" y="6" width="15" height="13" rx="2"/><path d="M16 10h4l3 4v5h-7V10z"/><circle cx="5.5" cy="19.5" r="2.5"/><circle cx="18.5" cy="19.5" r="2.5"/></svg>
+        Fleet
+      </div>
+      <div class="sidebar-link" onclick="showPanel('drivers', this)">
+        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        Drivers
+      </div>
+      <div class="sidebar-link" onclick="showPanel('clients', this)">
+        <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Clients
+      </div>
+      <div class="sidebar-section">Operations</div>
+      <div class="sidebar-link" onclick="showPanel('notifications', this)">
+        <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+        Notifications
+      </div>
+    </nav>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title">Admin Panel</div>
+      <div class="topbar-right">
+        <span>Admin User</span>
+        <a href="index.html" style="color: var(--red); font-weight: 600;">Log out</a>
+      </div>
+    </div>
+
+    <div class="content">
+      <!-- Stats -->
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-label">Today's bookings</div><div class="stat-value orange">12</div></div>
+        <div class="stat-card"><div class="stat-label">Active vehicles</div><div class="stat-value blue">28</div></div>
+        <div class="stat-card"><div class="stat-label">Pending approvals</div><div class="stat-value yellow">4</div></div>
+        <div class="stat-card"><div class="stat-label">Weekly revenue</div><div class="stat-value green">R42,800</div></div>
+      </div>
+
+      <!-- Bookings Panel -->
+      <div class="panel active" id="panel-bookings">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">All Bookings</div>
+            <button class="btn btn-primary"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> New Booking</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Ref</th><th>Client</th><th>Type</th><th>Route</th><th>Vehicle</th><th>Status</th><th>Actions</th></tr></thead>
+              <tbody>
+                <tr><td>CL-384721</td><td>John D.</td><td>Move</td><td>Claremont → CBD</td><td>Panel Van</td><td><span class="badge badge-blue">In Progress</span></td><td><button class="btn btn-outline">View</button></td></tr>
+                <tr><td>CL-384720</td><td>Sarah M.</td><td>Courier</td><td>Parow → Bellville</td><td>Bakkie</td><td><span class="badge badge-orange">Pending</span></td><td><button class="btn btn-outline">Assign</button></td></tr>
+                <tr><td>CL-384719</td><td>Mike T.</td><td>Move</td><td>Sea Point → Woodstock</td><td>Panel Van</td><td><span class="badge badge-green">Completed</span></td><td><button class="btn btn-outline">View</button></td></tr>
+                <tr><td>CL-384718</td><td>Lisa K.</td><td>Haul</td><td>Epping → Montague</td><td>4-Ton</td><td><span class="badge badge-green">Completed</span></td><td><button class="btn btn-outline">View</button></td></tr>
+                <tr><td>CL-384717</td><td>Guest</td><td>Courier</td><td>Obs → Rondebosch</td><td>Motorbike</td><td><span class="badge badge-yellow">Unassigned</span></td><td><button class="btn btn-primary">Assign</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fleet Panel -->
+      <div class="panel" id="panel-fleet">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Fleet Overview</div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Vehicle</th><th>Owner</th><th>Type</th><th>Plate</th><th>Status</th><th>Available</th></tr></thead>
+              <tbody>
+                <tr><td>Toyota Hilux 2.4</td><td>Sipho N.</td><td>Bakkie</td><td>CA 123 456</td><td><span class="badge badge-green">Approved</span></td><td><span class="badge badge-green">Yes</span></td></tr>
+                <tr><td>VW Crafter</td><td>Sipho N.</td><td>Panel Van</td><td>CA 789 012</td><td><span class="badge badge-green">Approved</span></td><td><span class="badge badge-red">No</span></td></tr>
+                <tr><td>Isuzu NPR 400</td><td>Thabo M.</td><td>4-Ton</td><td>CA 345 678</td><td><span class="badge badge-green">Approved</span></td><td><span class="badge badge-green">Yes</span></td></tr>
+                <tr><td>Honda PCX 150</td><td>David K.</td><td>Motorbike</td><td>CA 901 234</td><td><span class="badge badge-yellow">Pending</span></td><td><span class="badge badge-red">No</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Drivers Panel -->
+      <div class="panel" id="panel-drivers">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Driver Management</div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Driver</th><th>Vehicles</th><th>Jobs Done</th><th>Rating</th><th>Status</th><th>Actions</th></tr></thead>
+              <tbody>
+                <tr><td><div class="driver-row"><div class="driver-avatar">SN</div><div><div style="font-weight:600">Sipho Ndlovu</div><div style="font-size:11px;color:var(--text-muted)">071 234 5678</div></div></div></td><td>2</td><td>47</td><td>4.8</td><td><span class="badge badge-green">Active</span></td><td><button class="btn btn-outline">View</button></td></tr>
+                <tr><td><div class="driver-row"><div class="driver-avatar">TM</div><div><div style="font-weight:600">Thabo Mokoena</div><div style="font-size:11px;color:var(--text-muted)">082 345 6789</div></div></div></td><td>1</td><td>23</td><td>4.6</td><td><span class="badge badge-green">Active</span></td><td><button class="btn btn-outline">View</button></td></tr>
+                <tr><td><div class="driver-row"><div class="driver-avatar">DK</div><div><div style="font-weight:600">David Khumalo</div><div style="font-size:11px;color:var(--text-muted)">063 456 7890</div></div></div></td><td>1</td><td>0</td><td>—</td><td><span class="badge badge-yellow">Pending</span></td><td><button class="btn btn-green">Approve</button> <button class="btn btn-red">Reject</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Clients Panel -->
+      <div class="panel" id="panel-clients">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Client Accounts</div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Client</th><th>Type</th><th>Jobs</th><th>Total Spent</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr><td>John Doe</td><td><span class="badge badge-blue">Long-term</span></td><td>12</td><td>R14,200</td><td><span class="badge badge-green">Active</span></td></tr>
+                <tr><td>Sarah Miller</td><td><span class="badge badge-orange">Guest</span></td><td>3</td><td>R2,850</td><td><span class="badge badge-green">Active</span></td></tr>
+                <tr><td>Cape Movers PTY</td><td><span class="badge badge-blue">Long-term</span></td><td>34</td><td>R68,500</td><td><span class="badge badge-green">Active</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notifications Panel -->
+      <div class="panel" id="panel-notifications">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Send Notification</div>
+          </div>
+          <div style="display:grid; gap:16px;">
+            <div>
+              <label style="display:block;font-size:13px;font-weight:600;margin-bottom:6px;">Recipient</label>
+              <select style="width:100%;padding:12px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;font-family:inherit;outline:none;">
+                <option>Select recipient</option>
+                <option>Sipho Ndlovu (Driver)</option>
+                <option>John Doe (Client)</option>
+                <option>All active drivers</option>
+                <option>All clients</option>
+              </select>
+            </div>
+            <div>
+              <label style="display:block;font-size:13px;font-weight:600;margin-bottom:6px;">Channel</label>
+              <div style="display:flex;gap:12px;">
+                <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;"><input type="radio" name="channel" value="whatsapp" checked> WhatsApp</label>
+                <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;"><input type="radio" name="channel" value="sms"> SMS</label>
+              </div>
+            </div>
+            <div>
+              <label style="display:block;font-size:13px;font-weight:600;margin-bottom:6px;">Message</label>
+              <textarea style="width:100%;padding:12px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;font-family:inherit;outline:none;min-height:100px;resize:vertical;" placeholder="Type your message..."></textarea>
+            </div>
+            <button class="btn btn-primary" style="align-self:flex-start;padding:12px 24px;">Send notification</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function showPanel(name, el) {
+      document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      el.classList.add('active');
+      document.getElementById('panel-' + name).classList.add('active');
+      document.querySelector('.topbar-title').textContent = el.textContent.trim();
+    }
+
+    const vehicleLabels = { motorbike: 'Motorbike', bakkie: 'Bakkie', 'panel-van': 'Panel Van', '4-ton': '4-Ton', '8-ton': '8-Ton', flatbed: 'Flatbed' };
+    const COMMISSION_RATE = 0.15;
+
+    // Load real bookings into the bookings table
+    function loadAdminBookings() {
+      const bookings = JSON.parse(localStorage.getItem('capeload_bookings') || '[]');
+      if (bookings.length === 0) return;
+
+      const tbody = document.querySelector('#panel-bookings tbody');
+
+      bookings.forEach(b => {
+        const tr = document.createElement('tr');
+        const statusMap = { pending: 'badge-orange', active: 'badge-blue', completed: 'badge-green' };
+        const statusLabel = { pending: 'Pending', active: 'In Progress', completed: 'Completed' };
+        const badgeClass = statusMap[b.status] || 'badge-orange';
+        const jobType = b.jobType ? b.jobType.charAt(0).toUpperCase() + b.jobType.slice(1) : '—';
+        const vehicle = vehicleLabels[b.vehicle] || b.vehicle || '—';
+        const route = (b.pickup || '?').split(',')[0] + ' → ' + (b.dropoff || '?').split(',')[0];
+        const action = b.status === 'pending'
+          ? '<button class="btn btn-primary" onclick="assignBooking(\'' + b.ref + '\', this)">Assign</button>'
+          : '<button class="btn btn-outline">View</button>';
+
+        tr.innerHTML = '<td>' + b.ref + '</td><td>' + (b.name || 'Guest') + '</td><td>' + jobType + '</td><td>' + route + '</td><td>' + vehicle + '</td><td><span class="badge ' + badgeClass + '">' + (statusLabel[b.status] || 'Pending') + '</span></td><td>' + action + '</td>';
+        tbody.insertBefore(tr, tbody.firstChild);
+      });
+
+      // Update stats
+      const totalRev = bookings.reduce((s, b) => s + (b.commission || Math.round((b.total || 0) * COMMISSION_RATE)), 0);
+      const pendingCount = bookings.filter(b => b.status === 'pending').length;
+      const statValues = document.querySelectorAll('.stat-value');
+      if (statValues[0]) statValues[0].textContent = bookings.length + 12;
+      if (statValues[2]) statValues[2].textContent = pendingCount + 4;
+      if (statValues[3]) statValues[3].textContent = 'R' + (42800 + totalRev).toLocaleString();
+    }
+
+    function assignBooking(ref, btn) {
+      const bookings = JSON.parse(localStorage.getItem('capeload_bookings') || '[]');
+      const idx = bookings.findIndex(b => b.ref === ref);
+      if (idx > -1) {
+        bookings[idx].status = 'active';
+        bookings[idx].driver = 'Sipho N.';
+        localStorage.setItem('capeload_bookings', JSON.stringify(bookings));
+      }
+      const td = btn.closest('td');
+      td.previousElementSibling.innerHTML = '<span class="badge badge-blue">In Progress</span>';
+      td.innerHTML = '<button class="btn btn-outline">View</button>';
+    }
+
+    loadAdminBookings();
+  </script>
+</body>
+</html>

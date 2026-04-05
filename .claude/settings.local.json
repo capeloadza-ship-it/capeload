@@ -1,0 +1,39 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__Claude_Preview__preview_start",
+      "Bash(mkdir -p static-backup)",
+      "Bash(cp *.html static-backup/)",
+      "Bash(npx create-next-app@latest nextjs-app --typescript --app --no-tailwind --eslint --src-dir --import-alias \"@/*\" --use-npm)",
+      "Bash(npm install:*)",
+      "Bash(npx next:*)",
+      "Bash(npx tsc:*)",
+      "Bash(curl -s http://localhost:3000)",
+      "Bash(gh repo:*)",
+      "Bash(git --version)",
+      "Bash(winget install:*)",
+      "Bash(export PATH=\"$PATH:/c/Program Files/GitHub CLI\")",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" auth status)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" https://github.com/capeloadza-ship-it/capeload_ship.it)",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" auth login --web)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" https://github.com/capeloadza-ship-it/capeload.co.za)",
+      "Bash(curl -s https://api.github.com/repos/capeloadza-ship-it/capeload.co.za)",
+      "Bash(npx vercel:*)",
+      "Bash(vercel --yes --prod)",
+      "Bash(vercel env:*)",
+      "Bash(vercel domains:*)",
+      "Bash(npm uninstall:*)",
+      "Bash(nslookup capeload.co.za)",
+      "Bash(curl -sI https://capeload.co.za)",
+      "Bash(curl -sI http://capeload.co.za)",
+      "Bash(curl -sk https://capeload.co.za)",
+      "Bash(curl -s \"https://nextjs-app-virid-xi-86.vercel.app/api/vehicles/available\")",
+      "Bash(curl -s \"https://kudjacibkfztvdvwunuh.supabase.co/rest/v1/vehicles?select=id,type,make,model,status,available,availability_status&limit=5\" -H \"apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1ZGphY2lia2Z6dHZkdnd1bnVoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyNDEzNzksImV4cCI6MjA5MDgxNzM3OX0._jFmir_W-XirkG_6DrDPb4AaIuEbk6jAo8Yw6u2WcHY\" -H \"Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1ZGphY2lia2Z6dHZkdnd1bnVoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyNDEzNzksImV4cCI6MjA5MDgxNzM3OX0._jFmir_W-XirkG_6DrDPb4AaIuEbk6jAo8Yw6u2WcHY\")",
+      "Bash(curl -s \"https://kudjacibkfztvdvwunuh.supabase.co/rest/v1/vehicles?select=id,type,make,model,availability_status&limit=5\" -H \"apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1ZGphY2lia2Z6dHZkdnd1bnVoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyNDEzNzksImV4cCI6MjA5MDgxNzM3OX0._jFmir_W-XirkG_6DrDPb4AaIuEbk6jAo8Yw6u2WcHY\")",
+      "Bash(taskkill //PID 4328 //F)",
+      "Bash(netstat -ano)",
+      "Bash(findstr :3000)",
+      "Bash(taskkill //F //IM node.exe)"
+    ]
+  }
+}

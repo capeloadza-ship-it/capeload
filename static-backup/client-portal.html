@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Client Portal | CapeLoad Logistics</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: #f5f5f3; color: #1a1a1a; line-height: 1.6; }
+    a { text-decoration: none; color: inherit; }
+
+    :root {
+      --orange: #f15f22; --orange-light: #fff1eb; --blue: #2b3990; --blue-light: #eef0f9;
+      --green: #22c55e; --green-light: #dcfce7; --red: #ef4444; --red-light: #fee2e2;
+      --card-bg: #fff; --card-border: #e8e8e5; --text-secondary: #666; --text-muted: #999;
+    }
+
+    .nav { position: sticky; top: 0; z-index: 100; background: #fff; border-bottom: 1px solid var(--card-border); }
+    .nav-inner { max-width: 1200px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; height: 72px; }
+    .logo img { height: 48px; width: auto; }
+    .nav-right { display: flex; align-items: center; gap: 20px; }
+    .nav-user { font-size: 14px; font-weight: 600; color: var(--text-secondary); }
+    .nav-logout { font-size: 13px; color: var(--text-muted); cursor: pointer; }
+    .nav-logout:hover { color: var(--red); }
+
+    .portal-layout { max-width: 1100px; margin: 0 auto; padding: 32px 24px 80px; }
+    .portal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; flex-wrap: wrap; gap: 16px; }
+    .portal-header h1 { font-size: 24px; font-weight: 800; }
+    .portal-header p { font-size: 14px; color: var(--text-secondary); }
+
+    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; border: none; cursor: pointer; transition: opacity 0.2s; font-family: inherit; }
+    .btn:hover { opacity: 0.85; }
+    .btn-primary { background: var(--orange); color: #fff; }
+    .btn-outline { background: transparent; color: var(--text-secondary); border: 1px solid var(--card-border); }
+    .btn-outline:hover { border-color: #bbb; opacity: 1; }
+    .btn svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* Stats */
+    .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 32px; }
+    .stat-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 10px; padding: 20px; }
+    .stat-label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .stat-value { font-size: 28px; font-weight: 800; margin-top: 4px; }
+    .stat-value.orange { color: var(--orange); }
+    .stat-value.green { color: var(--green); }
+    .stat-value.blue { color: var(--blue); }
+
+    /* Tabs */
+    .tabs { display: flex; gap: 4px; margin-bottom: 24px; border-bottom: 1px solid var(--card-border); }
+    .tab { padding: 10px 20px; font-size: 14px; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; }
+    .tab:hover { color: #1a1a1a; }
+    .tab.active { color: var(--blue); border-bottom-color: var(--blue); }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 10px; padding: 24px; margin-bottom: 16px; }
+    .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .card-title { font-size: 15px; font-weight: 700; }
+
+    .badge { display: inline-block; padding: 4px 10px; border-radius: 100px; font-size: 11px; font-weight: 600; }
+    .badge-green { background: var(--green-light); color: #16a34a; }
+    .badge-orange { background: var(--orange-light); color: var(--orange); }
+    .badge-blue { background: var(--blue-light); color: var(--blue); }
+
+    /* Job list */
+    .job-item { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid #f0f0ee; }
+    .job-item:last-child { border-bottom: none; }
+    .job-item-left { display: flex; align-items: center; gap: 14px; }
+    .job-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+    .job-icon svg { width: 20px; height: 20px; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .job-icon.move { background: var(--blue-light); }
+    .job-icon.move svg { stroke: var(--blue); }
+    .job-icon.courier { background: var(--orange-light); }
+    .job-icon.courier svg { stroke: var(--orange); }
+    .job-icon.haul { background: var(--green-light); }
+    .job-icon.haul svg { stroke: var(--green); }
+    .job-meta h4 { font-size: 14px; font-weight: 600; }
+    .job-meta p { font-size: 12px; color: var(--text-muted); }
+    .job-item-right { text-align: right; }
+    .job-price { font-size: 15px; font-weight: 700; }
+    .job-date { font-size: 12px; color: var(--text-muted); }
+
+    /* Live tracking placeholder */
+    .map-placeholder { background: #eee; border-radius: 10px; height: 300px; display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 14px; border: 1px solid var(--card-border); }
+    .map-placeholder svg { width: 32px; height: 32px; stroke: #ccc; fill: none; stroke-width: 1.5; margin-right: 10px; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { text-align: left; padding: 10px 12px; font-weight: 600; color: var(--text-muted); border-bottom: 1px solid var(--card-border); font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+    td { padding: 12px; border-bottom: 1px solid #f0f0ee; }
+
+    /* Quick re-book */
+    .template-card { display: flex; align-items: center; justify-content: space-between; padding: 16px; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 10px; margin-bottom: 12px; }
+    .template-info { display: flex; align-items: center; gap: 12px; }
+    .template-info h4 { font-size: 14px; font-weight: 600; }
+    .template-info p { font-size: 12px; color: var(--text-muted); }
+
+    @media (max-width: 768px) {
+      .stats-row { grid-template-columns: 1fr; }
+      .job-item { flex-direction: column; align-items: flex-start; gap: 10px; }
+      .job-item-right { text-align: left; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="index.html" class="logo"><img src="images/logo.svg" alt="CapeLoad Logistics"></a>
+      <div class="nav-right">
+        <span class="nav-user">John Doe</span>
+        <a href="index.html" class="nav-logout">Log out</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="portal-layout">
+    <div class="portal-header">
+      <div>
+        <h1>Welcome back, John</h1>
+        <p>Manage your bookings and track deliveries</p>
+      </div>
+      <a href="booking.html" class="btn btn-primary">
+        <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        New Booking
+      </a>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-label">Active bookings</div><div class="stat-value orange">2</div></div>
+      <div class="stat-card"><div class="stat-label">Completed this month</div><div class="stat-value blue">8</div></div>
+      <div class="stat-card"><div class="stat-label">Total spent</div><div class="stat-value green">R14,200</div></div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('active')">Active</div>
+      <div class="tab" onclick="switchTab('recurring')">Recurring</div>
+      <div class="tab" onclick="switchTab('history')">History</div>
+      <div class="tab" onclick="switchTab('tracking')">Live Tracking</div>
+    </div>
+
+    <!-- Active Bookings -->
+    <div class="tab-panel active" id="tab-active">
+      <div class="card">
+        <div class="card-title">Upcoming &amp; active</div>
+        <div class="job-item">
+          <div class="job-item-left">
+            <div class="job-icon move"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a4 4 0 00-8 0v2"/></svg></div>
+            <div class="job-meta">
+              <h4>Move — Panel Van</h4>
+              <p>Claremont → CBD &middot; Driver: Sipho N.</p>
+            </div>
+          </div>
+          <div class="job-item-right">
+            <span class="badge badge-blue">In Progress</span>
+            <div class="job-date">Today, 14:00</div>
+          </div>
+        </div>
+        <div class="job-item">
+          <div class="job-item-left">
+            <div class="job-icon courier"><svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="16.5" r="2.5"/><circle cx="18.5" cy="16.5" r="2.5"/></svg></div>
+            <div class="job-meta">
+              <h4>Courier — Bakkie</h4>
+              <p>Obs → Rondebosch &middot; Pending driver</p>
+            </div>
+          </div>
+          <div class="job-item-right">
+            <span class="badge badge-orange">Pending</span>
+            <div class="job-date">Tomorrow, 09:00</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recurring Templates -->
+    <div class="tab-panel" id="tab-recurring">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Job templates</div>
+          <button class="btn btn-outline"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> New template</button>
+        </div>
+        <div class="template-card">
+          <div class="template-info">
+            <div class="job-icon move"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a4 4 0 00-8 0v2"/></svg></div>
+            <div>
+              <h4>Weekly warehouse run</h4>
+              <p>Epping → Montague &middot; 4-Ton Truck &middot; Every Monday</p>
+            </div>
+          </div>
+          <button class="btn btn-primary">Re-book</button>
+        </div>
+        <div class="template-card">
+          <div class="template-info">
+            <div class="job-icon courier"><svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="16.5" r="2.5"/><circle cx="18.5" cy="16.5" r="2.5"/></svg></div>
+            <div>
+              <h4>Office supplies delivery</h4>
+              <p>Parow → CBD &middot; Bakkie &middot; Every Wednesday</p>
+            </div>
+          </div>
+          <button class="btn btn-primary">Re-book</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- History -->
+    <div class="tab-panel" id="tab-history">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Job history</div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Ref</th><th>Date</th><th>Type</th><th>Route</th><th>Amount</th><th>Invoice</th></tr></thead>
+            <tbody>
+              <tr><td>CL-384719</td><td>2 Apr 2026</td><td>Move</td><td>Sea Point → Woodstock</td><td>R1,100</td><td><button class="btn btn-outline" style="padding:6px 10px;font-size:11px;">Download</button></td></tr>
+              <tr><td>CL-384715</td><td>28 Mar 2026</td><td>Courier</td><td>Parow → Bellville</td><td>R520</td><td><button class="btn btn-outline" style="padding:6px 10px;font-size:11px;">Download</button></td></tr>
+              <tr><td>CL-384710</td><td>25 Mar 2026</td><td>Haul</td><td>Epping → Montague</td><td>R3,200</td><td><button class="btn btn-outline" style="padding:6px 10px;font-size:11px;">Download</button></td></tr>
+              <tr><td>CL-384702</td><td>21 Mar 2026</td><td>Move</td><td>Pinelands → Milnerton</td><td>R1,400</td><td><button class="btn btn-outline" style="padding:6px 10px;font-size:11px;">Download</button></td></tr>
+              <tr><td>CL-384698</td><td>18 Mar 2026</td><td>Courier</td><td>Obs → Rondebosch</td><td>R380</td><td><button class="btn btn-outline" style="padding:6px 10px;font-size:11px;">Download</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live Tracking -->
+    <div class="tab-panel" id="tab-tracking">
+      <div class="card">
+        <div class="card-title">Live driver tracking</div>
+        <div class="map-placeholder">
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          Map will display here when a driver is en route (Google Maps integration)
+        </div>
+        <div style="margin-top: 16px;">
+          <div class="job-item" style="border-bottom: none;">
+            <div class="job-item-left">
+              <div class="job-icon move"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a4 4 0 00-8 0v2"/></svg></div>
+              <div class="job-meta">
+                <h4>Driver: Sipho N. — Toyota Hilux</h4>
+                <p>ETA: ~15 minutes &middot; Claremont → CBD</p>
+              </div>
+            </div>
+            <div class="job-item-right">
+              <span class="badge badge-blue">En Route</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(name) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById('tab-' + name).classList.add('active');
+    }
+
+    const vehicleLabels = { motorbike: 'Motorbike', bakkie: 'Bakkie', 'panel-van': 'Panel Van', '4-ton': '4-Ton', '8-ton': '8-Ton', flatbed: 'Flatbed' };
+
+    function loadClientBookings() {
+      const bookings = JSON.parse(localStorage.getItem('capeload_bookings') || '[]');
+      if (bookings.length === 0) return;
+
+      // Active bookings
+      const activePanel = document.querySelector('#tab-active .card');
+      const titleEl = activePanel.querySelector('.card-title');
+
+      bookings.filter(b => b.status === 'pending' || b.status === 'active').forEach(b => {
+        const jobType = b.jobType ? b.jobType.charAt(0).toUpperCase() + b.jobType.slice(1) : 'Job';
+        const vehicle = vehicleLabels[b.vehicle] || b.vehicle;
+        const badgeClass = b.status === 'active' ? 'badge-blue' : 'badge-orange';
+        const badgeText = b.status === 'active' ? 'In Progress' : 'Pending';
+        const driver = b.driver || 'Pending driver';
+        const iconClass = b.jobType === 'courier' ? 'courier' : b.jobType === 'haul' ? 'haul' : 'move';
+        const iconSvg = '<svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a4 4 0 00-8 0v2"/></svg>';
+
+        const item = document.createElement('div');
+        item.className = 'job-item';
+        item.innerHTML = '<div class="job-item-left"><div class="job-icon ' + iconClass + '">' + iconSvg + '</div><div class="job-meta"><h4>' + jobType + ' — ' + vehicle + '</h4><p>' + (b.pickup || '?').split(',')[0] + ' → ' + (b.dropoff || '?').split(',')[0] + ' · ' + driver + '</p></div></div><div class="job-item-right"><span class="badge ' + badgeClass + '">' + badgeText + '</span><div class="job-date">' + (b.date || 'Flexible') + '</div></div>';
+        activePanel.appendChild(item);
+      });
+
+      // History
+      const historyTbody = document.querySelector('#tab-history tbody');
+      bookings.filter(b => b.status === 'completed').forEach(b => {
+        const tr = document.createElement('tr');
+        const jobType = b.jobType ? b.jobType.charAt(0).toUpperCase() + b.jobType.slice(1) : '—';
+        const route = (b.pickup || '?').split(',')[0] + ' → ' + (b.dropoff || '?').split(',')[0];
+        tr.innerHTML = '<td>' + b.ref + '</td><td>' + (b.date || '—') + '</td><td>' + jobType + '</td><td>' + route + '</td><td>R' + (b.total || 0).toLocaleString() + '</td><td><button class="btn btn-outline" style="padding:6px 10px;font-size:11px;">Download</button></td>';
+        historyTbody.insertBefore(tr, historyTbody.firstChild);
+      });
+
+      // Update stats
+      const activeCount = bookings.filter(b => b.status === 'pending' || b.status === 'active').length;
+      const completedCount = bookings.filter(b => b.status === 'completed').length;
+      const totalSpent = bookings.reduce((s, b) => s + (b.total || 0), 0);
+      const statValues = document.querySelectorAll('.stat-value');
+      if (statValues[0]) statValues[0].textContent = activeCount + 2;
+      if (statValues[1]) statValues[1].textContent = completedCount + 8;
+      if (statValues[2]) statValues[2].textContent = 'R' + (14200 + totalSpent).toLocaleString();
+    }
+
+    loadClientBookings();
+  </script>
+</body>
+</html>

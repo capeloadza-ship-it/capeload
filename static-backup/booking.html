@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Book a Load | CapeLoad Logistics</title>
+  <meta name="description" content="Get an instant quote and book your delivery in under 60 seconds. From courier runs to full house moves.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', Arial, Helvetica, sans-serif;
+      background: #f5f5f3;
+      color: #1a1a1a;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    a { text-decoration: none; color: inherit; }
+    ul { list-style: none; }
+
+    :root {
+      --orange: #f15f22;
+      --orange-dark: #c44a18;
+      --orange-light: #fff1eb;
+      --blue: #2b3990;
+      --blue-light: #eef0f9;
+      --charcoal: #414042;
+      --bg: #f5f5f3;
+      --card-bg: #fff;
+      --card-border: #e8e8e5;
+      --text-primary: #1a1a1a;
+      --text-secondary: #666;
+      --text-muted: #999;
+      --input-bg: #fafaf9;
+      --input-border: #ddd;
+      --input-focus: var(--orange);
+      --shadow-sm: none;
+      --shadow-md: none;
+      --shadow-lg: none;
+    }
+
+    /* ═══════════ NAV ═══════════ */
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: #fff;
+      border-bottom: 1px solid var(--card-border);
+      box-shadow: var(--shadow-sm);
+    }
+    .nav-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 72px;
+    }
+    .logo { display: flex; align-items: center; }
+    .logo img { height: 48px; width: auto; }
+    .nav-back {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      transition: color 0.2s;
+    }
+    .nav-back:hover { color: var(--orange); }
+    .nav-back svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* ═══════════ LAYOUT ═══════════ */
+    .booking-layout {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+    }
+    .booking-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .booking-header h1 {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+    .booking-header p {
+      font-size: 15px;
+      color: var(--text-secondary);
+    }
+
+    /* ═══════════ STEPPER ═══════════ */
+    .stepper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      margin-bottom: 40px;
+    }
+    .stepper-step {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .stepper-num {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+      border: 2px solid var(--card-border);
+      color: var(--text-muted);
+      background: var(--card-bg);
+      transition: all 0.3s;
+    }
+    .stepper-step.active .stepper-num {
+      background: var(--orange);
+      border-color: var(--orange);
+      color: #fff;
+    }
+    .stepper-step.done .stepper-num {
+      background: #22c55e;
+      border-color: #22c55e;
+      color: #fff;
+    }
+    .stepper-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      transition: color 0.3s;
+    }
+    .stepper-step.active .stepper-label { color: var(--text-primary); }
+    .stepper-step.done .stepper-label { color: #22c55e; }
+    .stepper-line {
+      width: 48px;
+      height: 2px;
+      background: var(--card-border);
+      margin: 0 12px;
+      transition: background 0.3s;
+    }
+    .stepper-line.done { background: #22c55e; }
+
+    /* ═══════════ STEP PANELS ═══════════ */
+    .step-panel {
+      display: none;
+      animation: fadeIn 0.35s ease;
+    }
+    .step-panel.active { display: block; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ═══════════ CARDS ═══════════ */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 28px;
+      margin-bottom: 24px;
+    }
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 20px;
+    }
+
+    /* ═══════════ JOB TYPE SELECTOR ═══════════ */
+    .job-types {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    .job-type {
+      position: relative;
+      background: var(--input-bg);
+      border: 2px solid var(--card-border);
+      border-radius: 14px;
+      padding: 24px 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.25s;
+    }
+    .job-type:hover {
+      border-color: #ccc;
+    }
+    .job-type.selected {
+      border-color: var(--orange);
+      background: var(--orange-light);
+    }
+    .job-type input { display: none; }
+    .job-type-icon {
+      width: 48px;
+      height: 48px;
+      margin: 0 auto 12px;
+      background: rgba(241, 95, 34, 0.08);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .job-type.selected .job-type-icon { background: rgba(241, 95, 34, 0.15); }
+    .job-type-icon svg {
+      width: 24px; height: 24px;
+      stroke: var(--orange); fill: none;
+      stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+    }
+    .job-type h3 {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+    .job-type p {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .job-type .check-mark {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--orange);
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+    .job-type.selected .check-mark { display: flex; }
+    .job-type .check-mark svg {
+      width: 12px; height: 12px;
+      stroke: #fff; stroke-width: 3;
+    }
+
+    /* ═══════════ VEHICLE PICKER ═══════════ */
+    .vehicles-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }
+    .vehicle-option {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px;
+      background: var(--input-bg);
+      border: 2px solid var(--card-border);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.25s;
+    }
+    .vehicle-option:hover {
+      border-color: #ccc;
+    }
+    .vehicle-option.selected {
+      border-color: var(--orange);
+      background: var(--orange-light);
+    }
+    .vehicle-option input { display: none; }
+    .vehicle-option-icon {
+      width: 42px;
+      height: 42px;
+      min-width: 42px;
+      background: rgba(241, 95, 34, 0.08);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .vehicle-option.selected .vehicle-option-icon { background: rgba(241, 95, 34, 0.15); }
+    .vehicle-option-icon svg {
+      width: 22px; height: 22px;
+      stroke: var(--orange); fill: none;
+      stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+    }
+    .vehicle-option-info h4 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .vehicle-option-info p {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .vehicle-option .check-mark {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--orange);
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+    .vehicle-option.selected .check-mark { display: flex; }
+    .vehicle-option .check-mark svg {
+      width: 11px; height: 11px;
+      stroke: #fff; stroke-width: 3;
+    }
+    .vehicle-suggest {
+      margin-top: 16px;
+      padding: 12px 16px;
+      background: var(--blue-light);
+      border-radius: 10px;
+      font-size: 13px;
+      color: var(--blue);
+      display: none;
+      align-items: center;
+      gap: 8px;
+    }
+    .vehicle-suggest.visible { display: flex; }
+    .vehicle-suggest svg {
+      width: 16px; height: 16px; min-width: 16px;
+      stroke: var(--blue); fill: none;
+      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    /* ═══════════ FORM INPUTS ═══════════ */
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .input-wrapper {
+      position: relative;
+    }
+    .input-wrapper svg {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 18px; height: 18px;
+      stroke: var(--text-muted); fill: none;
+      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+      pointer-events: none;
+    }
+    input[type="text"],
+    input[type="date"],
+    input[type="time"],
+    input[type="email"],
+    input[type="tel"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1.5px solid var(--input-border);
+      border-radius: 10px;
+      font-size: 14px;
+      font-family: inherit;
+      background: var(--input-bg);
+      color: var(--text-primary);
+      transition: all 0.2s;
+      outline: none;
+    }
+    .input-wrapper input,
+    .input-wrapper select {
+      padding-left: 42px;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--orange);
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(241, 95, 34, 0.1);
+    }
+    textarea { resize: vertical; min-height: 80px; }
+
+    /* ═══════════ QUOTE SUMMARY ═══════════ */
+    .quote-box {
+      background: #1a1a2e;
+      border-radius: 10px;
+      padding: 32px;
+      color: #fff;
+      margin-bottom: 24px;
+    }
+    .quote-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+    .quote-price {
+      font-size: 48px;
+      font-weight: 900;
+      color: var(--orange);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .quote-price span {
+      font-size: 20px;
+      font-weight: 600;
+      color: #888;
+    }
+    .quote-note {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 24px;
+    }
+    .quote-breakdown {
+      border-top: 1px solid rgba(255,255,255,0.08);
+      padding-top: 20px;
+    }
+    .quote-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      font-size: 14px;
+    }
+    .quote-row .label { color: #888; }
+    .quote-row .value { color: #ddd; font-weight: 600; }
+    .quote-row.total {
+      border-top: 1px solid rgba(255,255,255,0.08);
+      margin-top: 8px;
+      padding-top: 16px;
+    }
+    .quote-row.total .label { color: #fff; font-weight: 700; }
+    .quote-row.total .value { color: var(--orange); font-size: 20px; font-weight: 800; }
+
+    /* ═══════════ CONFIRMATION ═══════════ */
+    .confirmation {
+      text-align: center;
+      padding: 40px 20px;
+    }
+    .confirmation-icon {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: #dcfce7;
+      margin: 0 auto 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .confirmation-icon svg {
+      width: 40px; height: 40px;
+      stroke: #22c55e; fill: none;
+      stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;
+    }
+    .confirmation h2 {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+    .confirmation p {
+      font-size: 15px;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+    .confirmation .ref-num {
+      display: inline-block;
+      padding: 6px 16px;
+      background: var(--orange-light);
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--orange);
+      margin: 16px 0 32px;
+    }
+    .confirmation-actions {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    /* ═══════════ BUTTONS ═══════════ */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 28px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.2s, background 0.2s;
+      font-family: inherit;
+    }
+    .btn:hover { opacity: 0.85; }
+    .btn-primary {
+      background: var(--orange);
+      color: #fff;
+    }
+    .btn-secondary {
+      background: #fff;
+      color: var(--text-primary);
+      border: 1px solid var(--card-border);
+    }
+    .btn-secondary:hover {
+      border-color: #bbb;
+      opacity: 1;
+    }
+    .btn-wa {
+      background: #25d366;
+      color: #fff;
+    }
+    .btn svg { width: 16px; height: 16px; }
+    .btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    /* Step navigation */
+    .step-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 8px;
+    }
+    .step-nav .btn svg {
+      stroke: currentColor; fill: none;
+      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    /* ═══════════ RESPONSIVE ═══════════ */
+    @media (max-width: 640px) {
+      .job-types { grid-template-columns: 1fr; }
+      .vehicles-grid { grid-template-columns: 1fr; }
+      .form-row { grid-template-columns: 1fr; }
+      .stepper-label { display: none; }
+      .stepper-line { width: 32px; margin: 0 6px; }
+      .booking-header h1 { font-size: 22px; }
+      .card { padding: 24px 20px; }
+      .quote-price { font-size: 36px; }
+      .confirmation-actions { flex-direction: column; }
+      .btn { width: 100%; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════ NAV ═══════════ -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="index.html" class="logo">
+        <img src="images/logo.svg" alt="CapeLoad Logistics">
+      </a>
+      <a href="index.html" class="nav-back">
+        <svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        Back to home
+      </a>
+    </div>
+  </nav>
+
+  <!-- ═══════════ BOOKING ═══════════ -->
+  <div class="booking-layout">
+    <div class="booking-header">
+      <h1>Book your load</h1>
+      <p>Tell us what you need moved and get a quote in seconds</p>
+    </div>
+
+    <!-- Stepper -->
+    <div class="stepper" id="stepper">
+      <div class="stepper-step active" data-step="1">
+        <div class="stepper-num">1</div>
+        <span class="stepper-label">Job type</span>
+      </div>
+      <div class="stepper-line"></div>
+      <div class="stepper-step" data-step="2">
+        <div class="stepper-num">2</div>
+        <span class="stepper-label">Vehicle</span>
+      </div>
+      <div class="stepper-line"></div>
+      <div class="stepper-step" data-step="3">
+        <div class="stepper-num">3</div>
+        <span class="stepper-label">Details</span>
+      </div>
+      <div class="stepper-line"></div>
+      <div class="stepper-step" data-step="4">
+        <div class="stepper-num">4</div>
+        <span class="stepper-label">Quote</span>
+      </div>
+    </div>
+
+    <!-- ═══════════ STEP 1: JOB TYPE ═══════════ -->
+    <div class="step-panel active" id="step-1">
+      <div class="card">
+        <div class="card-title">What do you need?</div>
+        <div class="job-types">
+          <label class="job-type" onclick="selectJobType(this)">
+            <input type="radio" name="jobType" value="move">
+            <div class="check-mark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="job-type-icon">
+              <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a4 4 0 00-8 0v2"/></svg>
+            </div>
+            <h3>Move</h3>
+            <p>House, office or furniture</p>
+          </label>
+          <label class="job-type" onclick="selectJobType(this)">
+            <input type="radio" name="jobType" value="courier">
+            <div class="check-mark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="job-type-icon">
+              <svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="16.5" r="2.5"/><circle cx="18.5" cy="16.5" r="2.5"/></svg>
+            </div>
+            <h3>Courier</h3>
+            <p>Parcels &amp; packages</p>
+          </label>
+          <label class="job-type" onclick="selectJobType(this)">
+            <input type="radio" name="jobType" value="haul">
+            <div class="check-mark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="job-type-icon">
+              <svg viewBox="0 0 24 24"><rect x="1" y="4" width="14" height="15" rx="1"/><path d="M15 8h4l4 5v5h-8V8z"/><circle cx="5" cy="19.5" r="2.5"/><circle cx="19.5" cy="19.5" r="2.5"/></svg>
+            </div>
+            <h3>Haul</h3>
+            <p>Construction, bulk &amp; industrial</p>
+          </label>
+        </div>
+      </div>
+      <div class="step-nav">
+        <div></div>
+        <button class="btn btn-primary" id="next-1" disabled onclick="goToStep(2)">
+          Next: Choose vehicle
+          <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- ═══════════ STEP 2: VEHICLE ═══════════ -->
+    <div class="step-panel" id="step-2">
+      <div class="card">
+        <div class="card-title">Choose your vehicle</div>
+        <div class="vehicle-suggest" id="vehicleSuggest">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+          <span id="suggestText">Based on your job type, we recommend a <strong>Panel Van</strong></span>
+        </div>
+        <div class="vehicles-grid" style="margin-top: 16px;">
+          <label class="vehicle-option" onclick="selectVehicle(this)">
+            <input type="radio" name="vehicle" value="motorbike">
+            <div class="check-mark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="vehicle-option-icon">
+              <svg viewBox="0 0 24 24"><circle cx="5" cy="18" r="3"/><circle cx="19" cy="18" r="3"/><path d="M12 18V9l-3-3h4l3 6h3"/><path d="M9 6l1 6h6"/></svg>
+            </div>
+            <div class="vehicle-option-info">
+              <h4>Motorbike</h4>
+              <p>Up to 30 kg</p>
+            </div>
+          </label>
+          <label class="vehicle-option" onclick="selectVehicle(this)">
+            <input type="radio" name="vehicle" value="bakkie">
+            <div class="check-mark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="vehicle-option-icon">
+              <svg viewBox="0 0 24 24"><rect x="1" y="10" width="12" height="9" rx="1"/><path d="M13 13h5l3 3v3h-8V13z"/><circle cx="5" cy="19.5" r="2"/><circle cx="18.5" cy="19.5" r="2"/><path d="M1 10l3-5h7l2 5"/></svg>
+            </div>
+            <div class="vehicle-option-info">
+              <h4>Bakkie / LDV</h4>
+              <p>Up to 1 ton</p>
+            </div>
+          </label>
+          <label class="vehicle-option" onclick="selectVehicle(this)">
+            <input type="radio" name="vehicle" value="panel-van">
+            <div class="check-mark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="vehicle-option-icon">
+              <svg viewBox="0 0 24 24"><rect x="1" y="6" width="15" height="13" rx="2"/><path d="M16 10h4l3 4v5h-7V10z"/><circle cx="5.5" cy="19.5" r="2.5"/><circle cx="18.5" cy="19.5" r="2.5"/></svg>
+            </div>
+            <div class="vehicle-option-info">
+              <h4>Panel Van</h4>
+              <p>Up to 2 tons</p>
+            </div>
+          </label>
+          <label class="vehicle-option" onclick="selectVehicle(this)">
+            <input type="radio" name="vehicle" value="4-ton">
+            <div class="check-mark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="vehicle-option-icon">
+              <svg viewBox="0 0 24 24"><rect x="1" y="4" width="13" height="14" rx="1"/><path d="M14 9h5l3 4v5h-8V9z"/><circle cx="5" cy="18.5" r="2.5"/><circle cx="19" cy="18.5" r="2.5"/></svg>
+            </div>
+            <div class="vehicle-option-info">
+              <h4>4-Ton Truck</h4>
+              <p>Up to 4 tons</p>
+            </div>
+          </label>
+          <label class="vehicle-option" onclick="selectVehicle(this)">
+            <input type="radio" name="vehicle" value="8-ton">
+            <div class="check-mark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="vehicle-option-icon">
+              <svg viewBox="0 0 24 24"><rect x="1" y="3" width="14" height="15" rx="1"/><path d="M15 8h4l4 5v5h-8V8z"/><circle cx="5" cy="18.5" r="2.5"/><circle cx="19.5" cy="18.5" r="2.5"/><circle cx="9" cy="18.5" r="2.5"/></svg>
+            </div>
+            <div class="vehicle-option-info">
+              <h4>8-Ton Truck</h4>
+              <p>Up to 8 tons</p>
+            </div>
+          </label>
+          <label class="vehicle-option" onclick="selectVehicle(this)">
+            <input type="radio" name="vehicle" value="flatbed">
+            <div class="check-mark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="vehicle-option-icon">
+              <svg viewBox="0 0 24 24"><rect x="1" y="8" width="16" height="3" rx="1"/><path d="M17 8h4l2 3v7h-6V8z"/><line x1="1" y1="11" x2="17" y2="11"/><circle cx="5" cy="18.5" r="2.5"/><circle cx="19.5" cy="18.5" r="2.5"/></svg>
+            </div>
+            <div class="vehicle-option-info">
+              <h4>Flatbed / Super</h4>
+              <p>8+ tons</p>
+            </div>
+          </label>
+        </div>
+      </div>
+      <div class="step-nav">
+        <button class="btn btn-secondary" onclick="goToStep(1)">
+          <svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          Back
+        </button>
+        <button class="btn btn-primary" id="next-2" disabled onclick="goToStep(3)">
+          Next: Route &amp; time
+          <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- ═══════════ STEP 3: DETAILS ═══════════ -->
+    <div class="step-panel" id="step-3">
+      <div class="card">
+        <div class="card-title">Pickup &amp; drop-off</div>
+        <div class="form-group">
+          <label>Pickup address</label>
+          <div class="input-wrapper">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 018 8c0 5.4-8 12-8 12S4 15.4 4 10a8 8 0 018-8z"/></svg>
+            <input type="text" id="pickup" placeholder="e.g. 12 Main Road, Claremont">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Drop-off address</label>
+          <div class="input-wrapper">
+            <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <input type="text" id="dropoff" placeholder="e.g. 5 Strand Street, CBD">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Date</label>
+            <div class="input-wrapper">
+              <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              <input type="date" id="bookingDate">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Time</label>
+            <div class="input-wrapper">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <input type="time" id="bookingTime">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Your details</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Full name</label>
+            <input type="text" id="fullName" placeholder="John Doe">
+          </div>
+          <div class="form-group">
+            <label>Phone (WhatsApp)</label>
+            <div class="input-wrapper">
+              <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+              <input type="tel" id="phone" placeholder="071 234 5678">
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Email (optional)</label>
+          <input type="email" id="email" placeholder="john@example.com">
+        </div>
+        <div class="form-group">
+          <label>Additional notes (optional)</label>
+          <textarea id="notes" placeholder="e.g. 3rd floor, no lift, fragile items..."></textarea>
+        </div>
+      </div>
+
+      <div class="step-nav">
+        <button class="btn btn-secondary" onclick="goToStep(2)">
+          <svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          Back
+        </button>
+        <button class="btn btn-primary" id="next-3" onclick="generateQuote()">
+          Get my quote
+          <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- ═══════════ STEP 4: QUOTE ═══════════ -->
+    <div class="step-panel" id="step-4">
+      <div class="quote-box">
+        <div class="quote-label">Your estimated quote</div>
+        <div class="quote-price"><span>R</span><span id="quoteAmount">0</span></div>
+        <div class="quote-note">All-inclusive, no hidden fees</div>
+        <div class="quote-breakdown">
+          <div class="quote-row">
+            <span class="label">Job type</span>
+            <span class="value" id="summaryJob">—</span>
+          </div>
+          <div class="quote-row">
+            <span class="label">Vehicle</span>
+            <span class="value" id="summaryVehicle">—</span>
+          </div>
+          <div class="quote-row">
+            <span class="label">Route</span>
+            <span class="value" id="summaryRoute">—</span>
+          </div>
+          <div class="quote-row">
+            <span class="label">Date &amp; time</span>
+            <span class="value" id="summaryDateTime">—</span>
+          </div>
+          <div class="quote-row">
+            <span class="label">Base fare</span>
+            <span class="value" id="summaryBase">—</span>
+          </div>
+          <div class="quote-row">
+            <span class="label">Distance est.</span>
+            <span class="value" id="summaryDistance">—</span>
+          </div>
+          <div class="quote-row total">
+            <span class="label">Total</span>
+            <span class="value" id="summaryTotal">R0</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Payment method</div>
+        <div class="job-types" style="grid-template-columns: repeat(3, 1fr);">
+          <label class="job-type selected" onclick="selectPayment(this)">
+            <input type="radio" name="payment" value="eft" checked>
+            <div class="check-mark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="job-type-icon">
+              <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+            </div>
+            <h3>EFT</h3>
+            <p>Bank transfer</p>
+          </label>
+          <label class="job-type" onclick="selectPayment(this)">
+            <input type="radio" name="payment" value="card">
+            <div class="check-mark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="job-type-icon">
+              <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/><line x1="5" y1="15" x2="12" y2="15"/></svg>
+            </div>
+            <h3>Card</h3>
+            <p>Visa / Mastercard</p>
+          </label>
+          <label class="job-type" onclick="selectPayment(this)">
+            <input type="radio" name="payment" value="ozow">
+            <div class="check-mark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="job-type-icon">
+              <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+            </div>
+            <h3>Ozow</h3>
+            <p>Instant EFT</p>
+          </label>
+        </div>
+      </div>
+
+      <div class="step-nav">
+        <button class="btn btn-secondary" onclick="goToStep(3)">
+          <svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          Back
+        </button>
+        <button class="btn btn-primary" onclick="confirmBooking()">
+          Confirm &amp; Book
+          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- ═══════════ STEP 5: CONFIRMED ═══════════ -->
+    <div class="step-panel" id="step-5">
+      <div class="card">
+        <div class="confirmation">
+          <div class="confirmation-icon">
+            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <h2>Booking confirmed!</h2>
+          <p>Your booking reference is</p>
+          <div class="ref-num" id="refNum">CL-000000</div>
+          <p>We'll send you a WhatsApp confirmation shortly with your driver details.</p>
+          <div class="confirmation-actions">
+            <a href="#" class="btn btn-wa" id="waLink">
+              <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.832-1.438A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg>
+              Chat on WhatsApp
+            </a>
+            <a href="index.html" class="btn btn-secondary">Back to Home</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ SCRIPTS ═══════════ -->
+  <script>
+    let currentStep = 1;
+    const bookingData = { jobType: '', vehicle: '', pickup: '', dropoff: '', date: '', time: '', name: '', phone: '', email: '', notes: '' };
+
+    // ══════════════════════════════════════════
+    // WESTERN CAPE PRICING MODEL
+    // Commission: CapeLoad takes 15% of total fare
+    // Driver receives 85% of total fare
+    // ══════════════════════════════════════════
+    // ══════════════════════════════════════════
+    // Commission tiers: CapeLoad platform fee
+    // Motorbike/Bakkie/Van: 18%  |  Trucks: 20%  |  Flatbed: 22%
+    // Driver receives the remainder
+    // ══════════════════════════════════════════
+
+    // Base fare (minimum charge) + per-km rate (Rands)
+    // Researched from Droppa, Picup, GoGoVan, and WC freight market 2025-2026
+    const pricing = {
+      motorbike:   { base: 85,   perKm: 9,   minFare: 85,   commission: 0.15, label: 'Motorbike' },
+      bakkie:      { base: 350,  perKm: 15,  minFare: 350,  commission: 0.18, label: 'Bakkie / LDV' },
+      'panel-van': { base: 550,  perKm: 19,  minFare: 550,  commission: 0.18, label: 'Panel Van' },
+      '4-ton':     { base: 1500, perKm: 27,  minFare: 1500, commission: 0.20, label: '4-Ton Truck' },
+      '8-ton':     { base: 3000, perKm: 38,  minFare: 3000, commission: 0.20, label: '8-Ton Truck' },
+      flatbed:     { base: 5500, perKm: 50,  minFare: 5500, commission: 0.22, label: 'Flatbed / Super' }
+    };
+
+    // Simulated distances between common WC areas (km)
+    const areaDistances = {
+      'cbd': { 'claremont': 12, 'sea point': 5, 'woodstock': 3, 'obs': 5, 'rondebosch': 10, 'bellville': 22, 'parow': 18, 'pinelands': 12, 'milnerton': 10, 'epping': 14, 'montague': 16, 'stellenbosch': 50, 'paarl': 62, 'somerset west': 48, 'hermanus': 120, 'worcester': 110, 'saldanha': 140 },
+      'claremont': { 'cbd': 12, 'sea point': 14, 'woodstock': 9, 'obs': 6, 'rondebosch': 3, 'bellville': 18, 'parow': 16, 'pinelands': 8, 'milnerton': 20, 'epping': 16, 'montague': 18, 'stellenbosch': 38, 'somerset west': 36 },
+      'bellville': { 'cbd': 22, 'parow': 5, 'pinelands': 12, 'epping': 8, 'stellenbosch': 30, 'paarl': 40, 'milnerton': 18, 'durbanville': 8, 'brackenfell': 6 },
+      'sea point': { 'cbd': 5, 'woodstock': 7, 'milnerton': 12, 'claremont': 14 },
+      'woodstock': { 'cbd': 3, 'obs': 3, 'sea point': 7, 'rondebosch': 6 },
+      'stellenbosch': { 'cbd': 50, 'paarl': 28, 'somerset west': 16, 'bellville': 30, 'franschhoek': 32 }
+    };
+
+    const suggestions = {
+      move: { text: 'For moves, we recommend a <strong>Panel Van</strong> or larger' },
+      courier: { text: 'For courier jobs, a <strong>Motorbike</strong> or <strong>Bakkie</strong> works best' },
+      haul: { text: 'For haul jobs, we recommend a <strong>4-Ton Truck</strong> or larger' }
+    };
+
+    const jobNames = { move: 'Move', courier: 'Courier', haul: 'Haul' };
+
+    // Estimate distance from address text
+    function estimateDistance(pickup, dropoff) {
+      const p = pickup.toLowerCase();
+      const d = dropoff.toLowerCase();
+      // Try to match known areas
+      for (const [area, dists] of Object.entries(areaDistances)) {
+        if (p.includes(area)) {
+          for (const [dest, km] of Object.entries(dists)) {
+            if (d.includes(dest)) return km;
+          }
+        }
+      }
+      // Reverse check
+      for (const [area, dists] of Object.entries(areaDistances)) {
+        if (d.includes(area)) {
+          for (const [dest, km] of Object.entries(dists)) {
+            if (p.includes(dest)) return km;
+          }
+        }
+      }
+      // Default: random realistic WC distance 8-35km
+      return Math.floor(Math.random() * 28) + 8;
+    }
+
+    function calculateQuote(vehicle, distanceKm) {
+      const p = pricing[vehicle];
+      if (!p) return { total: 500, base: 500, distanceCost: 0, commission: 75, driverPayout: 425, distanceKm: 0, commissionRate: 0.18 };
+
+      const distanceCost = distanceKm * p.perKm;
+      const subtotal = Math.max(p.base + distanceCost, p.minFare);
+      // Round to nearest R10
+      const total = Math.ceil(subtotal / 10) * 10;
+      const commission = Math.round(total * p.commission);
+      const driverPayout = total - commission;
+
+      return { total, base: p.base, distanceCost: Math.round(distanceCost), commission, driverPayout, distanceKm, commissionRate: p.commission };
+    }
+
+    // ══════════════════════════════════════════
+    // UI FUNCTIONS
+    // ══════════════════════════════════════════
+    function selectJobType(el) {
+      document.querySelectorAll('.job-type').forEach(j => j.classList.remove('selected'));
+      el.classList.add('selected');
+      el.querySelector('input').checked = true;
+      bookingData.jobType = el.querySelector('input').value;
+      document.getElementById('next-1').disabled = false;
+
+      const s = suggestions[bookingData.jobType];
+      if (s) {
+        document.getElementById('suggestText').innerHTML = s.text;
+        document.getElementById('vehicleSuggest').classList.add('visible');
+      }
+    }
+
+    function selectVehicle(el) {
+      document.querySelectorAll('.vehicle-option').forEach(v => v.classList.remove('selected'));
+      el.classList.add('selected');
+      el.querySelector('input').checked = true;
+      bookingData.vehicle = el.querySelector('input').value;
+      document.getElementById('next-2').disabled = false;
+    }
+
+    function selectPayment(el) {
+      el.closest('.job-types').querySelectorAll('.job-type').forEach(j => j.classList.remove('selected'));
+      el.classList.add('selected');
+      el.querySelector('input').checked = true;
+    }
+
+    function goToStep(step) {
+      document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+      document.getElementById('step-' + step).classList.add('active');
+
+      document.querySelectorAll('.stepper-step').forEach(s => {
+        const sNum = parseInt(s.dataset.step);
+        s.classList.remove('active', 'done');
+        if (sNum === step) s.classList.add('active');
+        else if (sNum < step) s.classList.add('done');
+      });
+
+      document.querySelectorAll('.stepper-line').forEach((line, i) => {
+        line.classList.toggle('done', i < step - 1);
+      });
+
+      currentStep = step;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function generateQuote() {
+      bookingData.pickup = document.getElementById('pickup').value || 'Not specified';
+      bookingData.dropoff = document.getElementById('dropoff').value || 'Not specified';
+      bookingData.date = document.getElementById('bookingDate').value || 'Flexible';
+      bookingData.time = document.getElementById('bookingTime').value || 'Flexible';
+      bookingData.name = document.getElementById('fullName').value;
+      bookingData.phone = document.getElementById('phone').value;
+      bookingData.email = document.getElementById('email').value;
+      bookingData.notes = document.getElementById('notes').value;
+
+      const distKm = estimateDistance(bookingData.pickup, bookingData.dropoff);
+      const quote = calculateQuote(bookingData.vehicle, distKm);
+      bookingData.quote = quote;
+
+      const vLabel = pricing[bookingData.vehicle]?.label || bookingData.vehicle;
+
+      document.getElementById('summaryJob').textContent = jobNames[bookingData.jobType] || '—';
+      document.getElementById('summaryVehicle').textContent = vLabel;
+      document.getElementById('summaryRoute').textContent = bookingData.pickup.split(',')[0] + ' → ' + bookingData.dropoff.split(',')[0];
+      document.getElementById('summaryDateTime').textContent = (bookingData.date !== 'Flexible' ? bookingData.date : 'Flexible') + ' at ' + (bookingData.time !== 'Flexible' ? bookingData.time : 'Flexible');
+      document.getElementById('summaryBase').textContent = 'R' + quote.base;
+      document.getElementById('summaryDistance').textContent = 'R' + quote.distanceCost + ' (' + distKm + ' km × R' + pricing[bookingData.vehicle].perKm + ')';
+      document.getElementById('quoteAmount').textContent = quote.total.toLocaleString();
+      document.getElementById('summaryTotal').textContent = 'R' + quote.total.toLocaleString();
+
+      goToStep(4);
+    }
+
+    function confirmBooking() {
+      const ref = 'CL-' + String(Math.floor(Math.random() * 900000) + 100000);
+      document.getElementById('refNum').textContent = ref;
+
+      // Save booking to localStorage for portal pages
+      const booking = {
+        ref,
+        ...bookingData,
+        status: 'pending',
+        createdAt: new Date().toISOString(),
+        driverPayout: bookingData.quote?.driverPayout || 0,
+        commission: bookingData.quote?.commission || 0,
+        total: bookingData.quote?.total || 0
+      };
+      const bookings = JSON.parse(localStorage.getItem('capeload_bookings') || '[]');
+      bookings.unshift(booking);
+      localStorage.setItem('capeload_bookings', JSON.stringify(bookings));
+
+      // WhatsApp link
+      const vLabel = pricing[bookingData.vehicle]?.label || 'vehicle';
+      const msg = encodeURIComponent('Hi CapeLoad! My booking ref is ' + ref + '. I booked a ' + vLabel + ' (' + jobNames[bookingData.jobType] + ') from ' + bookingData.pickup + ' to ' + bookingData.dropoff + '. Total: R' + booking.total + '.');
+      document.getElementById('waLink').href = 'https://wa.me/27000000000?text=' + msg;
+
+      document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+      document.getElementById('step-5').classList.add('active');
+
+      document.querySelectorAll('.stepper-step').forEach(s => { s.classList.remove('active'); s.classList.add('done'); });
+      document.querySelectorAll('.stepper-line').forEach(l => l.classList.add('done'));
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Set min date to today
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('bookingDate').setAttribute('min', today);
+  </script>
+</body>
+</html>
