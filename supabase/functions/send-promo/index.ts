@@ -1,7 +1,8 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 
-const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY') || 're_D775EVxn_3XcvMdpMuxUmmc3mwmDXozfH'
-const FROM_EMAIL = Deno.env.get('FROM_EMAIL') || 'CapeLoad <noreply@capeload.co.za>'
+const BREVO_API_KEY = Deno.env.get('BREVO_API_KEY') || ''
+const FROM_EMAIL = Deno.env.get('FROM_EMAIL') || 'info@capeload.co.za'
+const FROM_NAME  = 'CapeLoad Logistics'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -16,9 +17,9 @@ serve(async (req) => {
   try {
     const { emails, subject, message } = await req.json()
 
-    if (!RESEND_API_KEY) {
+    if (!BREVO_API_KEY) {
       return new Response(
-        JSON.stringify({ error: 'RESEND_API_KEY not set in Edge Function secrets' }),
+        JSON.stringify({ error: 'BREVO_API_KEY not set in Edge Function secrets' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
@@ -68,17 +69,17 @@ serve(async (req) => {
       const batch = emails.slice(i, i + batchSize)
       await Promise.all(
         batch.map((email: string) =>
-          fetch('https://api.resend.com/emails', {
+          fetch('https://api.brevo.com/v3/smtp/email', {
             method: 'POST',
             headers: {
-              Authorization: `Bearer ${RESEND_API_KEY}`,
+              'api-key': BREVO_API_KEY,
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              from: FROM_EMAIL,
-              to: email,
+              sender: { name: FROM_NAME, email: FROM_EMAIL },
+              to: [{ email }],
               subject: subject,
-              html: htmlBody,
+              htmlContent: htmlBody,
             }),
           })
         )
