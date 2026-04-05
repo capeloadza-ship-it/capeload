@@ -401,8 +401,8 @@
         </div>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Vehicle</th><th>Owner</th><th>Type</th><th>Plate</th><th>Status</th><th>Available</th></tr></thead>
-            <tbody id="fleet-tbody"><tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:32px;">Loading...</td></tr></tbody>
+            <thead><tr><th>Vehicle</th><th>Owner</th><th>Type</th><th>Plate</th><th>Year</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="fleet-tbody"><tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:32px;">Loading...</td></tr></tbody>
           </table>
         </div>
       </div>
@@ -648,16 +648,39 @@
   async function loadFleet() {
     var { data } = await sb.from('vehicles').select('*, drivers!vehicles_owner_id_fkey(user_id, users!drivers_user_id_fkey(full_name))').order('created_at', { ascending: false });
     var tbody = document.getElementById('fleet-tbody');
-    if (!data || data.length === 0) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:32px;">No vehicles</td></tr>'; return; }
+    if (!data || data.length === 0) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:32px;">No vehicles</td></tr>'; return; }
     tbody.innerHTML = '';
     data.forEach(function(v) {
       var owner = v.drivers?.users?.full_name || 'Unknown';
-      var avail = v.availability_status === 'available' ? ['badge-green','Available'] : ['badge-red','Unavailable'];
-      var st = v.status === 'approved' ? ['badge-green','Approved'] : ['badge-yellow','Pending'];
+      var st = v.status === 'approved' ? ['badge-green','Approved'] : v.status === 'rejected' ? ['badge-red','Rejected'] : ['badge-yellow','Pending'];
+      var actions = '';
+      if (v.status !== 'approved') {
+        actions += '<button class="btn btn-green" style="padding:5px 12px;font-size:11px;" onclick="approveVehicle(\'' + v.id + '\')">Approve</button> ';
+      }
+      if (v.status !== 'rejected') {
+        actions += '<button class="btn btn-red" style="padding:5px 12px;font-size:11px;" onclick="rejectVehicle(\'' + v.id + '\')">Reject</button>';
+      }
+      if (v.status === 'approved') {
+        actions = '<button class="btn btn-red" style="padding:5px 12px;font-size:11px;" onclick="rejectVehicle(\'' + v.id + '\')">Suspend</button>';
+      }
       var tr = document.createElement('tr');
-      tr.innerHTML = '<td><strong>' + (v.make||'') + ' ' + (v.model||'') + '</strong></td><td>' + owner + '</td><td>' + (vehicleLabels[v.type]||v.type) + '</td><td style="font-family:monospace;font-size:12px;">' + (v.reg_plate||'') + '</td><td><span class="badge ' + st[0] + '">' + st[1] + '</span></td><td><span class="badge ' + avail[0] + '">' + avail[1] + '</span></td>';
+      tr.innerHTML = '<td><strong>' + (v.make||'') + ' ' + (v.model||'') + '</strong></td><td>' + owner + '</td><td>' + (vehicleLabels[v.type]||v.type) + '</td><td style="font-family:monospace;font-size:12px;">' + (v.reg_plate||'—') + '</td><td>' + (v.year||'—') + '</td><td><span class="badge ' + st[0] + '">' + st[1] + '</span></td><td>' + actions + '</td>';
       tbody.appendChild(tr);
     });
+  }
+
+  async function approveVehicle(vehicleId) {
+    var { error } = await sb.from('vehicles').update({ status: 'approved', availability_status: 'available', available: true }).eq('id', vehicleId);
+    if (error) { showToast('Error: ' + error.message, 'error'); return; }
+    showToast('Vehicle approved', 'success');
+    loadFleet();
+  }
+
+  async function rejectVehicle(vehicleId) {
+    var { error } = await sb.from('vehicles').update({ status: 'rejected', availability_status: 'unavailable', available: false }).eq('id', vehicleId);
+    if (error) { showToast('Error: ' + error.message, 'error'); return; }
+    showToast('Vehicle suspended/rejected', 'success');
+    loadFleet();
   }
 
   // ── Drivers ──
