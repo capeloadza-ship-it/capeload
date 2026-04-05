@@ -359,12 +359,13 @@
     .footer-bottom { display: flex; justify-content: space-between; align-items: center; padding-top: 24px; font-size: 12px; color: var(--muted); }
 
     /* ══ STATS STRIP ══ */
-    .stats-strip { background: rgba(241,95,34,0.07); border-top: 1px solid rgba(241,95,34,0.15); border-bottom: 1px solid rgba(241,95,34,0.15); padding: 28px 0; }
+    .stats-strip { padding: 36px 0; }
     .stats-inner { display: flex; align-items: center; justify-content: center; gap: 0; flex-wrap: wrap; }
-    .stat-item { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 0 40px; }
-    .stat-num { font-size: 32px; font-weight: 900; color: #f15f22; line-height: 1; }
-    .stat-label { font-size: 12px; font-weight: 500; color: var(--sub); letter-spacing: 0.5px; text-transform: uppercase; }
-    .stat-divider { width: 1px; height: 40px; background: rgba(255,255,255,0.1); flex-shrink: 0; }
+    .stat-item { display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 0 44px; }
+    .stat-num { font-size: 34px; font-weight: 900; color: var(--text); line-height: 1; }
+    .stat-label { font-size: 11px; font-weight: 600; color: var(--sub); letter-spacing: 1px; text-transform: uppercase; }
+    .stat-divider { width: 1px; height: 36px; background: rgba(255,255,255,0.08); flex-shrink: 0; }
+    @media (max-width: 560px) { .stat-item { padding: 12px 24px; } .stat-divider { display: none; } }
 
     /* ══ WHATSAPP FLOAT ══ */
     .wa-float { position: fixed; bottom: 28px; right: 28px; z-index: 9999; width: 56px; height: 56px; background: #25d366; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 20px rgba(37,211,102,0.45); transition: transform 0.2s ease, box-shadow 0.2s ease; text-decoration: none; }
