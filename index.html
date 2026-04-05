@@ -52,7 +52,6 @@
       position: fixed; top: 0; left: 0; width: 100%; z-index: 1000;
       background: rgba(10,11,21,0.55);
       backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
-      border-bottom: 1px solid rgba(255,255,255,0.06);
       transition: background 0.3s;
     }
     .nav.scrolled { background: rgba(10,11,21,0.97); }
@@ -115,12 +114,10 @@
     .hero-badge {
       display: inline-flex; align-items: center; gap: 8px;
       padding: 6px 16px; border-radius: 100px;
-      background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(241,95,34,0.12); border: 1px solid rgba(241,95,34,0.3);
       font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
-      color: rgba(255,255,255,0.6); margin-bottom: 24px;
+      color: var(--orange); margin-bottom: 24px;
     }
-    .hero-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--orange); animation: blink 2s infinite; }
-    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
     .hero h1 {
       font-size: clamp(36px, 6vw, 68px); font-weight: 900; line-height: 1.07;
       color: #fff; margin-bottom: 20px; letter-spacing: -1px;
@@ -153,7 +150,7 @@
     /* ══════════════════════════════════════
        SERVICES
     ══════════════════════════════════════ */
-    .services { padding: 96px 0; background: var(--dark2); border-top: 1px solid var(--border); }
+    .services { padding: 96px 0; }
     .services-top {
       display: grid; grid-template-columns: 1fr 1fr; gap: 40px;
       align-items: flex-end; margin-bottom: 48px;
@@ -202,7 +199,7 @@
     /* ══════════════════════════════════════
        MANAGE (split: text + big image)
     ══════════════════════════════════════ */
-    .manage { padding: 96px 0; border-top: 1px solid var(--border); }
+    .manage { padding: 96px 0; }
     .manage-inner { display: grid; grid-template-columns: 1fr 1.1fr; gap: 64px; align-items: center; }
     .manage-content .tag { font-size: 11px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: var(--sub); margin-bottom: 10px; }
     .manage-content h2 { font-size: clamp(24px,3.5vw,42px); font-weight: 800; color: var(--text); line-height: 1.15; margin-bottom: 16px; }
@@ -225,7 +222,7 @@
     /* ══════════════════════════════════════
        CTA BAND
     ══════════════════════════════════════ */
-    .cta-band { padding: 72px 0; background: var(--dark2); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .cta-band { padding: 72px 0; }
     .cta-band-inner { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 20px; }
     .cta-band-icon { width: 56px; height: 56px; border-radius: 16px; background: rgba(241,95,34,0.12); border: 1px solid rgba(241,95,34,0.25); display: flex; align-items: center; justify-content: center; margin-bottom: 4px; }
     .cta-band-icon svg { width: 28px; height: 28px; stroke: var(--orange); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
@@ -236,8 +233,7 @@
     /* ══════════════════════════════════════
        STEPS (Step 1 + Step 2 alternating)
     ══════════════════════════════════════ */
-    .step-section { padding: 96px 0; border-top: 1px solid var(--border); }
-    .step-section.alt { background: var(--dark2); }
+    .step-section { padding: 96px 0; }
     .step-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
     .step-inner.flip .step-content { order: 1; }
     .step-inner.flip .step-visual { order: 2; }
@@ -266,7 +262,7 @@
     /* ══════════════════════════════════════
        TESTIMONIALS
     ══════════════════════════════════════ */
-    .testimonials { padding: 96px 0; border-top: 1px solid var(--border); }
+    .testimonials { padding: 96px 0; }
     .testimonials-header { text-align: center; margin-bottom: 52px; }
     .testimonials-header .tag { font-size: 12px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: var(--orange); margin-bottom: 10px; }
     .testimonials-header h2 { font-size: clamp(24px,3.5vw,40px); font-weight: 800; color: var(--text); margin-bottom: 12px; }
@@ -289,7 +285,7 @@
     /* ══════════════════════════════════════
        NEWS
     ══════════════════════════════════════ */
-    .news { padding: 96px 0; background: var(--dark2); border-top: 1px solid var(--border); }
+    .news { padding: 96px 0; }
     .news-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 40px; gap: 20px; }
     .news-header-left .tag { font-size: 12px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: var(--orange); margin-bottom: 10px; }
     .news-header-left h2 { font-size: clamp(22px,3.5vw,38px); font-weight: 800; color: var(--text); }
@@ -308,7 +304,7 @@
     /* ══════════════════════════════════════
        FOOTER CTA
     ══════════════════════════════════════ */
-    .footer-cta { padding: 80px 0; border-top: 1px solid var(--border); }
+    .footer-cta { padding: 80px 0; }
     .footer-cta-inner { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 12px; }
     .footer-cta img { height: 120px; width: auto; margin-bottom: 8px; }
     .footer-cta-icons { display: flex; gap: 12px; margin-bottom: 8px; }
@@ -320,7 +316,7 @@
     /* ══════════════════════════════════════
        FOOTER
     ══════════════════════════════════════ */
-    .footer { padding: 56px 0 28px; border-top: 1px solid var(--border); }
+    .footer { padding: 56px 0 28px; }
     .footer-top { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 48px; }
     .footer-brand img { height: 100px; width: auto; margin-bottom: 14px; }
     .footer-brand p { font-size: 13px; color: var(--sub); line-height: 1.7; max-width: 240px; }
@@ -337,7 +333,7 @@
     .footer-newsletter-form input::placeholder { color: var(--muted); }
     .footer-newsletter-form button { padding: 10px 16px; background: var(--orange); border: none; border-radius: 8px; color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; font-family: inherit; transition: background 0.2s; }
     .footer-newsletter-form button:hover { background: var(--orange-dark); }
-    .footer-bottom { display: flex; justify-content: space-between; align-items: center; padding-top: 24px; border-top: 1px solid var(--border); font-size: 12px; color: var(--muted); }
+    .footer-bottom { display: flex; justify-content: space-between; align-items: center; padding-top: 24px; font-size: 12px; color: var(--muted); }
 
     /* ══════════════════════════════════════
        RESPONSIVE — TABLET
@@ -345,14 +341,12 @@
     @media (max-width: 960px) {
       .nav-links { display: none; }
       .hamburger { display: flex; }
-      .hero-floats .hf-3 { display: none; }
       .services-top { grid-template-columns: 1fr; gap: 24px; }
       .srv-grid { grid-template-columns: 1fr 1fr; }
       .manage-inner { grid-template-columns: 1fr; gap: 40px; }
       .step-inner, .step-inner.flip { grid-template-columns: 1fr; gap: 40px; }
       .step-inner.flip .step-content { order: 2; }
       .step-inner.flip .step-visual { order: 1; }
-      .step-stat { display: none; }
       .testi-grid { grid-template-columns: 1fr; }
       .news-grid { grid-template-columns: 1fr 1fr; }
       .footer-top { grid-template-columns: 1fr 1fr; gap: 32px; }
@@ -369,42 +363,49 @@
 
       /* Hero */
       .hero { padding: 100px 0 60px; min-height: auto; }
-      .hero-floats { display: none; }
-      .hero h1 { font-size: 34px; letter-spacing: -0.5px; }
+      .hero h1 { font-size: 32px; letter-spacing: -0.5px; }
       .hero-sub { font-size: 15px; }
       .hero-btns { flex-direction: column; align-items: stretch; }
-      .hero-btns .btn { width: 100%; justify-content: center; padding: 16px; font-size: 16px; }
+      .hero-btns .btn { width: 100%; justify-content: center; padding: 16px; font-size: 15px; }
 
       /* Services */
-      .services { padding: 64px 0; }
-      .srv-grid { grid-template-columns: 1fr; }
-      .srv-card { aspect-ratio: 3/2; }
+      .services { padding: 56px 0; }
+      .srv-grid { grid-template-columns: 1fr; gap: 16px; }
+      .srv-card { aspect-ratio: 16/9; }
       .services-top-right .btn-row { flex-direction: column; }
       .services-top-right .btn-row .btn { width: 100%; justify-content: center; }
 
       /* Manage */
-      .manage { padding: 64px 0; }
+      .manage { padding: 56px 0; }
       .manage-content .btn-row { flex-direction: column; }
       .manage-content .btn-row .btn { width: 100%; justify-content: center; }
 
       /* CTA Band */
       .cta-band { padding: 56px 0; }
+      .cta-band h2 { font-size: 26px; }
       .cta-band .btn-row { flex-direction: column; align-items: stretch; width: 100%; }
       .cta-band .btn-row .btn { width: 100%; justify-content: center; }
 
       /* Steps */
-      .step-section { padding: 64px 0; }
+      .step-section { padding: 56px 0; }
+      .step-inner, .step-inner.flip { gap: 28px; }
+      .step-inner.flip .step-content { order: 2; }
+      .step-inner.flip .step-visual { order: 1; }
       .step-content .btn-row { flex-direction: column; }
       .step-content .btn-row .btn { width: 100%; justify-content: center; }
       .step-visual img { aspect-ratio: 4/3; }
 
+      /* Testimonials */
+      .testimonials { padding: 56px 0; }
+
       /* News */
-      .news { padding: 64px 0; }
-      .news-header { flex-direction: column; align-items: flex-start; }
-      .news-grid { grid-template-columns: 1fr; }
+      .news { padding: 56px 0; }
+      .news-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+      .news-grid { grid-template-columns: 1fr; gap: 16px; }
 
       /* Footer CTA */
       .footer-cta { padding: 64px 0; }
+      .footer-cta h2 { font-size: 30px; }
       .footer-cta .btn-row { flex-direction: column; align-items: stretch; width: 100%; }
       .footer-cta .btn-row .btn { width: 100%; justify-content: center; }
 
@@ -412,7 +413,7 @@
       .footer { padding: 48px 0 24px; }
       .footer-top { grid-template-columns: 1fr; gap: 28px; }
       .footer-newsletter-form { flex-direction: column; }
-      .footer-bottom { flex-direction: column; gap: 12px; text-align: center; }
+      .footer-bottom { flex-direction: column; gap: 8px; text-align: center; }
     }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -459,26 +460,8 @@
   <div class="hero-bg">
     <img src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=1800&h=1000&fit=crop" alt="" loading="eager" onload="this.classList.add('loaded')">
   </div>
-  <!-- floating side cards -->
-  <div class="hero-floats">
-    <div class="hf hf-1">
-      <div class="hf-label">Active Drivers</div>
-      <div class="hf-val">120+</div>
-      <div class="hf-sub"><span class="hf-dot" style="background:#22c55e;"></span>Verified &amp; live</div>
-    </div>
-    <div class="hf hf-2">
-      <div class="hf-label">Quote time</div>
-      <div class="hf-val">60s</div>
-      <div class="hf-sub">Instant pricing</div>
-    </div>
-    <div class="hf hf-3">
-      <div class="hf-label">Coverage</div>
-      <div class="hf-val">WC</div>
-      <div class="hf-sub">Western Cape live</div>
-    </div>
-  </div>
   <div class="container hero-inner reveal">
-    <div class="hero-badge"><span class="dot"></span>Smart Logistics</div>
+    <div class="hero-badge">Your Load, Our Road</div>
     <h1>Smart Solutions<br>for <span>Shipping</span> Your Load</h1>
     <p class="hero-sub">From a single parcel to a full industrial haul — CapeLoad connects you with verified drivers and the right vehicle for every job across the Western Cape.</p>
     <div class="hero-btns">
@@ -515,9 +498,6 @@
         <img src="https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=600&h=750&fit=crop" alt="Courier" loading="lazy" onload="this.classList.add('loaded')">
         <div class="srv-card-shade"></div>
         <div class="srv-card-inner">
-          <div class="srv-play">
-            <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-          </div>
           <div class="srv-card-bottom">
             <h3>Courier &amp; Local Delivery</h3>
             <p>Same-day deliveries with motorbikes and bakkies. Fast, tracked and affordable.</p>
@@ -529,9 +509,6 @@
         <img src="https://images.unsplash.com/photo-1616432043562-3671ea2e5242?w=600&h=750&fit=crop" alt="Regional transport" loading="lazy" onload="this.classList.add('loaded')">
         <div class="srv-card-shade"></div>
         <div class="srv-card-inner">
-          <div class="srv-play">
-            <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-          </div>
           <div class="srv-card-bottom">
             <h3>Regional Transport</h3>
             <p>Panel vans and 4-ton trucks for office moves, furniture and bulk goods across the Western Cape.</p>
@@ -543,9 +520,6 @@
         <img src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=600&h=750&fit=crop" alt="Heavy haul" loading="lazy" onload="this.classList.add('loaded')">
         <div class="srv-card-shade"></div>
         <div class="srv-card-inner">
-          <div class="srv-play">
-            <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-          </div>
           <div class="srv-card-bottom">
             <h3>Heavy Haul &amp; Industrial</h3>
             <p>8-ton trucks and flatbeds for construction materials, machinery and oversized loads.</p>
@@ -574,9 +548,6 @@
     </div>
     <div class="manage-visual reveal">
       <img src="https://images.unsplash.com/photo-1565891741441-64926e3838b0?w=800&h=600&fit=crop" alt="Logistics" loading="lazy" onload="this.classList.add('loaded')">
-      <div class="manage-play">
-        <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-      </div>
     </div>
   </div>
 </section>
@@ -584,9 +555,6 @@
 <!-- ══ CTA BAND ══ -->
 <div class="cta-band">
   <div class="container cta-band-inner reveal">
-    <div class="cta-band-icon">
-      <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-    </div>
     <h2>Ready to supercharge your shipping?</h2>
     <p>Join hundreds of businesses in the Western Cape already using CapeLoad to unlock smarter, faster logistics solutions.</p>
     <div class="btn-row">
@@ -604,11 +572,6 @@
   <div class="container step-inner">
     <div class="step-visual reveal">
       <img src="https://images.unsplash.com/photo-1580060839134-75a5edca2e99?w=700&h=700&fit=crop" alt="Cape Town" loading="lazy" onload="this.classList.add('loaded')">
-      <div class="step-stat tr">
-        <div class="step-stat-label">Deliveries done</div>
-        <div class="step-stat-val">1.2K+</div>
-        <div class="step-stat-sub">This month, Western Cape</div>
-      </div>
     </div>
     <div class="step-content reveal">
       <div class="step-tag">Step 1</div>
@@ -652,11 +615,6 @@
     </div>
     <div class="step-visual reveal">
       <img src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=700&h=700&fit=crop" alt="Driver" loading="lazy" onload="this.classList.add('loaded')">
-      <div class="step-stat bl">
-        <div class="step-stat-label">Avg. driver payout</div>
-        <div class="step-stat-val">R25K</div>
-        <div class="step-stat-sub">Per month, top earners</div>
-      </div>
     </div>
   </div>
 </section>
@@ -775,11 +733,6 @@
 <!-- ══ FOOTER CTA ══ -->
 <section class="footer-cta">
   <div class="container footer-cta-inner reveal">
-    <div class="footer-cta-icons">
-      <div class="footer-cta-icon">🚛</div>
-      <div class="footer-cta-icon">🏍️</div>
-      <div class="footer-cta-icon">🚐</div>
-    </div>
     <h2>Start Growing<br>With CapeLoad</h2>
     <p>Whether you need a load moved or have a vehicle to put to work — your logistics platform is ready.</p>
     <div class="btn-row">
