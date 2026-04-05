@@ -95,6 +95,19 @@
     .template-info { display: flex; align-items: center; gap: 12px; }
     .template-info h4 { font-size: 14px; font-weight: 600; }
     .template-info p { font-size: 12px; color: var(--text-muted); }
+    .template-actions { display: flex; gap: 8px; align-items: center; }
+
+    /* Modal */
+    .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 16px; }
+    .modal { background: #fff; border-radius: 16px; padding: 28px; width: 100%; max-width: 480px; box-shadow: 0 24px 64px rgba(0,0,0,0.2); }
+    .modal h3 { font-size: 17px; font-weight: 800; margin-bottom: 20px; }
+    .modal-field { margin-bottom: 14px; }
+    .modal-field label { font-size: 12px; font-weight: 600; display: block; margin-bottom: 4px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.4px; }
+    .modal-field input, .modal-field select { width: 100%; padding: 11px 13px; border: 1.5px solid #eee; border-radius: 10px; font-size: 14px; font-family: inherit; outline: none; }
+    .modal-field input:focus, .modal-field select:focus { border-color: var(--orange); }
+    .modal-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+    .btn-danger { background: var(--red-light); color: var(--red); border: none; }
 
     @media (max-width: 768px) {
       .stats-row { grid-template-columns: 1fr; }
@@ -159,27 +172,51 @@
       <div class="card">
         <div class="card-header">
           <div class="card-title">Job templates</div>
-          <button class="btn btn-outline"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> New template</button>
+          <button class="btn btn-outline" onclick="openNewTemplate()"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> New template</button>
         </div>
-        <div class="template-card">
-          <div class="template-info">
-            <div class="job-icon move"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a4 4 0 00-8 0v2"/></svg></div>
-            <div>
-              <h4>Weekly warehouse run</h4>
-              <p>Epping → Montague &middot; 4-Ton Truck &middot; Every Monday</p>
-            </div>
-          </div>
-          <button class="btn btn-primary">Re-book</button>
+        <div id="templates-list"><p style="color:var(--text-muted);font-size:13px;padding:16px 0;">Loading...</p></div>
+      </div>
+    </div>
+
+    <!-- New Template Modal -->
+    <div class="modal-bg" id="template-modal" style="display:none;" onclick="if(event.target===this)closeTemplateModal()">
+      <div class="modal">
+        <h3 id="template-modal-title">New Template</h3>
+        <input type="hidden" id="t-edit-id">
+        <div class="modal-field">
+          <label>Template Name</label>
+          <input type="text" id="t-name" placeholder="e.g. Weekly warehouse run">
         </div>
-        <div class="template-card">
-          <div class="template-info">
-            <div class="job-icon courier"><svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="16.5" r="2.5"/><circle cx="18.5" cy="16.5" r="2.5"/></svg></div>
-            <div>
-              <h4>Office supplies delivery</h4>
-              <p>Parow → CBD &middot; Bakkie &middot; Every Wednesday</p>
-            </div>
+        <div class="modal-field">
+          <label>Pickup Address</label>
+          <input type="text" id="t-pickup" placeholder="e.g. Epping Industrial">
+        </div>
+        <div class="modal-field">
+          <label>Dropoff Address</label>
+          <input type="text" id="t-dropoff" placeholder="e.g. Montague Gardens">
+        </div>
+        <div class="modal-row">
+          <div class="modal-field">
+            <label>Vehicle Type</label>
+            <select id="t-vehicle">
+              <option value="">Any</option>
+              <option value="motorbike">Motorbike</option>
+              <option value="bakkie">Bakkie</option>
+              <option value="panel-van">Panel Van</option>
+              <option value="4-ton">4-Ton Truck</option>
+              <option value="8-ton">8-Ton Truck</option>
+              <option value="flatbed">Flatbed</option>
+            </select>
           </div>
-          <button class="btn btn-primary">Re-book</button>
+          <div class="modal-field">
+            <label>Notes (optional)</label>
+            <input type="text" id="t-notes" placeholder="e.g. fragile items">
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-primary" onclick="saveTemplate()">Save Template</button>
+          <button class="btn btn-outline" onclick="closeTemplateModal()">Cancel</button>
+          <button class="btn btn-danger" id="t-delete-btn" style="display:none;margin-left:auto;" onclick="deleteTemplate()">Delete</button>
         </div>
       </div>
     </div>
@@ -255,6 +292,107 @@
       document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
       event.target.classList.add('active');
       document.getElementById('tab-' + name).classList.add('active');
+      if (name === 'recurring') loadTemplates();
+    }
+
+    var vehicleLabels2 = { motorbike: 'Motorbike', bakkie: 'Bakkie', 'panel-van': 'Panel Van', '4-ton': '4-Ton Truck', '8-ton': '8-Ton Truck', flatbed: 'Flatbed' };
+
+    async function loadTemplates() {
+      var list = document.getElementById('templates-list');
+      list.innerHTML = '<p style="color:var(--text-muted);font-size:13px;padding:16px 0;">Loading...</p>';
+      var { data, error } = await sb.from('booking_templates').select('*').eq('client_id', window.currentUser.id).order('created_at', { ascending: false });
+      if (error || !data) { list.innerHTML = '<p style="color:var(--text-muted);font-size:13px;padding:16px 0;">Could not load templates.</p>'; return; }
+      if (data.length === 0) {
+        list.innerHTML = '<p style="color:var(--text-muted);font-size:13px;padding:16px 0;">No templates yet. Create one to quickly re-book common routes.</p>';
+        return;
+      }
+      list.innerHTML = '';
+      data.forEach(function(t) {
+        var vLabel = vehicleLabels2[t.vehicle_type] || t.vehicle_type || 'Any vehicle';
+        var route = (t.pickup_address || '?').split(',')[0] + ' → ' + (t.dropoff_address || '?').split(',')[0];
+        var card = document.createElement('div');
+        card.className = 'template-card';
+        card.innerHTML = '<div class="template-info"><div class="job-icon move"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a4 4 0 00-8 0v2"/></svg></div><div><h4>' + escHtml(t.name) + '</h4><p>' + escHtml(route) + ' &middot; ' + escHtml(vLabel) + (t.notes ? ' &middot; ' + escHtml(t.notes) : '') + '</p></div></div><div class="template-actions"><button class="btn btn-outline" onclick="editTemplate(' + JSON.stringify(t).replace(/"/g,'&quot;') + ')">Edit</button><button class="btn btn-primary" onclick="rebook(' + JSON.stringify(t).replace(/"/g,'&quot;') + ')">Re-book</button></div>';
+        list.appendChild(card);
+      });
+    }
+
+    function openNewTemplate() {
+      document.getElementById('template-modal-title').textContent = 'New Template';
+      document.getElementById('t-edit-id').value = '';
+      document.getElementById('t-name').value = '';
+      document.getElementById('t-pickup').value = '';
+      document.getElementById('t-dropoff').value = '';
+      document.getElementById('t-vehicle').value = '';
+      document.getElementById('t-notes').value = '';
+      document.getElementById('t-delete-btn').style.display = 'none';
+      document.getElementById('template-modal').style.display = 'flex';
+    }
+
+    function editTemplate(t) {
+      document.getElementById('template-modal-title').textContent = 'Edit Template';
+      document.getElementById('t-edit-id').value = t.id;
+      document.getElementById('t-name').value = t.name || '';
+      document.getElementById('t-pickup').value = t.pickup_address || '';
+      document.getElementById('t-dropoff').value = t.dropoff_address || '';
+      document.getElementById('t-vehicle').value = t.vehicle_type || '';
+      document.getElementById('t-notes').value = t.notes || '';
+      document.getElementById('t-delete-btn').style.display = 'inline-flex';
+      document.getElementById('template-modal').style.display = 'flex';
+    }
+
+    function closeTemplateModal() {
+      document.getElementById('template-modal').style.display = 'none';
+    }
+
+    async function saveTemplate() {
+      var name = document.getElementById('t-name').value.trim();
+      if (!name) { showToast('Please enter a template name', 'error'); return; }
+      var payload = {
+        client_id: window.currentUser.id,
+        name: name,
+        pickup_address: document.getElementById('t-pickup').value.trim(),
+        dropoff_address: document.getElementById('t-dropoff').value.trim(),
+        vehicle_type: document.getElementById('t-vehicle').value || null,
+        notes: document.getElementById('t-notes').value.trim() || null
+      };
+      var editId = document.getElementById('t-edit-id').value;
+      var error;
+      if (editId) {
+        var res = await sb.from('booking_templates').update(payload).eq('id', editId).eq('client_id', window.currentUser.id);
+        error = res.error;
+      } else {
+        var res = await sb.from('booking_templates').insert(payload);
+        error = res.error;
+      }
+      if (error) { showToast('Save failed: ' + error.message, 'error'); return; }
+      showToast(editId ? 'Template updated' : 'Template saved', 'success');
+      closeTemplateModal();
+      loadTemplates();
+    }
+
+    async function deleteTemplate() {
+      var editId = document.getElementById('t-edit-id').value;
+      if (!editId) return;
+      var { error } = await sb.from('booking_templates').delete().eq('id', editId).eq('client_id', window.currentUser.id);
+      if (error) { showToast('Delete failed: ' + error.message, 'error'); return; }
+      showToast('Template deleted', 'success');
+      closeTemplateModal();
+      loadTemplates();
+    }
+
+    function rebook(t) {
+      sessionStorage.setItem('cl_rebook', JSON.stringify({
+        pickup_address: t.pickup_address || '',
+        dropoff_address: t.dropoff_address || '',
+        vehicle_type: t.vehicle_type || '',
+        notes: t.notes || ''
+      }));
+      window.location.href = 'booking.html';
+    }
+
+    function escHtml(str) {
+      return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
     document.addEventListener('auth-ready', async function() {

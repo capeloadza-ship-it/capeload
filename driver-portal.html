@@ -5,25 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Driver Portal | CapeLoad Logistics</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Inter', sans-serif; background: #f5f5f3; color: #1a1a1a; line-height: 1.6; }
     a { text-decoration: none; color: inherit; }
 
     :root {
-      --orange: #f15f22;
-      --orange-light: #fff1eb;
-      --blue: #2b3990;
-      --blue-light: #eef0f9;
-      --green: #22c55e;
-      --green-light: #dcfce7;
-      --red: #ef4444;
-      --red-light: #fee2e2;
-      --card-bg: #fff;
-      --card-border: #e8e8e5;
-      --text-secondary: #666;
-      --text-muted: #999;
-      --input-bg: #fafaf9;
+      --orange: #f15f22; --orange-light: #fff1eb;
+      --blue: #2b3990; --blue-light: #eef0f9;
+      --green: #22c55e; --green-light: #dcfce7;
+      --red: #ef4444; --red-light: #fee2e2;
+      --card-bg: #fff; --card-border: #e8e8e5;
+      --text-secondary: #666; --text-muted: #999;
     }
 
     /* Nav */
@@ -32,8 +26,21 @@
     .logo img { height: 144px; width: auto; }
     .nav-right { display: flex; align-items: center; gap: 20px; }
     .nav-user { font-size: 14px; font-weight: 600; color: var(--text-secondary); }
-    .nav-logout { font-size: 13px; color: var(--text-muted); cursor: pointer; transition: color 0.2s; }
+    .nav-logout { font-size: 13px; color: var(--text-muted); cursor: pointer; }
     .nav-logout:hover { color: var(--red); }
+
+    /* Online toggle */
+    .online-pill {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 16px; border-radius: 100px;
+      border: 1.5px solid var(--card-border); background: #fff;
+      font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+    }
+    .online-pill.online { border-color: var(--green); background: var(--green-light); color: #15803d; }
+    .online-pill.offline { border-color: #ddd; background: #f5f5f3; color: var(--text-muted); }
+    .online-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .online-pill.online .online-dot { background: var(--green); }
+    .online-pill.offline .online-dot { background: #bbb; }
 
     /* Layout */
     .portal-layout { max-width: 1100px; margin: 0 auto; padding: 32px 24px 80px; }
@@ -41,7 +48,7 @@
     .portal-header h1 { font-size: 24px; font-weight: 800; }
     .portal-header p { font-size: 14px; color: var(--text-secondary); }
 
-    /* Stats row */
+    /* Stats */
     .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
     .stat-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 10px; padding: 20px; }
     .stat-label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
@@ -51,16 +58,17 @@
     .stat-value.blue { color: var(--blue); }
 
     /* Tabs */
-    .tabs { display: flex; gap: 4px; margin-bottom: 24px; border-bottom: 1px solid var(--card-border); }
-    .tab { padding: 10px 20px; font-size: 14px; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; }
+    .tabs { display: flex; gap: 4px; margin-bottom: 24px; border-bottom: 1px solid var(--card-border); overflow-x: auto; }
+    .tab { padding: 10px 18px; font-size: 14px; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; transition: all 0.2s; position: relative; }
     .tab:hover { color: #1a1a1a; }
     .tab.active { color: var(--orange); border-bottom-color: var(--orange); }
+    .tab-badge { position: absolute; top: 6px; right: 4px; background: var(--red); color: #fff; border-radius: 100px; font-size: 10px; font-weight: 700; padding: 1px 5px; min-width: 16px; text-align: center; }
     .tab-panel { display: none; }
     .tab-panel.active { display: block; }
 
     /* Cards */
     .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 10px; padding: 24px; margin-bottom: 16px; }
-    .card-title { font-size: 15px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .card-title { font-size: 15px; font-weight: 700; margin-bottom: 16px; }
 
     /* Vehicle cards */
     .vehicle-card { display: flex; align-items: center; justify-content: space-between; padding: 16px; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 10px; margin-bottom: 12px; }
@@ -79,32 +87,82 @@
     .toggle-thumb { width: 22px; height: 22px; border-radius: 50%; background: #fff; position: absolute; top: 2px; left: 2px; transition: transform 0.2s; }
     .toggle input:checked ~ .toggle-thumb { transform: translateX(22px); }
 
-    /* Status badge */
+    /* Badges */
     .badge { display: inline-block; padding: 4px 10px; border-radius: 100px; font-size: 11px; font-weight: 600; }
     .badge-green { background: var(--green-light); color: #16a34a; }
     .badge-orange { background: var(--orange-light); color: var(--orange); }
     .badge-red { background: var(--red-light); color: var(--red); }
     .badge-blue { background: var(--blue-light); color: var(--blue); }
+    .badge-gray { background: #f0f0ee; color: #666; }
 
-    /* Job cards */
-    .job-card { padding: 16px; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 10px; margin-bottom: 12px; }
-    .job-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-    .job-type { font-size: 14px; font-weight: 700; }
-    .job-details { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 13px; color: var(--text-secondary); }
-    .job-detail { display: flex; align-items: center; gap: 6px; }
-    .job-detail svg { width: 14px; height: 14px; stroke: var(--text-muted); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; min-width: 14px; }
-    .job-actions { display: flex; gap: 10px; margin-top: 14px; }
+    /* Job board cards */
+    .job-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 20px; margin-bottom: 14px; transition: box-shadow 0.2s; }
+    .job-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.07); }
+    .job-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
+    .job-card-ref { font-size: 11px; font-weight: 700; color: var(--text-muted); letter-spacing: 0.5px; }
+    .job-route { font-size: 15px; font-weight: 800; color: #1a1a1a; margin-bottom: 2px; display: flex; align-items: center; gap: 8px; }
+    .job-route svg { width: 14px; height: 14px; stroke: var(--orange); fill: none; stroke-width: 2.5; flex-shrink: 0; }
+    .job-meta { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 14px 0; }
+    .job-meta-item { background: #f8f8f6; border-radius: 8px; padding: 10px 12px; }
+    .job-meta-label { font-size: 10px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
+    .job-meta-value { font-size: 15px; font-weight: 700; }
+    .job-meta-value.earn { color: var(--green); }
+    .job-cash-notice { background: #fff8f0; border: 1px solid #f0a050; border-radius: 10px; padding: 10px 14px; font-size: 12px; color: #8a6a3a; margin-bottom: 12px; }
+    .job-actions { display: flex; gap: 10px; }
 
+    /* Buttons */
     .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; border: none; cursor: pointer; transition: opacity 0.2s; font-family: inherit; }
     .btn:hover { opacity: 0.85; }
     .btn-primary { background: var(--orange); color: #fff; }
     .btn-green { background: var(--green); color: #fff; }
+    .btn-blue { background: var(--blue); color: #fff; }
     .btn-outline { background: transparent; color: var(--text-secondary); border: 1px solid var(--card-border); }
     .btn-outline:hover { border-color: #bbb; opacity: 1; }
     .btn-sm { padding: 8px 14px; font-size: 12px; }
+    .btn-lg { padding: 14px 24px; font-size: 14px; width: 100%; justify-content: center; }
     .btn svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
-    /* Earnings table */
+    /* Status stepper */
+    .stepper { display: flex; align-items: flex-start; gap: 0; margin: 24px 0; position: relative; }
+    .step-item { flex: 1; display: flex; flex-direction: column; align-items: center; position: relative; }
+    .step-item::before { content: ''; position: absolute; top: 14px; left: 50%; right: -50%; height: 2px; background: #e8e8e5; z-index: 0; }
+    .step-item:last-child::before { display: none; }
+    .step-dot { width: 28px; height: 28px; border-radius: 50%; border: 2px solid #ddd; background: #fff; z-index: 1; display: flex; align-items: center; justify-content: center; transition: all 0.3s; }
+    .step-dot.done { background: var(--green); border-color: var(--green); }
+    .step-dot.done svg { display: block; }
+    .step-dot.active { background: var(--orange); border-color: var(--orange); }
+    .step-dot svg { width: 14px; height: 14px; stroke: #fff; fill: none; stroke-width: 2.5; display: none; }
+    .step-dot.done svg, .step-dot.active svg { display: block; }
+    .step-dot.active svg { stroke: #fff; }
+    .step-label { font-size: 10px; font-weight: 600; text-align: center; margin-top: 6px; color: var(--text-muted); max-width: 70px; line-height: 1.3; }
+    .step-label.active { color: var(--orange); }
+    .step-label.done { color: var(--green); }
+
+    /* Active trip map */
+    #trip-map { height: 260px; border-radius: 12px; overflow: hidden; margin-bottom: 16px; border: 1px solid var(--card-border); }
+
+    /* Trip client card */
+    .client-card { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: #f8f8f6; border-radius: 10px; margin-bottom: 14px; }
+    .client-info h4 { font-size: 14px; font-weight: 700; }
+    .client-info p { font-size: 12px; color: var(--text-muted); }
+    .client-actions { display: flex; gap: 8px; }
+
+    /* Earnings period */
+    .period-tabs { display: flex; gap: 4px; margin-bottom: 20px; }
+    .period-tab { padding: 8px 18px; border-radius: 100px; font-size: 13px; font-weight: 600; cursor: pointer; border: 1.5px solid var(--card-border); color: var(--text-muted); background: #fff; transition: all 0.15s; }
+    .period-tab.active { background: var(--orange); border-color: var(--orange); color: #fff; }
+
+    /* Earnings summary */
+    .earn-summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+    .earn-box { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 10px; padding: 16px; text-align: center; }
+    .earn-box-label { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .earn-box-value { font-size: 22px; font-weight: 800; margin-top: 4px; }
+
+    /* History filter */
+    .history-filter { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+    .history-filter select { padding: 8px 14px; border: 1.5px solid var(--card-border); border-radius: 10px; font-size: 13px; font-family: inherit; outline: none; }
+
+    /* Table */
     .table-wrap { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; font-size: 13px; }
     th { text-align: left; padding: 10px 12px; font-weight: 600; color: var(--text-muted); border-bottom: 1px solid var(--card-border); font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -112,401 +170,703 @@
     td.amount { font-weight: 700; color: var(--green); }
 
     /* Empty state */
-    .empty { text-align: center; padding: 40px 20px; color: var(--text-muted); }
-    .empty svg { width: 48px; height: 48px; stroke: #ddd; fill: none; stroke-width: 1.5; margin: 0 auto 12px; display: block; }
+    .empty { text-align: center; padding: 48px 20px; color: var(--text-muted); }
+    .empty-icon { font-size: 40px; margin-bottom: 12px; }
     .empty p { font-size: 14px; }
 
     @media (max-width: 768px) {
       .stats-row { grid-template-columns: repeat(2, 1fr); }
-      .job-details { grid-template-columns: 1fr; }
-      .tabs { overflow-x: auto; }
+      .job-meta { grid-template-columns: 1fr 1fr; }
+      .earn-summary { grid-template-columns: 1fr; }
+      .stepper { overflow-x: auto; min-width: 500px; }
+      .stepper-wrap { overflow-x: auto; }
     }
     @media (max-width: 480px) {
       .stats-row { grid-template-columns: 1fr; }
       .vehicle-card { flex-direction: column; align-items: flex-start; gap: 12px; }
     }
   </style>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/supabase-config.js"></script>
   <script>window.REQUIRED_ROLE = 'driver';</script>
   <script src="js/auth-guard.js"></script>
 </head>
 <body>
-  <nav class="nav">
-    <div class="nav-inner">
-      <a href="index.html" class="logo"><img src="images/logo dark.png" alt="CapeLoad Logistics"></a>
-      <div class="nav-right">
-        <span class="nav-user" id="nav-user">—</span>
-        <a href="#" onclick="logout()" class="nav-logout">Log out</a>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="logo"><img src="images/logo dark.png" alt="CapeLoad Logistics"></a>
+    <div class="nav-right">
+      <div class="online-pill offline" id="online-pill" onclick="toggleOnline()">
+        <span class="online-dot"></span>
+        <span id="online-label">Offline</span>
       </div>
+      <span class="nav-user" id="nav-user">—</span>
+      <a href="#" onclick="logout()" class="nav-logout">Log out</a>
     </div>
-  </nav>
+  </div>
+</nav>
 
-  <div class="portal-layout">
-    <div class="portal-header">
-      <h1 id="greeting">Welcome back</h1>
-      <p>Manage your vehicles, availability, and jobs</p>
+<div class="portal-layout">
+  <div class="portal-header">
+    <h1 id="greeting">Welcome back</h1>
+    <p>Manage your vehicles, availability, and jobs</p>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="stat-card"><div class="stat-label">Active vehicles</div><div class="stat-value orange" id="stat-vehicles">—</div></div>
+    <div class="stat-card"><div class="stat-label">Jobs this week</div><div class="stat-value blue" id="stat-jobs">—</div></div>
+    <div class="stat-card"><div class="stat-label">Earnings this week</div><div class="stat-value green" id="stat-earnings">—</div></div>
+    <div class="stat-card"><div class="stat-label">Rating</div><div class="stat-value" id="stat-rating">—</div></div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <div class="tab active" id="tab-btn-vehicles" onclick="switchTab('vehicles')">My Vehicles</div>
+    <div class="tab" id="tab-btn-jobs" onclick="switchTab('jobs')">Job Board</div>
+    <div class="tab" id="tab-btn-active" onclick="switchTab('active')">Active Trip</div>
+    <div class="tab" id="tab-btn-history" onclick="switchTab('history')">Trip History</div>
+    <div class="tab" id="tab-btn-earnings" onclick="switchTab('earnings')">Earnings</div>
+    <div class="tab" id="tab-btn-settings" onclick="switchTab('settings')">Settings</div>
+  </div>
+
+  <!-- ── VEHICLES ─────────────────────── -->
+  <div class="tab-panel active" id="tab-vehicles">
+    <div id="vehicles-list"><p style="color:var(--text-muted);font-size:13px;padding:16px 0;">Loading...</p></div>
+  </div>
+
+  <!-- ── JOB BOARD ─────────────────────── -->
+  <div class="tab-panel" id="tab-jobs">
+    <div id="jobs-list"><p style="color:var(--text-muted);font-size:13px;padding:16px 0;">Loading...</p></div>
+  </div>
+
+  <!-- ── ACTIVE TRIP ─────────────────── -->
+  <div class="tab-panel" id="tab-active">
+    <div id="active-wrap">
+      <p style="color:var(--text-muted);padding:16px 0;">Loading...</p>
     </div>
+  </div>
 
-    <!-- Stats -->
-    <div class="stats-row">
-      <div class="stat-card"><div class="stat-label">Active vehicles</div><div class="stat-value orange" id="stat-vehicles">—</div></div>
-      <div class="stat-card"><div class="stat-label">Jobs this week</div><div class="stat-value blue" id="stat-jobs">—</div></div>
-      <div class="stat-card"><div class="stat-label">Earnings this week</div><div class="stat-value green" id="stat-earnings">—</div></div>
-      <div class="stat-card"><div class="stat-label">Rating</div><div class="stat-value" id="stat-rating">—</div></div>
+  <!-- ── TRIP HISTORY ─────────────────── -->
+  <div class="tab-panel" id="tab-history">
+    <div class="history-filter">
+      <select id="history-month" onchange="loadHistory()">
+        <option value="">All time</option>
+      </select>
+      <span id="history-count" style="font-size:13px;color:var(--text-muted);"></span>
     </div>
-
-    <!-- Tabs -->
-    <div class="tabs">
-      <div class="tab active" onclick="switchTab('vehicles')">My Vehicles</div>
-      <div class="tab" onclick="switchTab('jobs')">Job Board</div>
-      <div class="tab" onclick="switchTab('active')">Active Jobs</div>
-      <div class="tab" onclick="switchTab('earnings')">Earnings</div>
-      <div class="tab" onclick="switchTab('settings')">Settings</div>
-    </div>
-
-    <!-- Vehicles Tab -->
-    <div class="tab-panel active" id="tab-vehicles">
-      <div id="vehicles-list"><p style="color:var(--text-muted);font-size:13px;padding:16px 0;">Loading...</p></div>
-    </div>
-
-    <!-- Job Board Tab -->
-    <div class="tab-panel" id="tab-jobs">
-      <div id="jobs-list"><p style="color:var(--text-muted);font-size:13px;padding:16px 0;">Loading...</p></div>
-    </div>
-
-    <!-- Active Jobs Tab -->
-    <div class="tab-panel" id="tab-active">
-      <div id="active-list"><p style="color:var(--text-muted);font-size:13px;padding:16px 0;">Loading...</p></div>
-    </div>
-
-    <!-- Earnings Tab -->
-    <div class="tab-panel" id="tab-earnings">
-      <div class="card">
-        <div class="card-title">Recent earnings</div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Date</th><th>Job</th><th>Route</th><th>Vehicle</th><th>Amount</th></tr></thead>
-            <tbody id="earnings-tbody">
-              <tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:32px;">Loading...</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-      <div class="card">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-          <div>
-            <div style="font-size: 13px; color: var(--text-muted);">Weekly payout</div>
-            <div style="font-size: 28px; font-weight: 800; color: var(--green);" id="payout-total">—</div>
-          </div>
-          <span class="badge badge-green">Scheduled</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Settings Tab -->
-    <div class="tab-panel" id="tab-settings">
-      <div class="card">
-        <div class="card-title">Profile</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
-          <div><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">Full Name</label><input type="text" id="ds-name" style="width:100%;padding:12px;border:1.5px solid #eee;border-radius:10px;font-size:14px;font-family:inherit;outline:none;"></div>
-          <div><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">Phone</label><input type="tel" id="ds-phone" style="width:100%;padding:12px;border:1.5px solid #eee;border-radius:10px;font-size:14px;font-family:inherit;outline:none;"></div>
-        </div>
-        <button class="btn btn-primary" onclick="saveDriverProfile()">Save Profile</button>
-      </div>
-      <div class="card">
-        <div class="card-title">Banking Details (for payouts)</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px;">
-          <div><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">Bank Name</label><input type="text" id="ds-bank" placeholder="e.g. FNB" style="width:100%;padding:12px;border:1.5px solid #eee;border-radius:10px;font-size:14px;font-family:inherit;outline:none;"></div>
-          <div><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">Account Number</label><input type="text" id="ds-account" placeholder="e.g. 62000000000" style="width:100%;padding:12px;border:1.5px solid #eee;border-radius:10px;font-size:14px;font-family:inherit;outline:none;"></div>
-          <div><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">Branch Code</label><input type="text" id="ds-branch" placeholder="e.g. 250655" style="width:100%;padding:12px;border:1.5px solid #eee;border-radius:10px;font-size:14px;font-family:inherit;outline:none;"></div>
-        </div>
-        <button class="btn btn-primary" onclick="saveBanking()">Save Banking Details</button>
-      </div>
-      <div class="card">
-        <div class="card-title">Change Password</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
-          <div><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">New Password</label><input type="password" id="ds-newpw" placeholder="Min 6 characters" style="width:100%;padding:12px;border:1.5px solid #eee;border-radius:10px;font-size:14px;font-family:inherit;outline:none;"></div>
-          <div><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">Confirm</label><input type="password" id="ds-confirmpw" placeholder="Repeat password" style="width:100%;padding:12px;border:1.5px solid #eee;border-radius:10px;font-size:14px;font-family:inherit;outline:none;"></div>
-        </div>
-        <button class="btn btn-primary" onclick="driverChangePassword()">Update Password</button>
-      </div>
-      <div class="card">
-        <div class="card-title">Add Vehicle</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
-          <div><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">Type</label><select id="av-type" style="width:100%;padding:12px;border:1.5px solid #eee;border-radius:10px;font-size:14px;font-family:inherit;outline:none;"><option value="">Select</option><option value="motorbike">Motorbike</option><option value="bakkie">Bakkie</option><option value="panel-van">Panel Van</option><option value="4-ton">4-Ton</option><option value="8-ton">8-Ton</option><option value="flatbed">Flatbed</option></select></div>
-          <div><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">Make</label><input type="text" id="av-make" placeholder="e.g. Toyota" style="width:100%;padding:12px;border:1.5px solid #eee;border-radius:10px;font-size:14px;font-family:inherit;outline:none;"></div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px;">
-          <div><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">Model</label><input type="text" id="av-model" placeholder="e.g. Hilux" style="width:100%;padding:12px;border:1.5px solid #eee;border-radius:10px;font-size:14px;font-family:inherit;outline:none;"></div>
-          <div><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">Plate</label><input type="text" id="av-plate" placeholder="CA 123 456" style="width:100%;padding:12px;border:1.5px solid #eee;border-radius:10px;font-size:14px;font-family:inherit;outline:none;"></div>
-          <div><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">Year</label><input type="number" id="av-year" placeholder="2022" style="width:100%;padding:12px;border:1.5px solid #eee;border-radius:10px;font-size:14px;font-family:inherit;outline:none;"></div>
-        </div>
-        <button class="btn btn-primary" onclick="addVehicle()">Submit Vehicle</button>
+    <div class="card">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Date</th><th>Route</th><th>Vehicle</th><th>Payment</th><th>Payout</th><th>Status</th></tr></thead>
+          <tbody id="history-tbody"><tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:32px;">Loading...</td></tr></tbody>
+        </table>
       </div>
     </div>
   </div>
 
-  <script>
-    var vehicleLabels = { motorbike: 'Motorbike', bakkie: 'Bakkie', 'panel-van': 'Panel Van', '4-ton': '4-Ton', '8-ton': '8-Ton', flatbed: 'Flatbed' };
-    var driverRecord = null;
+  <!-- ── EARNINGS ─────────────────────── -->
+  <div class="tab-panel" id="tab-earnings">
+    <div class="period-tabs">
+      <div class="period-tab active" onclick="switchPeriod('week', this)">This Week</div>
+      <div class="period-tab" onclick="switchPeriod('month', this)">This Month</div>
+      <div class="period-tab" onclick="switchPeriod('all', this)">All Time</div>
+    </div>
+    <div class="earn-summary">
+      <div class="earn-box"><div class="earn-box-label">Jobs</div><div class="earn-box-value blue" id="earn-jobs">—</div></div>
+      <div class="earn-box"><div class="earn-box-label">Gross Fare</div><div class="earn-box-value" id="earn-gross">—</div></div>
+      <div class="earn-box"><div class="earn-box-label">Your Payout</div><div class="earn-box-value green" id="earn-payout">—</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Breakdown</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Date</th><th>Route</th><th>Vehicle</th><th>Fare</th><th>Commission</th><th>Payout</th></tr></thead>
+          <tbody id="earnings-tbody"><tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:32px;">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 
-    function switchTab(name) {
-      document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
-      document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
-      event.target.classList.add('active');
-      document.getElementById('tab-' + name).classList.add('active');
-      if (name === 'jobs') loadJobBoard();
-      if (name === 'active') loadActiveJobs();
-      if (name === 'earnings') loadEarnings();
+  <!-- ── SETTINGS ─────────────────────── -->
+  <div class="tab-panel" id="tab-settings">
+    <div class="card">
+      <div class="card-title">Profile</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+        <div><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">Full Name</label><input type="text" id="ds-name" style="width:100%;padding:12px;border:1.5px solid #eee;border-radius:10px;font-size:14px;font-family:inherit;outline:none;"></div>
+        <div><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">Phone</label><input type="tel" id="ds-phone" style="width:100%;padding:12px;border:1.5px solid #eee;border-radius:10px;font-size:14px;font-family:inherit;outline:none;"></div>
+      </div>
+      <button class="btn btn-primary" onclick="saveDriverProfile()">Save Profile</button>
+    </div>
+    <div class="card">
+      <div class="card-title">Banking Details (for payouts)</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px;">
+        <div><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">Bank Name</label><input type="text" id="ds-bank" placeholder="e.g. FNB" style="width:100%;padding:12px;border:1.5px solid #eee;border-radius:10px;font-size:14px;font-family:inherit;outline:none;"></div>
+        <div><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">Account Number</label><input type="text" id="ds-account" placeholder="e.g. 62000000000" style="width:100%;padding:12px;border:1.5px solid #eee;border-radius:10px;font-size:14px;font-family:inherit;outline:none;"></div>
+        <div><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">Branch Code</label><input type="text" id="ds-branch" placeholder="e.g. 250655" style="width:100%;padding:12px;border:1.5px solid #eee;border-radius:10px;font-size:14px;font-family:inherit;outline:none;"></div>
+      </div>
+      <button class="btn btn-primary" onclick="saveBanking()">Save Banking Details</button>
+    </div>
+    <div class="card">
+      <div class="card-title">Change Password</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+        <div><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">New Password</label><input type="password" id="ds-newpw" placeholder="Min 6 characters" style="width:100%;padding:12px;border:1.5px solid #eee;border-radius:10px;font-size:14px;font-family:inherit;outline:none;"></div>
+        <div><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">Confirm</label><input type="password" id="ds-confirmpw" placeholder="Repeat password" style="width:100%;padding:12px;border:1.5px solid #eee;border-radius:10px;font-size:14px;font-family:inherit;outline:none;"></div>
+      </div>
+      <button class="btn btn-primary" onclick="driverChangePassword()">Update Password</button>
+    </div>
+    <div class="card">
+      <div class="card-title">Add Vehicle</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+        <div><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">Type</label><select id="av-type" style="width:100%;padding:12px;border:1.5px solid #eee;border-radius:10px;font-size:14px;font-family:inherit;outline:none;"><option value="">Select</option><option value="motorbike">Motorbike</option><option value="bakkie">Bakkie</option><option value="panel-van">Panel Van</option><option value="4-ton">4-Ton</option><option value="8-ton">8-Ton</option><option value="flatbed">Flatbed</option></select></div>
+        <div><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">Make</label><input type="text" id="av-make" placeholder="e.g. Toyota" style="width:100%;padding:12px;border:1.5px solid #eee;border-radius:10px;font-size:14px;font-family:inherit;outline:none;"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px;">
+        <div><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">Model</label><input type="text" id="av-model" placeholder="e.g. Hilux" style="width:100%;padding:12px;border:1.5px solid #eee;border-radius:10px;font-size:14px;font-family:inherit;outline:none;"></div>
+        <div><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">Plate</label><input type="text" id="av-plate" placeholder="CA 123 456" style="width:100%;padding:12px;border:1.5px solid #eee;border-radius:10px;font-size:14px;font-family:inherit;outline:none;"></div>
+        <div><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">Year</label><input type="number" id="av-year" placeholder="2022" style="width:100%;padding:12px;border:1.5px solid #eee;border-radius:10px;font-size:14px;font-family:inherit;outline:none;"></div>
+      </div>
+      <button class="btn btn-primary" onclick="addVehicle()">Submit Vehicle</button>
+    </div>
+  </div>
+
+</div><!-- end portal-layout -->
+
+<script>
+  var vehicleLabels = { motorbike:'Motorbike', bakkie:'Bakkie', 'panel-van':'Panel Van', '4-ton':'4-Ton', '8-ton':'8-Ton', flatbed:'Flatbed' };
+  var payLabels = { yoco:'Card (Yoco)', cash_pickup:'Cash at Pickup', cash_delivery:'Cash on Delivery' };
+  var driverRecord = null;
+  var isOnline = false;
+  var tripMap = null;
+  var newJobCount = 0;
+  var currentEarningsPeriod = 'week';
+
+  // ══════════════════════════════════════
+  // TAB SWITCHING
+  // ══════════════════════════════════════
+  function switchTab(name) {
+    document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+    document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+    document.getElementById('tab-btn-' + name).classList.add('active');
+    document.getElementById('tab-' + name).classList.add('active');
+    if (name === 'jobs') { newJobCount = 0; updateJobBadge(); loadJobBoard(); }
+    if (name === 'active') loadActiveTrip();
+    if (name === 'earnings') loadEarnings();
+    if (name === 'history') loadHistory();
+    if (name === 'vehicles') loadVehicles();
+  }
+
+  function updateJobBadge() {
+    var btn = document.getElementById('tab-btn-jobs');
+    var existing = btn.querySelector('.tab-badge');
+    if (newJobCount > 0) {
+      if (!existing) { var b = document.createElement('span'); b.className = 'tab-badge'; btn.appendChild(b); existing = b; }
+      existing.textContent = newJobCount;
+    } else if (existing) {
+      existing.remove();
+    }
+  }
+
+  // ══════════════════════════════════════
+  // ONLINE / OFFLINE TOGGLE
+  // ══════════════════════════════════════
+  function toggleOnline() {
+    isOnline = !isOnline;
+    var pill = document.getElementById('online-pill');
+    var label = document.getElementById('online-label');
+    pill.className = 'online-pill ' + (isOnline ? 'online' : 'offline');
+    label.textContent = isOnline ? 'Online' : 'Offline';
+    // Mark all approved vehicles as available/unavailable
+    if (driverRecord) {
+      sb.from('vehicles').update({ availability_status: isOnline ? 'available' : 'unavailable', available: isOnline })
+        .eq('owner_id', driverRecord.id).eq('status', 'approved').then(function() {
+          loadVehicles();
+          loadStats();
+          showToast(isOnline ? 'You\'re online — new jobs will appear' : 'You\'re offline', isOnline ? 'success' : 'info');
+        });
+    }
+  }
+
+  // ══════════════════════════════════════
+  // AUTH READY
+  // ══════════════════════════════════════
+  document.addEventListener('auth-ready', async function() {
+    var profile = window.currentUserProfile;
+    var firstName = (profile?.full_name || '').split(' ')[0] || 'there';
+    document.getElementById('greeting').textContent = 'Welcome back, ' + firstName;
+    document.getElementById('nav-user').textContent = profile?.full_name || '';
+
+    var { data } = await sb.from('drivers').select('id, rating, status').eq('user_id', window.currentUser.id).single();
+    if (!data) {
+      document.getElementById('tab-vehicles').innerHTML = '<p style="color:var(--red);padding:20px;">Driver record not found. Contact support.</p>';
+      return;
+    }
+    driverRecord = data;
+
+    if (data.status !== 'approved') {
+      document.getElementById('tab-vehicles').innerHTML = '<div class="card" style="text-align:center;padding:40px;"><p style="font-size:16px;font-weight:600;">Application ' + data.status + '</p><p style="color:var(--text-muted);margin-top:8px;">Your driver application is ' + data.status + '. You will be notified when approved.</p></div>';
+      return;
     }
 
-    document.addEventListener('auth-ready', async function() {
-      var profile = window.currentUserProfile;
-      var firstName = (profile?.full_name || '').split(' ')[0] || 'there';
-      document.getElementById('greeting').textContent = 'Welcome back, ' + firstName;
-      document.getElementById('nav-user').textContent = profile?.full_name || '';
+    await loadVehicles();
+    await loadStats();
 
-      // Get driver record
-      var { data } = await sb.from('drivers').select('id, rating, status').eq('user_id', window.currentUser.id).single();
-      if (!data) {
-        document.getElementById('tab-vehicles').querySelector('#vehicles-list').innerHTML = '<p style="color:var(--red);padding:20px;">Driver record not found. Please contact support.</p>';
-        return;
+    // Check current online status from vehicles
+    var { count } = await sb.from('vehicles').select('id', { count: 'exact', head: true }).eq('owner_id', driverRecord.id).eq('availability_status', 'available');
+    if (count > 0) {
+      isOnline = true;
+      var pill = document.getElementById('online-pill');
+      pill.className = 'online-pill online';
+      document.getElementById('online-label').textContent = 'Online';
+    }
+
+    // Pre-fill settings
+    document.getElementById('ds-name').value = profile?.full_name || '';
+    document.getElementById('ds-phone').value = profile?.phone || '';
+    var { data: driverFull } = await sb.from('drivers').select('bank_name, account_number, branch_code').eq('id', driverRecord.id).single();
+    if (driverFull) {
+      document.getElementById('ds-bank').value = driverFull.bank_name || '';
+      document.getElementById('ds-account').value = driverFull.account_number || '';
+      document.getElementById('ds-branch').value = driverFull.branch_code || '';
+    }
+
+    // Populate history month filter with last 12 months
+    var sel = document.getElementById('history-month');
+    for (var i = 0; i < 12; i++) {
+      var d = new Date(); d.setMonth(d.getMonth() - i);
+      var val = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+      var opt = document.createElement('option'); opt.value = val;
+      opt.textContent = d.toLocaleString('default', { month: 'long', year: 'numeric' });
+      sel.appendChild(opt);
+    }
+
+    // Realtime: new bookings → badge + toast if vehicle type matches
+    sb.channel('driver-new-jobs').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'bookings' }, async function(payload) {
+      if (payload.new.status !== 'pending') return;
+      // Check if this booking matches one of driver's vehicle types
+      var { data: veh } = await sb.from('vehicles').select('type').eq('owner_id', driverRecord.id).eq('status', 'approved').eq('availability_status', 'available');
+      var myTypes = (veh || []).map(function(v) { return v.type; });
+      if (myTypes.includes(payload.new.vehicle_type)) {
+        newJobCount++;
+        updateJobBadge();
+        showToast('New job available — ' + (vehicleLabels[payload.new.vehicle_type] || payload.new.vehicle_type) + '!', 'info');
       }
-      driverRecord = data;
+    }).subscribe();
 
-      if (data.status !== 'approved') {
-        document.getElementById('tab-vehicles').querySelector('#vehicles-list').innerHTML = '<div class="card" style="text-align:center;padding:40px;"><p style="font-size:16px;font-weight:600;">Application ' + data.status + '</p><p style="color:var(--text-muted);margin-top:8px;">Your driver application is ' + data.status + '. You will be notified when approved.</p></div>';
-        return;
-      }
+    // Realtime: updates to my assigned bookings
+    sb.channel('driver-my-jobs').on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'bookings', filter: 'driver_id=eq.' + driverRecord.id }, function() {
+      loadStats();
+    }).subscribe();
+  });
 
-      await loadVehicles();
-      await loadStats();
-
-      // Pre-fill settings
-      document.getElementById('ds-name').value = profile?.full_name || '';
-      document.getElementById('ds-phone').value = profile?.phone || '';
-      // Load banking from driver record
-      var { data: driverFull } = await sb.from('drivers').select('bank_name, account_number, branch_code').eq('id', driverRecord.id).single();
-      if (driverFull) {
-        document.getElementById('ds-bank').value = driverFull.bank_name || '';
-        document.getElementById('ds-account').value = driverFull.account_number || '';
-        document.getElementById('ds-branch').value = driverFull.branch_code || '';
-      }
-
-      // Realtime for new pending bookings
-      sb.channel('driver-jobs').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'bookings' }, function(payload) {
-        if (payload.new.status === 'pending') showToast('New job available!', 'info');
-      }).subscribe();
+  // ══════════════════════════════════════
+  // VEHICLES
+  // ══════════════════════════════════════
+  async function loadVehicles() {
+    var { data } = await sb.from('vehicles').select('*').eq('owner_id', driverRecord.id).order('created_at', { ascending: false });
+    var list = document.getElementById('vehicles-list');
+    if (!data || data.length === 0) {
+      list.innerHTML = '<div class="empty"><div class="empty-icon">🚗</div><p>No vehicles registered. Add one in Settings.</p></div>';
+      return;
+    }
+    list.innerHTML = '';
+    data.forEach(function(v) {
+      var st = v.status === 'approved' ? ['badge-green','Approved'] : v.status === 'rejected' ? ['badge-red','Rejected'] : ['badge-orange','Pending'];
+      var avail = v.availability_status === 'available';
+      var card = document.createElement('div');
+      card.className = 'vehicle-card';
+      card.innerHTML = '<div class="vehicle-info"><div class="vehicle-info-icon"><svg viewBox="0 0 24 24"><path d="M3 12V7a1 1 0 011-1h8l3 4h4a2 2 0 012 2v2"/><path d="M3 12h18v4a1 1 0 01-1 1H4a1 1 0 01-1-1v-4z"/><circle cx="7" cy="17" r="2.5"/><circle cx="17" cy="17" r="2.5"/></svg></div><div><div class="vehicle-name">' + (v.make || '') + ' ' + (v.model || '') + ' <span class="badge ' + st[0] + '">' + st[1] + '</span></div><div class="vehicle-plate">' + (v.reg_plate || '') + ' &middot; ' + (vehicleLabels[v.type] || v.type) + (v.year ? ' &middot; ' + v.year : '') + '</div></div></div><div class="vehicle-actions">' + (v.status === 'approved' ? '<span style="font-size:12px;color:var(--text-muted);">' + (avail ? 'Available' : 'Unavailable') + '</span><label class="toggle"><input type="checkbox" ' + (avail ? 'checked' : '') + ' onchange="toggleAvail(\'' + v.id + '\', this.checked)"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>' : '') + '</div>';
+      list.appendChild(card);
     });
+  }
 
-    async function loadVehicles() {
-      var { data } = await sb.from('vehicles').select('*').eq('owner_id', driverRecord.id).order('created_at', { ascending: false });
-      var list = document.getElementById('vehicles-list');
-      if (!data || data.length === 0) {
-        list.innerHTML = '<p style="color:var(--text-muted);padding:16px;">No vehicles registered.</p>';
-        return;
+  async function toggleAvail(vehicleId, available) {
+    var status = available ? 'available' : 'unavailable';
+    await sb.from('vehicles').update({ availability_status: status, available: available }).eq('id', vehicleId);
+    loadStats();
+  }
+
+  // ══════════════════════════════════════
+  // STATS
+  // ══════════════════════════════════════
+  async function loadStats() {
+    var weekAgo = new Date(Date.now() - 7 * 86400000).toISOString();
+    var [vehicleRes, jobsRes, earningsRes] = await Promise.all([
+      sb.from('vehicles').select('id', { count: 'exact', head: true }).eq('owner_id', driverRecord.id).eq('availability_status', 'available'),
+      sb.from('bookings').select('id', { count: 'exact', head: true }).eq('driver_id', driverRecord.id).gte('created_at', weekAgo),
+      sb.from('bookings').select('driver_payout').eq('driver_id', driverRecord.id).eq('status', 'completed').gte('created_at', weekAgo)
+    ]);
+    document.getElementById('stat-vehicles').textContent = vehicleRes.count || 0;
+    document.getElementById('stat-jobs').textContent = jobsRes.count || 0;
+    var earnings = (earningsRes.data || []).reduce(function(s, b) { return s + (b.driver_payout || 0); }, 0);
+    document.getElementById('stat-earnings').textContent = formatRand(earnings);
+    document.getElementById('stat-rating').textContent = driverRecord.rating || '—';
+  }
+
+  // ══════════════════════════════════════
+  // JOB BOARD
+  // ══════════════════════════════════════
+  async function loadJobBoard() {
+    var list = document.getElementById('jobs-list');
+    list.innerHTML = '<p style="color:var(--text-muted);font-size:13px;padding:16px 0;">Loading jobs...</p>';
+
+    var { data: vehicles } = await sb.from('vehicles').select('type').eq('owner_id', driverRecord.id).eq('status', 'approved').eq('availability_status', 'available');
+    var myTypes = (vehicles || []).map(function(v) { return v.type; });
+
+    var query = sb.from('bookings').select('*').eq('status', 'pending').is('driver_id', null).order('created_at', { ascending: false }).limit(30);
+    if (myTypes.length > 0) query = query.in('vehicle_type', myTypes);
+
+    var { data } = await query;
+
+    if (!data || data.length === 0) {
+      list.innerHTML = myTypes.length === 0
+        ? '<div class="empty"><div class="empty-icon">🚗</div><p>Set a vehicle to <strong>available</strong> to see matching jobs.</p></div>'
+        : '<div class="empty"><div class="empty-icon">📋</div><p>No pending jobs matching your vehicles right now.<br>Check back soon.</p></div>';
+      return;
+    }
+
+    list.innerHTML = '';
+    data.forEach(function(b) {
+      var pickup = (b.pickup_address || '').split(',')[0];
+      var dropoff = (b.dropoff_address || '').split(',')[0];
+      var vehicle = vehicleLabels[b.vehicle_type] || b.vehicle_type;
+      var isCash = b.payment_method === 'cash_pickup' || b.payment_method === 'cash_delivery';
+      var dateStr = b.booking_date ? b.booking_date + (b.booking_time ? ' at ' + b.booking_time : '') : 'Flexible';
+
+      var cashHtml = isCash
+        ? '<div class="job-cash-notice"><strong>💵 Cash job</strong> — collect <strong>' + formatRand(b.total) + '</strong> from client. Owe CapeLoad: <strong>' + formatRand(b.commission) + '</strong>. You keep: <strong>' + formatRand(b.driver_payout) + '</strong>.</div>'
+        : '';
+
+      var card = document.createElement('div');
+      card.className = 'job-card';
+      card.id = 'job-' + b.id;
+      card.innerHTML =
+        '<div class="job-card-header">' +
+          '<div>' +
+            '<div class="job-card-ref">' + (b.ref || b.id.slice(0,8).toUpperCase()) + ' &middot; ' + vehicle + '</div>' +
+            '<div class="job-route"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>' + pickup + ' → ' + dropoff + '</div>' +
+          '</div>' +
+          '<span class="badge badge-orange">New</span>' +
+        '</div>' +
+        '<div class="job-meta">' +
+          '<div class="job-meta-item"><div class="job-meta-label">Your payout</div><div class="job-meta-value earn">' + formatRand(b.driver_payout) + '</div></div>' +
+          '<div class="job-meta-item"><div class="job-meta-label">Distance</div><div class="job-meta-value">' + (b.distance_km || '—') + ' km</div></div>' +
+          '<div class="job-meta-item"><div class="job-meta-label">When</div><div class="job-meta-value" style="font-size:12px;">' + dateStr + '</div></div>' +
+        '</div>' +
+        cashHtml +
+        '<div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">Client: <strong>' + (b.client_name || 'Guest') + '</strong> &middot; Payment: ' + (payLabels[b.payment_method] || b.payment_method || '—') + '</div>' +
+        '<div class="job-actions">' +
+          '<button class="btn btn-green btn-lg" style="flex:1" onclick="acceptJob(\'' + b.id + '\')">✓ Pick Up This Trip</button>' +
+          '<button class="btn btn-outline btn-sm" onclick="dismissJob(\'' + b.id + '\')">Dismiss</button>' +
+        '</div>';
+      list.appendChild(card);
+    });
+  }
+
+  async function acceptJob(bookingId) {
+    var { data: booking } = await sb.from('bookings').select('vehicle_type').eq('id', bookingId).single();
+    if (!booking) return;
+    var { data: vehicle } = await sb.from('vehicles').select('id').eq('owner_id', driverRecord.id).eq('type', booking.vehicle_type).eq('availability_status', 'available').eq('status', 'approved').limit(1).single();
+
+    var updates = { status: 'assigned', driver_id: driverRecord.id, driver_status: 'accepted', assigned_at: new Date().toISOString(), accepted_at: new Date().toISOString() };
+    if (vehicle) updates.vehicle_id = vehicle.id;
+
+    var { error } = await sb.from('bookings').update(updates).eq('id', bookingId);
+    if (error) { showToast('Accept failed: ' + error.message, 'error'); return; }
+    showToast('Trip accepted! Head to Active Trip.', 'success');
+    var card = document.getElementById('job-' + bookingId);
+    if (card) card.remove();
+    loadStats();
+  }
+
+  function dismissJob(bookingId) {
+    var card = document.getElementById('job-' + bookingId);
+    if (card) card.remove();
+  }
+
+  // ══════════════════════════════════════
+  // ACTIVE TRIP
+  // ══════════════════════════════════════
+  var STEPS = [
+    { key: 'accepted',   label: 'Accepted',         next: 'en_route',   nextLabel: 'En Route to Pickup' },
+    { key: 'en_route',   label: 'En Route',          next: 'at_pickup',  nextLabel: 'Arrived at Pickup' },
+    { key: 'at_pickup',  label: 'At Pickup',         next: 'in_transit', nextLabel: 'In Transit' },
+    { key: 'in_transit', label: 'In Transit',        next: 'delivered',  nextLabel: 'Mark Delivered' },
+    { key: 'delivered',  label: 'Delivered',         next: null,         nextLabel: null }
+  ];
+
+  async function loadActiveTrip() {
+    var wrap = document.getElementById('active-wrap');
+    var { data } = await sb.from('bookings').select('*').eq('driver_id', driverRecord.id).in('status', ['assigned', 'in_progress']).order('accepted_at', { ascending: false }).limit(1).single();
+
+    if (!data) {
+      wrap.innerHTML = '<div class="empty"><div class="empty-icon">🛣️</div><p>No active trip right now.<br>Pick one from the <strong>Job Board</strong>.</p></div>';
+      if (tripMap) { tripMap.remove(); tripMap = null; }
+      return;
+    }
+
+    var b = data;
+    var pickup = (b.pickup_address || '').split(',')[0];
+    var dropoff = (b.dropoff_address || '').split(',')[0];
+    var vehicle = vehicleLabels[b.vehicle_type] || b.vehicle_type;
+    var isCash = b.payment_method === 'cash_pickup' || b.payment_method === 'cash_delivery';
+    var currentStepKey = b.driver_status || 'accepted';
+    var currentStepIdx = STEPS.findIndex(function(s) { return s.key === currentStepKey; });
+    if (currentStepIdx < 0) currentStepIdx = 0;
+    var currentStep = STEPS[currentStepIdx];
+
+    // Build stepper HTML
+    var stepperHtml = '<div class="stepper-wrap"><div class="stepper">';
+    STEPS.forEach(function(s, i) {
+      var isDone = i < currentStepIdx;
+      var isActive = i === currentStepIdx;
+      var dotClass = isDone ? 'done' : isActive ? 'active' : '';
+      var labelClass = isDone ? 'done' : isActive ? 'active' : '';
+      stepperHtml += '<div class="step-item"><div class="step-dot ' + dotClass + '"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><div class="step-label ' + labelClass + '">' + s.label + '</div></div>';
+    });
+    stepperHtml += '</div></div>';
+
+    // Cash notice
+    var cashHtml = '';
+    if (isCash) {
+      var collectMsg = b.payment_method === 'cash_pickup' ? 'Collect <strong>' + formatRand(b.total) + '</strong> at pickup.' : 'Collect <strong>' + formatRand(b.total) + '</strong> on delivery.';
+      cashHtml = '<div class="job-cash-notice">' + collectMsg + ' Owe CapeLoad: <strong>' + formatRand(b.commission) + '</strong> | You keep: <strong>' + formatRand(b.driver_payout) + '</strong></div>';
+    }
+
+    // Action button
+    var actionBtn = '';
+    if (currentStep.next) {
+      if (currentStep.next === 'delivered') {
+        actionBtn = '<button class="btn btn-primary btn-lg" onclick="advanceStep(\'' + b.id + '\',\'' + currentStep.next + '\')">📦 ' + currentStep.nextLabel + '</button>';
+      } else {
+        actionBtn = '<button class="btn btn-green btn-lg" onclick="advanceStep(\'' + b.id + '\',\'' + currentStep.next + '\')">→ ' + currentStep.nextLabel + '</button>';
       }
-      list.innerHTML = '';
-      data.forEach(function(v) {
-        var st = v.status === 'approved' ? ['badge-green','Approved'] : ['badge-orange','Pending'];
-        var avail = v.availability_status === 'available';
-        var card = document.createElement('div');
-        card.className = 'vehicle-card';
-        card.innerHTML = '<div class="vehicle-info"><div class="vehicle-info-icon"><svg viewBox="0 0 24 24"><path d="M3 12V7a1 1 0 011-1h8l3 4h4a2 2 0 012 2v2"/><path d="M3 12h18v4a1 1 0 01-1 1H4a1 1 0 01-1-1v-4z"/><circle cx="7" cy="17" r="2.5"/><circle cx="17" cy="17" r="2.5"/></svg></div><div><div class="vehicle-name">' + (v.make || '') + ' ' + (v.model || '') + ' — <span class="badge ' + st[0] + '">' + st[1] + '</span></div><div class="vehicle-plate">' + (v.reg_plate || '') + ' &middot; ' + (vehicleLabels[v.type] || v.type) + '</div></div></div><div class="vehicle-actions"><span style="font-size:12px;color:var(--text-muted);">Available</span><label class="toggle"><input type="checkbox" ' + (avail ? 'checked' : '') + ' onchange="toggleAvail(\'' + v.id + '\', this.checked)"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>';
-        list.appendChild(card);
-      });
+    } else {
+      actionBtn = '<div class="badge badge-green" style="padding:12px 20px;font-size:13px;">✓ Trip Completed</div>';
     }
 
-    async function toggleAvail(vehicleId, available) {
-      var status = available ? 'available' : 'unavailable';
-      await sb.from('vehicles').update({ availability_status: status, available: available }).eq('id', vehicleId);
-      loadStats();
-    }
+    // Navigation link
+    var navUrl = '';
+    if (b.dropoff_lat && b.dropoff_lng) navUrl = 'https://www.google.com/maps/dir/?api=1&destination=' + b.dropoff_lat + ',' + b.dropoff_lng;
+    else if (b.dropoff_address) navUrl = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(b.dropoff_address);
 
-    async function loadStats() {
-      var weekAgo = new Date(Date.now() - 7 * 86400000).toISOString();
-      var [vehicleRes, jobsRes, earningsRes] = await Promise.all([
-        sb.from('vehicles').select('id', { count: 'exact', head: true }).eq('owner_id', driverRecord.id).eq('availability_status', 'available'),
-        sb.from('bookings').select('id', { count: 'exact', head: true }).eq('driver_id', driverRecord.id).gte('created_at', weekAgo),
-        sb.from('bookings').select('driver_payout').eq('driver_id', driverRecord.id).eq('status', 'completed').gte('created_at', weekAgo)
-      ]);
-      document.getElementById('stat-vehicles').textContent = vehicleRes.count || 0;
-      document.getElementById('stat-jobs').textContent = jobsRes.count || 0;
-      var earnings = (earningsRes.data || []).reduce(function(s, b) { return s + (b.driver_payout || 0); }, 0);
-      document.getElementById('stat-earnings').textContent = formatRand(earnings);
-      document.getElementById('stat-rating').textContent = driverRecord.rating || '—';
-    }
+    // WhatsApp
+    var waUrl = b.client_phone ? 'https://wa.me/' + b.client_phone.replace(/\D/g,'').replace(/^0/, '27') + '?text=' + encodeURIComponent('Hi, I\'m your CapeLoad driver. Ref: ' + (b.ref || '')) : '#';
 
-    async function loadJobBoard() {
-      // Get driver's vehicle types
-      var { data: vehicles } = await sb.from('vehicles').select('type').eq('owner_id', driverRecord.id).eq('status', 'approved').eq('availability_status', 'available');
-      var types = (vehicles || []).map(function(v) { return v.type; });
-      var list = document.getElementById('jobs-list');
+    wrap.innerHTML =
+      '<div class="card" style="margin-bottom:0">' +
+        '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;">' +
+          '<div><div style="font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">' + (b.ref || '') + ' &middot; ' + vehicle + '</div>' +
+          '<div style="font-size:18px;font-weight:800;">' + pickup + '</div>' +
+          '<div style="font-size:13px;color:var(--text-muted);margin:4px 0;">→</div>' +
+          '<div style="font-size:18px;font-weight:800;">' + dropoff + '</div></div>' +
+          '<div style="text-align:right;"><div style="font-size:22px;font-weight:900;color:var(--green);">' + formatRand(b.driver_payout) + '</div><div style="font-size:11px;color:var(--text-muted);">your payout</div></div>' +
+        '</div>' +
+        stepperHtml +
+        '<div id="trip-map"></div>' +
+        '<div class="client-card">' +
+          '<div class="client-info"><h4>' + (b.client_name || 'Client') + '</h4><p>' + (b.client_phone || 'No phone') + (b.notes ? ' &middot; ' + b.notes : '') + '</p></div>' +
+          '<div class="client-actions">' +
+            (b.client_phone ? '<a href="tel:' + b.client_phone + '" class="btn btn-outline btn-sm">📞 Call</a>' : '') +
+            '<a href="' + waUrl + '" target="_blank" class="btn btn-sm" style="background:#25d366;color:#fff;">WhatsApp</a>' +
+          '</div>' +
+        '</div>' +
+        cashHtml +
+        '<div style="display:flex;gap:10px;align-items:stretch;">' +
+          actionBtn +
+          (navUrl ? '<a href="' + navUrl + '" target="_blank" class="btn btn-blue btn-lg" style="flex:0 0 auto;text-decoration:none;">🗺️ Navigate</a>' : '') +
+        '</div>' +
+      '</div>';
 
-      if (types.length === 0) {
-        list.innerHTML = '<p style="color:var(--text-muted);padding:16px;">No available vehicles. Toggle a vehicle to available first.</p>';
-        return;
+    // Draw map
+    setTimeout(function() {
+      if (tripMap) { tripMap.remove(); tripMap = null; }
+      if (!document.getElementById('trip-map')) return;
+      tripMap = L.map('trip-map', { zoomControl: true });
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { attribution: '&copy; OSM &copy; CARTO', maxZoom: 19 }).addTo(tripMap);
+
+      var points = [];
+      if (b.pickup_lat && b.pickup_lng) {
+        var pm = L.circleMarker([b.pickup_lat, b.pickup_lng], { radius: 10, color: '#22c55e', fillColor: '#22c55e', fillOpacity: 1, weight: 3 }).addTo(tripMap);
+        pm.bindTooltip('Pickup: ' + pickup);
+        points.push([b.pickup_lat, b.pickup_lng]);
+      }
+      if (b.dropoff_lat && b.dropoff_lng) {
+        var dm = L.circleMarker([b.dropoff_lat, b.dropoff_lng], { radius: 10, color: '#f15f22', fillColor: '#f15f22', fillOpacity: 1, weight: 3 }).addTo(tripMap);
+        dm.bindTooltip('Dropoff: ' + dropoff);
+        points.push([b.dropoff_lat, b.dropoff_lng]);
       }
 
-      var { data } = await sb.from('bookings').select('*').eq('status', 'pending').is('driver_id', null).in('vehicle_type', types).order('created_at', { ascending: false }).limit(20);
-      if (!data || data.length === 0) {
-        list.innerHTML = '<p style="color:var(--text-muted);padding:16px;">No pending jobs matching your vehicles right now.</p>';
-        return;
+      if (points.length === 2) {
+        // Try OSRM route
+        fetch('https://router.project-osrm.org/route/v1/driving/' + points[0][1] + ',' + points[0][0] + ';' + points[1][1] + ',' + points[1][0] + '?overview=full&geometries=geojson')
+          .then(function(r) { return r.json(); }).then(function(d) {
+            if (d.routes && d.routes[0]) {
+              var coords = d.routes[0].geometry.coordinates.map(function(c) { return [c[1], c[0]]; });
+              L.polyline(coords, { color: '#f15f22', weight: 4, opacity: 0.9 }).addTo(tripMap);
+              tripMap.fitBounds(L.polyline(coords).getBounds(), { padding: [20, 20] });
+            } else {
+              L.polyline(points, { color: '#f15f22', weight: 3, dashArray: '8 8' }).addTo(tripMap);
+              tripMap.fitBounds(points, { padding: [20, 20] });
+            }
+          }).catch(function() {
+            L.polyline(points, { color: '#f15f22', weight: 3, dashArray: '8 8' }).addTo(tripMap);
+            tripMap.fitBounds(points, { padding: [20, 20] });
+          });
+      } else if (points.length === 1) {
+        tripMap.setView(points[0], 14);
+      } else {
+        tripMap.setView([-33.925, 18.42], 11);
       }
-      list.innerHTML = '';
-      data.forEach(function(b) {
-        var jobType = b.job_type ? b.job_type.charAt(0).toUpperCase() + b.job_type.slice(1) : 'Job';
-        var vehicle = vehicleLabels[b.vehicle_type] || b.vehicle_type;
-        var route = (b.pickup_address || '?').split(',')[0] + ' &rarr; ' + (b.dropoff_address || '?').split(',')[0];
-        var card = document.createElement('div');
-        card.className = 'job-card';
-        card.id = 'job-' + b.id;
-        var isCash = b.payment_method === 'cash_pickup' || b.payment_method === 'cash_delivery';
-        var cashTag = isCash ? '<div style="background:#fff8f0;border:1px solid #f0a050;border-radius:8px;padding:8px 12px;margin:8px 0;font-size:11px;color:#8a6a3a;"><strong>Cash job</strong> — collect ' + formatRand(b.total) + ', you owe CapeLoad ' + formatRand(b.commission) + '</div>' : '';
-        var payLabel = isCash ? 'You keep: ' + formatRand(b.driver_payout) : 'You earn: ' + formatRand(b.driver_payout);
-        card.innerHTML = '<div class="job-header"><span class="job-type">' + jobType + ' — ' + vehicle + '</span><span class="badge badge-orange">New</span></div><div class="job-details"><div class="job-detail">' + route + '</div><div class="job-detail">' + (b.booking_date || 'Flexible') + ' at ' + (b.booking_time || 'Flexible') + '</div><div class="job-detail">' + payLabel + '</div><div class="job-detail">' + (b.client_name || 'Guest') + '</div></div>' + cashTag + '<div class="job-actions"><button class="btn btn-green btn-sm" onclick="acceptJob(\'' + b.id + '\')">Accept</button><button class="btn btn-outline btn-sm" onclick="declineJob(\'' + b.id + '\')">Decline</button></div>';
-        list.appendChild(card);
-      });
+    }, 100);
+  }
+
+  async function advanceStep(bookingId, nextStatus) {
+    var isDelivered = nextStatus === 'delivered';
+    var updates = { driver_status: nextStatus };
+    if (isDelivered) {
+      updates.status = 'completed';
+      updates.delivered_at = new Date().toISOString();
+    } else {
+      updates.status = 'in_progress';
+    }
+    var { error } = await sb.from('bookings').update(updates).eq('id', bookingId);
+    if (error) { showToast('Update failed: ' + error.message, 'error'); return; }
+    showToast(isDelivered ? '🎉 Trip delivered!' : 'Status updated', isDelivered ? 'success' : 'info');
+    if (isDelivered) { loadStats(); }
+    loadActiveTrip();
+  }
+
+  // ══════════════════════════════════════
+  // TRIP HISTORY
+  // ══════════════════════════════════════
+  async function loadHistory() {
+    var monthVal = document.getElementById('history-month').value;
+    var tbody = document.getElementById('history-tbody');
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:32px;">Loading...</td></tr>';
+
+    var query = sb.from('bookings').select('*').eq('driver_id', driverRecord.id).eq('status', 'completed').order('created_at', { ascending: false });
+    if (monthVal) {
+      var start = monthVal + '-01T00:00:00.000Z';
+      var endDate = new Date(monthVal + '-01'); endDate.setMonth(endDate.getMonth() + 1);
+      var end = endDate.toISOString().slice(0, 7) + '-01T00:00:00.000Z';
+      query = query.gte('created_at', start).lt('created_at', end);
     }
 
-    async function acceptJob(bookingId) {
-      // Find first available vehicle matching the booking type
-      var { data: booking } = await sb.from('bookings').select('vehicle_type').eq('id', bookingId).single();
-      if (!booking) return;
-      var { data: vehicle } = await sb.from('vehicles').select('id').eq('owner_id', driverRecord.id).eq('type', booking.vehicle_type).eq('availability_status', 'available').eq('status', 'approved').limit(1).single();
-
-      var updates = { status: 'assigned', driver_id: driverRecord.id, driver_status: 'accepted', assigned_at: new Date().toISOString(), accepted_at: new Date().toISOString() };
-      if (vehicle) updates.vehicle_id = vehicle.id;
-
-      var { error } = await sb.from('bookings').update(updates).eq('id', bookingId);
-      if (error) { showToast('Accept failed: ' + error.message, 'error'); return; }
-      showToast('Job accepted!', 'success');
-      var card = document.getElementById('job-' + bookingId);
-      if (card) card.remove();
-      loadStats();
+    var { data } = await query;
+    document.getElementById('history-count').textContent = (data || []).length + ' trips';
+    if (!data || data.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:32px;">No completed trips' + (monthVal ? ' this month' : '') + '</td></tr>';
+      return;
     }
+    tbody.innerHTML = '';
+    data.forEach(function(b) {
+      var route = (b.pickup_address || '?').split(',')[0] + ' → ' + (b.dropoff_address || '?').split(',')[0];
+      var dateStr = b.booking_date || new Date(b.created_at).toLocaleDateString('en-ZA');
+      var tr = document.createElement('tr');
+      tr.innerHTML = '<td>' + dateStr + '</td><td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + route + '</td><td>' + (vehicleLabels[b.vehicle_type] || '—') + '</td><td>' + (payLabels[b.payment_method] || '—') + '</td><td class="amount">' + formatRand(b.driver_payout) + '</td><td><span class="badge badge-green">Delivered</span></td>';
+      tbody.appendChild(tr);
+    });
+  }
 
-    async function declineJob(bookingId) {
-      var card = document.getElementById('job-' + bookingId);
-      if (card) card.remove();
-    }
+  // ══════════════════════════════════════
+  // EARNINGS
+  // ══════════════════════════════════════
+  function switchPeriod(period, el) {
+    document.querySelectorAll('.period-tab').forEach(function(t) { t.classList.remove('active'); });
+    el.classList.add('active');
+    currentEarningsPeriod = period;
+    loadEarnings();
+  }
 
-    async function loadActiveJobs() {
-      var { data } = await sb.from('bookings').select('*').eq('driver_id', driverRecord.id).in('status', ['assigned', 'in_progress']).order('created_at', { ascending: false });
-      var list = document.getElementById('active-list');
-      if (!data || data.length === 0) {
-        list.innerHTML = '<p style="color:var(--text-muted);padding:16px;">No active jobs right now.</p>';
-        return;
-      }
-      list.innerHTML = '';
-      data.forEach(function(b) {
-        var jobType = b.job_type ? b.job_type.charAt(0).toUpperCase() + b.job_type.slice(1) : 'Job';
-        var vehicle = vehicleLabels[b.vehicle_type] || b.vehicle_type;
-        var route = (b.pickup_address || '?').split(',')[0] + ' &rarr; ' + (b.dropoff_address || '?').split(',')[0];
-        var isCash = b.payment_method === 'cash_pickup' || b.payment_method === 'cash_delivery';
-        var cashNotice = '';
-        if (isCash) {
-          var collectAt = b.payment_method === 'cash_pickup' ? 'Collect cash at pickup' : 'Collect cash on delivery';
-          cashNotice = '<div style="background:#fff8f0;border:1px solid #f0a050;border-radius:10px;padding:10px 14px;margin:8px 0;font-size:12px;color:#8a6a3a;">' +
-            '<strong>Cash job — collect ' + formatRand(b.total) + '</strong><br>' +
-            collectAt + '<br>' +
-            'You owe CapeLoad: <strong>' + formatRand(b.commission) + '</strong> | You keep: <strong>' + formatRand(b.driver_payout) + '</strong>' +
-            '</div>';
-        }
-        var payInfo = '';
-        if (!isCash && b.payment_method === 'yoco') {
-          payInfo = '<div style="background:#f0f8f0;border:1px solid #50a050;border-radius:10px;padding:10px 14px;margin:8px 0;font-size:12px;color:#2a6a2a;">' +
-            '<strong>Yoco payment</strong> — Your payout: <strong>' + formatRand(b.driver_payout) + '</strong></div>';
-        }
-        var card = document.createElement('div');
-        card.className = 'job-card';
-        card.innerHTML = '<div class="job-header"><span class="job-type">' + jobType + ' — ' + vehicle + '</span><span class="badge badge-blue">In Progress</span></div><div class="job-details"><div class="job-detail">' + route + '</div><div class="job-detail">Payout: ' + formatRand(b.driver_payout) + '</div><div class="job-detail">' + (b.client_name || 'Client') + ' — ' + (b.client_phone || '') + '</div></div>' + cashNotice + payInfo + '<div class="job-actions"><button class="btn btn-primary btn-sm" onclick="completeJob(\'' + b.id + '\')">Mark Delivered</button></div>';
-        list.appendChild(card);
-      });
-    }
+  async function loadEarnings() {
+    var now = new Date();
+    var since;
+    if (currentEarningsPeriod === 'week') since = new Date(Date.now() - 7 * 86400000).toISOString();
+    else if (currentEarningsPeriod === 'month') { since = new Date(now.getFullYear(), now.getMonth(), 1).toISOString(); }
+    else since = null;
 
-    async function completeJob(bookingId) {
-      var { error } = await sb.from('bookings').update({ status: 'completed', driver_status: 'delivered', delivered_at: new Date().toISOString() }).eq('id', bookingId);
-      if (error) { showToast('Complete failed: ' + error.message, 'error'); return; }
-      showToast('Job delivered!', 'success');
-      loadActiveJobs();
-      loadStats();
-    }
+    var query = sb.from('bookings').select('*').eq('driver_id', driverRecord.id).eq('status', 'completed').order('created_at', { ascending: false });
+    if (since) query = query.gte('created_at', since);
+    var { data } = await query;
 
-    async function loadEarnings() {
-      var weekAgo = new Date(Date.now() - 7 * 86400000).toISOString();
-      var { data } = await sb.from('bookings').select('*').eq('driver_id', driverRecord.id).eq('status', 'completed').gte('created_at', weekAgo).order('created_at', { ascending: false });
-      var tbody = document.getElementById('earnings-tbody');
-      if (!data || data.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:32px;">No completed jobs this week</td></tr>';
-        document.getElementById('payout-total').textContent = 'R0';
-        return;
-      }
-      tbody.innerHTML = '';
-      var totalPayout = 0;
-      data.forEach(function(b) {
-        totalPayout += b.driver_payout || 0;
-        var tr = document.createElement('tr');
-        tr.innerHTML = '<td>' + (b.booking_date || new Date(b.created_at).toLocaleDateString()) + '</td><td>' + (b.job_type || '—') + '</td><td>' + (b.pickup_address || '?').split(',')[0] + ' → ' + (b.dropoff_address || '?').split(',')[0] + '</td><td>' + (vehicleLabels[b.vehicle_type] || b.vehicle_type) + '</td><td class="amount">' + formatRand(b.driver_payout) + '</td>';
-        tbody.appendChild(tr);
-      });
-      document.getElementById('payout-total').textContent = formatRand(totalPayout);
-    }
+    var jobs = data || [];
+    var totalGross = jobs.reduce(function(s, b) { return s + (b.total || 0); }, 0);
+    var totalPayout = jobs.reduce(function(s, b) { return s + (b.driver_payout || 0); }, 0);
 
-    async function saveDriverProfile() {
-      var name = document.getElementById('ds-name').value.trim();
-      var phone = document.getElementById('ds-phone').value.trim();
-      var { error } = await sb.from('users').update({ full_name: name, phone: phone }).eq('id', window.currentUser.id);
-      if (error) { showToast('Save failed: ' + error.message, 'error'); return; }
-      showToast('Profile updated', 'success');
-      document.getElementById('nav-user').textContent = name;
-      document.getElementById('greeting').textContent = 'Welcome back, ' + name.split(' ')[0];
-    }
+    document.getElementById('earn-jobs').textContent = jobs.length;
+    document.getElementById('earn-gross').textContent = formatRand(totalGross);
+    document.getElementById('earn-payout').textContent = formatRand(totalPayout);
 
-    async function saveBanking() {
-      var { error } = await sb.from('drivers').update({
-        bank_name: document.getElementById('ds-bank').value.trim(),
-        account_number: document.getElementById('ds-account').value.trim(),
-        branch_code: document.getElementById('ds-branch').value.trim()
-      }).eq('id', driverRecord.id);
-      if (error) { showToast('Save failed: ' + error.message, 'error'); return; }
-      showToast('Banking details saved', 'success');
+    var tbody = document.getElementById('earnings-tbody');
+    if (jobs.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:32px;">No completed jobs in this period</td></tr>';
+      return;
     }
+    tbody.innerHTML = '';
+    jobs.forEach(function(b) {
+      var route = (b.pickup_address || '?').split(',')[0] + ' → ' + (b.dropoff_address || '?').split(',')[0];
+      var dateStr = b.booking_date || new Date(b.created_at).toLocaleDateString('en-ZA');
+      var tr = document.createElement('tr');
+      tr.innerHTML = '<td>' + dateStr + '</td><td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + route + '</td><td>' + (vehicleLabels[b.vehicle_type] || '—') + '</td><td>' + formatRand(b.total) + '</td><td style="color:var(--red);">-' + formatRand(b.commission) + '</td><td class="amount">' + formatRand(b.driver_payout) + '</td>';
+      tbody.appendChild(tr);
+    });
+  }
 
-    async function driverChangePassword() {
-      var newPw = document.getElementById('ds-newpw').value;
-      var confirmPw = document.getElementById('ds-confirmpw').value;
-      if (newPw.length < 6) { showToast('Password must be at least 6 characters', 'error'); return; }
-      if (newPw !== confirmPw) { showToast('Passwords do not match', 'error'); return; }
-      var { error } = await sb.auth.updateUser({ password: newPw });
-      if (error) { showToast('Failed: ' + error.message, 'error'); return; }
-      showToast('Password updated', 'success');
-      document.getElementById('ds-newpw').value = '';
-      document.getElementById('ds-confirmpw').value = '';
-    }
+  // ══════════════════════════════════════
+  // SETTINGS
+  // ══════════════════════════════════════
+  async function saveDriverProfile() {
+    var name = document.getElementById('ds-name').value.trim();
+    var phone = document.getElementById('ds-phone').value.trim();
+    var { error } = await sb.from('users').update({ full_name: name, phone: phone }).eq('id', window.currentUser.id);
+    if (error) { showToast('Save failed: ' + error.message, 'error'); return; }
+    showToast('Profile updated', 'success');
+    document.getElementById('nav-user').textContent = name;
+    document.getElementById('greeting').textContent = 'Welcome back, ' + name.split(' ')[0];
+  }
 
-    async function addVehicle() {
-      var type = document.getElementById('av-type').value;
-      var make = document.getElementById('av-make').value.trim();
-      var model = document.getElementById('av-model').value.trim();
-      var plate = document.getElementById('av-plate').value.trim();
-      var year = document.getElementById('av-year').value;
-      if (!type || !make || !model || !plate) { showToast('Please fill type, make, model and plate', 'error'); return; }
-      var { error } = await sb.from('vehicles').insert({
-        owner_id: driverRecord.id, type: type, make: make, model: model,
-        reg_plate: plate, year: year ? parseInt(year) : null,
-        status: 'pending', available: false, availability_status: 'unavailable'
-      });
-      if (error) { showToast('Failed: ' + error.message, 'error'); return; }
-      showToast('Vehicle submitted for approval', 'success');
-      document.getElementById('av-type').value = '';
-      document.getElementById('av-make').value = '';
-      document.getElementById('av-model').value = '';
-      document.getElementById('av-plate').value = '';
-      document.getElementById('av-year').value = '';
-      loadVehicles();
-    }
-  </script>
+  async function saveBanking() {
+    var { error } = await sb.from('drivers').update({
+      bank_name: document.getElementById('ds-bank').value.trim(),
+      account_number: document.getElementById('ds-account').value.trim(),
+      branch_code: document.getElementById('ds-branch').value.trim()
+    }).eq('id', driverRecord.id);
+    if (error) { showToast('Save failed: ' + error.message, 'error'); return; }
+    showToast('Banking details saved', 'success');
+  }
+
+  async function driverChangePassword() {
+    var newPw = document.getElementById('ds-newpw').value;
+    var confirmPw = document.getElementById('ds-confirmpw').value;
+    if (newPw.length < 6) { showToast('Password must be at least 6 characters', 'error'); return; }
+    if (newPw !== confirmPw) { showToast('Passwords do not match', 'error'); return; }
+    var { error } = await sb.auth.updateUser({ password: newPw });
+    if (error) { showToast('Failed: ' + error.message, 'error'); return; }
+    showToast('Password updated', 'success');
+    document.getElementById('ds-newpw').value = '';
+    document.getElementById('ds-confirmpw').value = '';
+  }
+
+  async function addVehicle() {
+    var type = document.getElementById('av-type').value;
+    var make = document.getElementById('av-make').value.trim();
+    var model = document.getElementById('av-model').value.trim();
+    var plate = document.getElementById('av-plate').value.trim();
+    var year = document.getElementById('av-year').value;
+    if (!type || !make || !model || !plate) { showToast('Please fill type, make, model and plate', 'error'); return; }
+    var { error } = await sb.from('vehicles').insert({
+      owner_id: driverRecord.id, type: type, make: make, model: model,
+      reg_plate: plate, year: year ? parseInt(year) : null,
+      status: 'pending', available: false, availability_status: 'unavailable'
+    });
+    if (error) { showToast('Failed: ' + error.message, 'error'); return; }
+    showToast('Vehicle submitted for approval', 'success');
+    ['av-type','av-make','av-model','av-plate','av-year'].forEach(function(id) { document.getElementById(id).value = ''; });
+    loadVehicles();
+  }
+</script>
 </body>
 </html>

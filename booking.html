@@ -409,6 +409,36 @@
   var quoteData = null;
 
   // ══════════════════════════════════════════
+  // PRE-FILL FROM TEMPLATE (rebook)
+  // ══════════════════════════════════════════
+  (function applyRebook() {
+    var raw = sessionStorage.getItem('cl_rebook');
+    if (!raw) return;
+    try {
+      var t = JSON.parse(raw);
+      sessionStorage.removeItem('cl_rebook');
+      if (t.pickup_address) document.getElementById('pickup').value = t.pickup_address;
+      if (t.dropoff_address) document.getElementById('dropoff').value = t.dropoff_address;
+      if (t.vehicle_type) {
+        // delay until DOM is ready then auto-select vehicle tile
+        setTimeout(function() {
+          var tiles = document.querySelectorAll('.v-option');
+          tiles.forEach(function(el) {
+            var onclick = el.getAttribute('onclick') || '';
+            if (onclick.indexOf("'" + t.vehicle_type + "'") !== -1) {
+              el.click();
+            }
+          });
+        }, 100);
+      }
+      if (t.notes) {
+        var notesEl = document.getElementById('notes');
+        if (notesEl) notesEl.value = t.notes;
+      }
+    } catch(e) {}
+  })();
+
+  // ══════════════════════════════════════════
   // ADDRESS AUTOCOMPLETE
   // ══════════════════════════════════════════
   function searchAddr(query, listId) {
