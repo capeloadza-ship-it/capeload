@@ -474,6 +474,17 @@
         <div class="card-header">
           <div><div class="card-title">All Bookings</div><div class="card-sub">Manage and assign bookings</div></div>
         </div>
+        <div style="display:flex;gap:10px;padding:0 0 16px;flex-wrap:wrap;">
+          <input id="bookings-search" type="text" placeholder="Search ref, client, route…" oninput="filterBookings()" style="flex:1;min-width:180px;padding:9px 14px;border:1.5px solid #e5e2dd;border-radius:10px;font-size:13px;font-family:inherit;color:#1a1a1a;background:#fff;">
+          <select id="bookings-status-filter" onchange="filterBookings()" style="padding:9px 14px;border:1.5px solid #e5e2dd;border-radius:10px;font-size:13px;font-family:inherit;color:#1a1a1a;background:#fff;">
+            <option value="">All statuses</option>
+            <option value="pending">Pending</option>
+            <option value="assigned">Assigned</option>
+            <option value="in_progress">In Progress</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
         <div class="table-wrap">
           <table>
             <thead><tr><th>Ref</th><th>Client</th><th>Route</th><th>Vehicle</th><th>Total</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
@@ -487,7 +498,8 @@
     <div id="assign-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.55);display:none;align-items:center;justify-content:center;padding:24px;">
       <div style="background:#fff;border-radius:16px;padding:32px;max-width:420px;width:100%;box-shadow:0 24px 80px rgba(0,0,0,0.2);">
         <div style="font-size:18px;font-weight:800;color:#1a1a1a;margin-bottom:6px;">Assign Driver</div>
-        <div style="font-size:13px;color:var(--text-muted);margin-bottom:20px;">Select an approved driver for booking <strong id="assign-ref"></strong></div>
+        <div style="font-size:13px;color:var(--text-muted);margin-bottom:4px;">Select an approved driver for booking <strong id="assign-ref"></strong></div>
+        <div id="assign-vehicle-note" style="font-size:12px;color:var(--text-muted);margin-bottom:16px;"></div>
         <select id="assign-driver-select" style="width:100%;padding:11px 14px;border:1.5px solid #e5e2dd;border-radius:10px;font-size:14px;font-family:inherit;color:#1a1a1a;background:#fff;margin-bottom:16px;">
           <option value="">Loading drivers…</option>
         </select>
@@ -708,7 +720,8 @@
 
     sb.channel('admin-bookings')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'bookings' }, function(payload) {
-        renderBookingRow(payload.new, true);
+        _allBookings.unshift(payload.new);
+        filterBookings();
         showToast('New booking: ' + payload.new.ref, 'info');
         loadStats(); loadRecentBookings(); loadActivityFeed();
       })
@@ -772,14 +785,31 @@
   }
 
   // ── Bookings ──
+  var _allBookings = [];
+
   async function loadBookings() {
     var { data } = await sb.from('bookings')
       .select('*, drivers!bookings_driver_id_fkey(id, users!drivers_user_id_fkey(full_name, phone))')
-      .order('created_at', { ascending: false }).limit(100);
+      .order('created_at', { ascending: false }).limit(200);
+    _allBookings = data || [];
+    filterBookings();
+  }
+
+  function filterBookings() {
+    var search = (document.getElementById('bookings-search')?.value || '').toLowerCase().trim();
+    var statusFilter = document.getElementById('bookings-status-filter')?.value || '';
     var tbody = document.getElementById('bookings-tbody');
-    if (!data || data.length === 0) { tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:32px;">No bookings yet</td></tr>'; return; }
+    var filtered = _allBookings.filter(function(b) {
+      if (statusFilter && b.status !== statusFilter) return false;
+      if (search) {
+        var haystack = [b.ref, b.client_name, b.pickup_address, b.dropoff_address].join(' ').toLowerCase();
+        if (!haystack.includes(search)) return false;
+      }
+      return true;
+    });
     tbody.innerHTML = '';
-    data.forEach(function(b) { renderBookingRow(b, false); });
+    if (filtered.length === 0) { tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:32px;">No bookings found</td></tr>'; return; }
+    filtered.forEach(function(b) { renderBookingRow(b, false); });
   }
 
   function renderBookingRow(b, prepend) {
@@ -826,21 +856,42 @@
   async function openAssignModal(bookingId, ref) {
     _assignBookingId = bookingId;
     document.getElementById('assign-ref').textContent = ref;
+    document.getElementById('assign-vehicle-note').textContent = '';
     var sel = document.getElementById('assign-driver-select');
     sel.innerHTML = '<option value="">Loading…</option>';
     document.getElementById('assign-modal').style.display = 'flex';
 
-    var { data } = await sb.from('drivers')
-      .select('id, users!drivers_user_id_fkey(full_name, phone, email)')
-      .eq('status', 'approved').order('created_at', { ascending: false });
-    _assignDrivers = data || [];
+    // Fetch booking vehicle type + all approved drivers + their vehicles in parallel
+    var [{ data: bkData }, { data: driversData }, { data: vehiclesData }] = await Promise.all([
+      sb.from('bookings').select('vehicle_type').eq('id', bookingId).single(),
+      sb.from('drivers').select('id, users!drivers_user_id_fkey(full_name, phone, email)').eq('status', 'approved').order('created_at', { ascending: false }),
+      sb.from('vehicles').select('owner_id, type').eq('status', 'approved').in('availability_status', ['available', 'on_trip'])
+    ]);
+
+    var requiredType = bkData?.vehicle_type || null;
+    var vehicleNote = document.getElementById('assign-vehicle-note');
+    if (requiredType) vehicleNote.textContent = 'Requires: ' + (vehicleLabels[requiredType] || requiredType) + ' — compatible drivers marked with ✓';
+
+    // Build set of driver IDs that have a matching vehicle
+    var compatibleDriverIds = new Set();
+    (vehiclesData || []).forEach(function(v) {
+      if (!requiredType || v.type === requiredType) compatibleDriverIds.add(v.owner_id);
+    });
+
+    _assignDrivers = driversData || [];
+    // Sort: compatible first
+    _assignDrivers.sort(function(a, b) {
+      return (compatibleDriverIds.has(b.id) ? 1 : 0) - (compatibleDriverIds.has(a.id) ? 1 : 0);
+    });
+
     sel.innerHTML = '<option value="">— Select a driver —</option>';
     _assignDrivers.forEach(function(d) {
       var name = d.users?.full_name || 'Unknown';
       var phone = d.users?.phone ? ' · ' + d.users.phone : '';
+      var compat = compatibleDriverIds.has(d.id) ? ' ✓' : (requiredType ? ' ⚠' : '');
       var opt = document.createElement('option');
       opt.value = d.id;
-      opt.textContent = name + phone;
+      opt.textContent = name + phone + compat;
       sel.appendChild(opt);
     });
   }

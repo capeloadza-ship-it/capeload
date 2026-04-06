@@ -572,10 +572,15 @@
     var { data: vehicles } = await sb.from('vehicles').select('type').eq('owner_id', driverRecord.id).eq('status', 'approved').eq('availability_status', 'available');
     var myTypes = (vehicles || []).map(function(v) { return v.type; });
 
+    var _dismissKey = 'dismissed_jobs_' + window.currentUser.id;
+    var _dismissed = JSON.parse(localStorage.getItem(_dismissKey) || '[]');
+
     var query = sb.from('bookings').select('*').eq('status', 'pending').is('driver_id', null).order('created_at', { ascending: false }).limit(30);
     if (myTypes.length > 0) query = query.in('vehicle_type', myTypes);
 
     var { data } = await query;
+    var bookings = (data || []).filter(function(b) { return !_dismissed.includes(b.id); });
+    data = bookings;
 
     if (!data || data.length === 0) {
       list.innerHTML = myTypes.length === 0
@@ -641,6 +646,11 @@
   function dismissJob(bookingId) {
     var card = document.getElementById('job-' + bookingId);
     if (card) card.remove();
+    var key = 'dismissed_jobs_' + (window.currentUser && window.currentUser.id);
+    if (key) {
+      var list = JSON.parse(localStorage.getItem(key) || '[]');
+      if (!list.includes(bookingId)) { list.push(bookingId); localStorage.setItem(key, JSON.stringify(list)); }
+    }
   }
 
   // ══════════════════════════════════════
