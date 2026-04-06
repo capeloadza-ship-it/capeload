@@ -1495,6 +1495,15 @@
   async function processPayoutRequest(id, status) {
     var { error } = await sb.from('payout_requests').update({ status: status, processed_at: new Date().toISOString() }).eq('id', id);
     if (error) { showToast('Error: ' + error.message, 'error'); return; }
+    if (status === 'approved') {
+      var { data: pr } = await sb.from('payout_requests')
+        .select('amount, drivers!payout_requests_driver_id_fkey(user_id)')
+        .eq('id', id).single();
+      if (pr?.drivers?.user_id) {
+        var { data: u } = await sb.from('users').select('full_name, email').eq('id', pr.drivers.user_id).single();
+        if (u && u.email) sendEmail(u.email, 'payout_approved', { name: u.full_name || 'Driver', amount: formatRand(pr.amount) });
+      }
+    }
     showToast('Request ' + status, 'success');
     loadPayoutRequests();
   }

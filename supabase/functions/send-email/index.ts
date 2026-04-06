@@ -196,6 +196,22 @@ function buildEmail(template: string, data: TemplateData): { subject: string; ht
         )
       }
 
+    case 'payout_approved':
+      return {
+        subject: 'Payout Approved — CapeLoad',
+        html: wrap(
+          h1('Your payout has been approved! 💸') +
+          p(`Hi ${data.name}, great news! Your payout request has been approved.`) +
+          `<div style="background:#f9f7f5;border-radius:10px;padding:20px;margin:20px 0;">` +
+          detail('Amount', data.amount) +
+          detail('Status', 'Approved') +
+          `</div>` +
+          p('Payment will be processed to your registered banking details within 1–3 business days.') +
+          p('Keep up the great work on the road!') +
+          btn('View Earnings', `${SITE_URL}/auth.html?redirect=driver-portal.html`)
+        )
+      }
+
     default:
       return null
   }

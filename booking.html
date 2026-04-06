@@ -362,6 +362,13 @@
         </div>
       </div>
 
+      <div class="section-label" style="margin-top:16px;">Promo code <span style="font-size:11px;color:var(--muted);font-weight:400;">(optional)</span></div>
+      <div style="display:flex;gap:8px;margin-bottom:6px;">
+        <input type="text" id="promo-code" placeholder="Enter code" style="flex:1;padding:11px 14px;border:1.5px solid #e2e2e2;border-radius:8px;font-size:14px;background:#fff;outline:none;text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()">
+        <button type="button" onclick="applyPromo()" style="padding:11px 18px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;">Apply</button>
+      </div>
+      <div id="promo-result" style="font-size:12px;margin-bottom:12px;display:none;"></div>
+
       <div class="section-label">Payment method</div>
       <div class="pay-options">
         <div class="pay-option selected" onclick="pickPay('yoco',this)">💳 Card (Yoco)</div>
@@ -420,6 +427,7 @@
   var selectedPay = 'yoco';
   var selectedJobType = '';
   var quoteData = null;
+  var appliedPromo = null; // { code, discount_pct, discount_amount }
 
   // ══════════════════════════════════════════
   // PRE-FILL FROM TEMPLATE (rebook)
@@ -593,6 +601,12 @@
     if (n === 3) {
       var km = getDistance();
       quoteData = calcQuote(selectedVehicle, km);
+      // Reset any previously applied promo
+      appliedPromo = null;
+      document.getElementById('promo-code').value = '';
+      document.getElementById('promo-result').style.display = 'none';
+      var oldDiscRow = document.getElementById('q-discount-row');
+      if (oldDiscRow) oldDiscRow.remove();
       document.getElementById('quote-box').style.display = 'block';
       document.getElementById('quoteTotal').textContent = 'R' + quoteData.total.toLocaleString();
       document.getElementById('qBase').textContent = 'R' + quoteData.base;
@@ -609,6 +623,51 @@
     if (type === 'motorbike' || type === 'bakkie') selectedJobType = 'courier';
     else if (type === '4-ton' || type === '8-ton' || type === 'flatbed') selectedJobType = 'haul';
     else selectedJobType = 'move';
+  }
+
+  async function applyPromo() {
+    var code = (document.getElementById('promo-code').value || '').trim().toUpperCase();
+    var resultEl = document.getElementById('promo-result');
+    if (!code) return;
+    resultEl.style.display = 'block';
+    resultEl.style.color = '#888';
+    resultEl.textContent = 'Checking\u2026';
+    var { data, error } = await sb.from('promo_codes')
+      .select('code, discount_pct, max_uses, uses_count, expires_at, active')
+      .eq('code', code).single();
+    if (error || !data) {
+      resultEl.style.color = '#dc2626'; resultEl.textContent = '\u2717 Invalid promo code'; appliedPromo = null; return;
+    }
+    if (!data.active) {
+      resultEl.style.color = '#dc2626'; resultEl.textContent = '\u2717 This code is no longer active'; appliedPromo = null; return;
+    }
+    if (data.expires_at && new Date(data.expires_at) < new Date()) {
+      resultEl.style.color = '#dc2626'; resultEl.textContent = '\u2717 This code has expired'; appliedPromo = null; return;
+    }
+    if (data.max_uses > 0 && data.uses_count >= data.max_uses) {
+      resultEl.style.color = '#dc2626'; resultEl.textContent = '\u2717 This code has reached its usage limit'; appliedPromo = null; return;
+    }
+    // Valid — apply discount
+    var discountPct = parseFloat(data.discount_pct);
+    var baseTotal = quoteData ? (quoteData.baseTotal || quoteData.total) : 0;
+    var discountAmount = Math.round(baseTotal * discountPct / 100);
+    var newTotal = baseTotal - discountAmount;
+    appliedPromo = { code: data.code, discount_pct: discountPct, discount_amount: discountAmount };
+    if (quoteData) { quoteData.baseTotal = baseTotal; quoteData.total = newTotal; }
+    // Update quote display
+    document.getElementById('quoteTotal').textContent = 'R' + newTotal.toLocaleString();
+    document.getElementById('qTotal2').textContent = 'R' + newTotal.toLocaleString();
+    var discRow = document.getElementById('q-discount-row');
+    if (!discRow) {
+      discRow = document.createElement('div');
+      discRow.id = 'q-discount-row';
+      discRow.className = 'quote-row';
+      var totalRow = document.querySelector('.quote-rows .quote-row.total');
+      if (totalRow) totalRow.parentNode.insertBefore(discRow, totalRow);
+    }
+    discRow.innerHTML = '<span>Promo (' + data.code + ' \u2212' + discountPct + '%)</span><span style="color:#16a34a;font-weight:700;">\u2212R' + discountAmount.toLocaleString() + '</span>';
+    resultEl.style.color = '#16a34a';
+    resultEl.textContent = '\u2713 ' + discountPct + '% discount applied!';
   }
 
   function pickPay(method, el) {
@@ -715,7 +774,9 @@
         client_email: document.getElementById('email').value || null,
         notes: document.getElementById('notes').value || null,
         payment_method: payMethod, status: status, client_id: clientId,
-        yoco_charge_id: chargeId || null
+        yoco_charge_id: chargeId || null,
+        promo_code: appliedPromo ? appliedPromo.code : null,
+        discount_amount: appliedPromo ? appliedPromo.discount_amount : null
       });
     } catch(e) { console.warn('Booking save error:', e); }
 
