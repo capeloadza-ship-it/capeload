@@ -195,6 +195,7 @@
         <div id="bd-details" style="margin-bottom:14px;"></div>
         <div id="bd-driver" style="margin-bottom:14px;display:none;"></div>
         <div id="bd-notes" style="margin-bottom:14px;display:none;"></div>
+        <div id="bd-photo" style="margin-bottom:14px;display:none;"></div>
         <div id="bd-actions" class="modal-actions"></div>
       </div>
     </div>
@@ -311,6 +312,24 @@
         <div style="margin-bottom:12px;"><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">New Password</label><input type="password" id="s-newpw" placeholder="Min 6 characters" style="width:100%;padding:12px;border:1.5px solid #eee;border-radius:10px;font-size:14px;font-family:inherit;outline:none;"></div>
         <div style="margin-bottom:16px;"><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">Confirm Password</label><input type="password" id="s-confirmpw" placeholder="Repeat password" style="width:100%;padding:12px;border:1.5px solid #eee;border-radius:10px;font-size:14px;font-family:inherit;outline:none;"></div>
         <button class="btn btn-primary" onclick="changePassword()">Update Password</button>
+      </div>
+      <div class="card">
+        <div class="card-title" style="margin-bottom:4px;">Email Notifications</div>
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:16px;">Choose which emails you receive from CapeLoad.</p>
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <label style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;">
+            <span style="font-size:13px;font-weight:600;">Booking confirmed</span>
+            <input type="checkbox" id="notif-confirmed" onchange="saveNotifPrefs()" style="width:18px;height:18px;cursor:pointer;accent-color:var(--orange);">
+          </label>
+          <label style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;">
+            <span style="font-size:13px;font-weight:600;">Driver assigned</span>
+            <input type="checkbox" id="notif-assigned" onchange="saveNotifPrefs()" style="width:18px;height:18px;cursor:pointer;accent-color:var(--orange);">
+          </label>
+          <label style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;">
+            <span style="font-size:13px;font-weight:600;">Delivery completed</span>
+            <input type="checkbox" id="notif-completed" onchange="saveNotifPrefs()" style="width:18px;height:18px;cursor:pointer;accent-color:var(--orange);">
+          </label>
+        </div>
       </div>
     </div>
   </div>
@@ -444,6 +463,9 @@
       document.getElementById('s-name').value = profile?.full_name || '';
       document.getElementById('s-phone').value = profile?.phone || '';
       document.getElementById('s-email').value = window.currentUser.email || '';
+      document.getElementById('notif-confirmed').checked = profile?.notify_booking_confirmed !== false;
+      document.getElementById('notif-assigned').checked = profile?.notify_driver_assigned !== false;
+      document.getElementById('notif-completed').checked = profile?.notify_booking_completed !== false;
     });
 
     async function saveProfile() {
@@ -454,6 +476,33 @@
       showToast('Profile updated', 'success');
       document.getElementById('nav-user').textContent = name;
       document.getElementById('greeting').textContent = 'Welcome back, ' + name.split(' ')[0];
+    }
+
+    async function uploadBookingPhoto(bookingId, input) {
+      var file = input.files[0];
+      if (!file) return;
+      if (file.size > 5 * 1024 * 1024) { showToast('Image must be under 5 MB', 'error'); return; }
+      showToast('Uploading…', 'info');
+      var ext = file.name.split('.').pop();
+      var path = 'bookings/' + bookingId + '/' + Date.now() + '.' + ext;
+      var { error: upErr } = await sb.storage.from('booking-photos').upload(path, file, { upsert: true });
+      if (upErr) { showToast('Upload failed: ' + upErr.message, 'error'); return; }
+      var { data: urlData } = sb.storage.from('booking-photos').getPublicUrl(path);
+      var publicUrl = urlData.publicUrl;
+      await sb.from('bookings').update({ photo_url: publicUrl }).eq('id', bookingId).eq('client_id', window.currentUser.id);
+      bookingCache[bookingId].photo_url = publicUrl;
+      showToast('Photo attached!', 'success');
+      openBookingDetail(bookingId);
+    }
+
+    async function saveNotifPrefs() {
+      var prefs = {
+        notify_booking_confirmed: document.getElementById('notif-confirmed').checked,
+        notify_driver_assigned: document.getElementById('notif-assigned').checked,
+        notify_booking_completed: document.getElementById('notif-completed').checked
+      };
+      await sb.from('users').update(prefs).eq('id', window.currentUser.id);
+      showToast('Preferences saved', 'success');
     }
 
     async function changePassword() {
@@ -590,6 +639,15 @@
         notesDiv.style.display = 'block';
         notesDiv.innerHTML = '<div style="background:#fff8f0;border:1px solid #ffe0b3;border-radius:8px;padding:10px;font-size:13px;"><strong>Notes:</strong> ' + escHtml(b.notes) + '</div>';
       } else { notesDiv.style.display = 'none'; }
+
+      var photoDiv = document.getElementById('bd-photo');
+      var canUpload = b.status === 'pending' || b.status === 'assigned' || b.status === 'in_progress';
+      if (b.photo_url || canUpload) {
+        photoDiv.style.display = 'block';
+        var imgHtml = b.photo_url ? '<img src="' + b.photo_url + '" style="width:100%;border-radius:8px;margin-bottom:8px;max-height:200px;object-fit:cover;">' : '';
+        var uploadBtn = canUpload ? '<label class="btn btn-outline" style="cursor:pointer;font-size:12px;">' + (b.photo_url ? '🔄 Replace photo' : '📷 Attach photo') + '<input type="file" accept="image/*" style="display:none;" onchange="uploadBookingPhoto(\'' + b.id + '\', this)"></label>' : '';
+        photoDiv.innerHTML = imgHtml + uploadBtn;
+      } else { photoDiv.style.display = 'none'; }
 
       var actionsDiv = document.getElementById('bd-actions');
       var cancelBtn = (b.status === 'pending' || b.status === 'assigned')

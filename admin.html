@@ -1009,7 +1009,18 @@
 
   // ── Drivers ──
   async function loadDrivers() {
-    var { data } = await sb.from('drivers').select('*, users!drivers_user_id_fkey(full_name, phone, email)').neq('status', 'deleted').order('created_at', { ascending: false });
+    var [{ data }, { data: ratingsData }] = await Promise.all([
+      sb.from('drivers').select('*, users!drivers_user_id_fkey(full_name, phone, email)').neq('status', 'deleted').order('created_at', { ascending: false }),
+      sb.from('bookings').select('driver_id, client_rating').not('driver_id', 'is', null).not('client_rating', 'is', null)
+    ]);
+    // Build avg rating map per driver_id
+    var ratingMap = {};
+    (ratingsData || []).forEach(function(b) {
+      if (!ratingMap[b.driver_id]) ratingMap[b.driver_id] = { sum: 0, count: 0 };
+      ratingMap[b.driver_id].sum += b.client_rating;
+      ratingMap[b.driver_id].count += 1;
+    });
+
     var tbody = document.getElementById('drivers-tbody');
     if (!data || data.length === 0) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:32px;">No drivers</td></tr>'; return; }
     tbody.innerHTML = '';
@@ -1018,6 +1029,10 @@
       var phone = d.users?.phone || '—';
       var initials = name.split(' ').map(function(n) { return n[0]; }).join('').slice(0,2).toUpperCase();
       var st = driverBadge[d.status] || ['badge-yellow','Pending'];
+      var rm = ratingMap[d.id];
+      var ratingCell = rm
+        ? '<span style="color:#f59e0b;">★</span> ' + (rm.sum / rm.count).toFixed(1) + ' <span style="font-size:11px;color:var(--text-muted);">(' + rm.count + ')</span>'
+        : '<span style="color:#ddd;">—</span>';
       var actions = '';
       if (d.status === 'pending') {
         actions = '<button class="btn btn-green" onclick="approveDriver(\'' + d.id + '\',\'' + d.user_id + '\')">Approve</button> <button class="btn btn-red" onclick="rejectDriver(\'' + d.id + '\')">Reject</button>';
@@ -1029,7 +1044,7 @@
         actions = '<button class="btn btn-outline" onclick="deleteDriver(\'' + d.id + '\',\'' + d.user_id + '\')">Delete</button>';
       }
       var tr = document.createElement('tr');
-      tr.innerHTML = '<td><div class="user-row"><div class="user-avatar">' + initials + '</div><strong>' + name + '</strong></div></td><td style="font-size:12px;color:var(--text-muted);">' + phone + '</td><td>' + (d.total_jobs||0) + '</td><td>' + (d.rating ? '⭐ ' + d.rating : '—') + '</td><td><span class="badge ' + st[0] + '">' + st[1] + '</span></td><td style="white-space:nowrap;">' + actions + '</td>';
+      tr.innerHTML = '<td><div class="user-row"><div class="user-avatar">' + initials + '</div><strong>' + name + '</strong></div></td><td style="font-size:12px;color:var(--text-muted);">' + phone + '</td><td>' + (d.total_jobs||0) + '</td><td>' + ratingCell + '</td><td><span class="badge ' + st[0] + '">' + st[1] + '</span></td><td style="white-space:nowrap;">' + actions + '</td>';
       tbody.appendChild(tr);
     });
   }
