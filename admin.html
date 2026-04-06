@@ -900,8 +900,20 @@
 
   async function cancelBooking(id) {
     if (!confirm('Cancel this booking?')) return;
+    var refundNote = '';
+    var { data: bk } = await sb.from('bookings').select('payment_method, total, yoco_charge_id').eq('id', id).single();
+    if (bk && bk.payment_method === 'yoco_card' && bk.yoco_charge_id && bk.total > 0) {
+      try {
+        var rr = await sb.functions.invoke('yoco-refund', { body: { chargeId: bk.yoco_charge_id, amountInCents: Math.round(bk.total * 100) } });
+        if (rr.error || (rr.data && rr.data.error)) {
+          showToast('Refund failed: ' + ((rr.data && rr.data.error) || rr.error) + ' — booking still cancelled', 'error');
+        } else {
+          refundNote = ' & R' + bk.total + ' refunded';
+        }
+      } catch(e) { showToast('Refund error — booking still cancelled', 'error'); }
+    }
     await sb.from('bookings').update({ status: 'cancelled', cancelled_reason: 'Cancelled by admin' }).eq('id', id);
-    showToast('Booking cancelled', 'success');
+    showToast('Booking cancelled' + refundNote, 'success');
     loadBookings(); loadStats();
   }
 

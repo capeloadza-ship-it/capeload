@@ -623,7 +623,7 @@
       btn.textContent = 'Opening payment…';
       status.style.display = 'none';
 
-      var sdk = new YocoSDK({ publicKey: 'pk_test_b622b73avnOgKbm44c54' });
+      var sdk = new YocoSDK({ publicKey: 'pk_live_4cecb62dvnOgKbm49c34' });
       sdk.showPopup({
         amountInCents: Math.round(total * 100),
         currency: 'ZAR',
@@ -654,7 +654,7 @@
               return;
             }
             // Payment succeeded — save booking
-            await saveBooking(ref, q, 'yoco_card', 'paid');
+            await saveBooking(ref, q, 'yoco_card', 'paid', chargeRes.data?.id || null);
           } catch(e) {
             status.textContent = '❌ Payment error. Please try again.';
             status.style.display = 'block';
@@ -671,7 +671,7 @@
     }
   }
 
-  async function saveBooking(ref, q, payMethod, status) {
+  async function saveBooking(ref, q, payMethod, status, chargeId) {
     document.getElementById('refNum').textContent = ref;
     var clientId = null;
     try { var user = await getCurrentUser(); if (user) clientId = user.id; } catch(e) {}
@@ -694,7 +694,8 @@
         client_phone: document.getElementById('phone').value,
         client_email: document.getElementById('email').value || null,
         notes: document.getElementById('notes').value || null,
-        payment_method: payMethod, status: status, client_id: clientId
+        payment_method: payMethod, status: status, client_id: clientId,
+        yoco_charge_id: chargeId || null
       });
     } catch(e) { console.warn('Booking save error:', e); }
 

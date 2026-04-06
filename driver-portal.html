@@ -695,7 +695,11 @@
     var actionBtn = '';
     if (currentStep.next) {
       if (currentStep.next === 'delivered') {
-        actionBtn = '<button class="btn btn-primary btn-lg" onclick="advanceStep(\'' + b.id + '\',\'' + currentStep.next + '\')">📦 ' + currentStep.nextLabel + '</button>';
+        if (isCash) {
+          actionBtn = '<button class="btn btn-primary btn-lg" onclick="confirmCashDelivery(\'' + b.id + '\',' + (b.total||0) + ',\'' + b.payment_method + '\')">📦 ' + currentStep.nextLabel + '</button>';
+        } else {
+          actionBtn = '<button class="btn btn-primary btn-lg" onclick="advanceStep(\'' + b.id + '\',\'delivered\')">📦 ' + currentStep.nextLabel + '</button>';
+        }
       } else {
         actionBtn = '<button class="btn btn-green btn-lg" onclick="advanceStep(\'' + b.id + '\',\'' + currentStep.next + '\')">→ ' + currentStep.nextLabel + '</button>';
       }
@@ -777,6 +781,13 @@
         tripMap.setView([-33.925, 18.42], 11);
       }
     }, 100);
+  }
+
+  function confirmCashDelivery(bookingId, total, paymentMethod) {
+    var label = paymentMethod === 'cash_pickup' ? 'at pickup' : 'on delivery';
+    if (confirm('Confirm you collected R' + parseFloat(total).toFixed(2) + ' cash ' + label + ' from the client?')) {
+      advanceStep(bookingId, 'delivered');
+    }
   }
 
   async function advanceStep(bookingId, nextStatus) {
