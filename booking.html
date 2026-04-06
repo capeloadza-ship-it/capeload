@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://js.yoco.com/sdk/v1/yoco-sdk-web.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Inter', sans-serif; background: #eeeef3; color: #111118; height: 100vh; overflow: hidden; }
@@ -86,7 +87,7 @@
     .addr-row + .addr-row { border-top: 1px solid var(--border); }
     .addr-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
     .addr-dot.pickup { background: var(--green); box-shadow: 0 0 0 3px rgba(34,197,94,0.2); }
-    .addr-dot.dropoff { background: var(--orange); box-shadow: 0 0 0 3px rgba(241,95,34,0.2); }
+    .addr-dot.dropoff { background: var(--orange); }
     .addr-row input {
       flex: 1; background: transparent; border: none; outline: none;
       font-size: 14px; font-family: inherit; color: #111118; font-weight: 500;
@@ -366,10 +367,11 @@
         <strong>Cash booking:</strong> Driver collects payment. Commission of <strong id="cash-commission">R0</strong> owed to CapeLoad.
       </div>
 
-      <button class="btn-primary" onclick="confirmBooking()">
+      <button class="btn-primary" id="confirm-btn" onclick="confirmBooking()">
         Confirm Booking
         <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
       </button>
+      <div id="pay-status" style="display:none;font-size:13px;text-align:center;margin-top:10px;"></div>
     </div>
 
     <!-- STEP 4: Confirmed -->
@@ -606,9 +608,71 @@
   // CONFIRM BOOKING
   // ══════════════════════════════════════════
   async function confirmBooking() {
-    var ref = generateRef();
-    document.getElementById('refNum').textContent = ref;
+    var btn = document.getElementById('confirm-btn');
+    var status = document.getElementById('pay-status');
     var q = quoteData || {};
+    var total = q.total || 0;
+
+    // Validate required fields
+    if (!document.getElementById('fullName').value.trim()) { alert('Please enter your full name.'); return; }
+    if (!document.getElementById('phone').value.trim()) { alert('Please enter your WhatsApp number.'); return; }
+
+    if (selectedPay === 'yoco') {
+      // ── Yoco card payment ──────────────────
+      btn.disabled = true;
+      btn.textContent = 'Opening payment…';
+      status.style.display = 'none';
+
+      var sdk = new YocoSDK({ publicKey: 'pk_test_b622b73avnOgKbm44c54' });
+      sdk.showPopup({
+        amountInCents: Math.round(total * 100),
+        currency: 'ZAR',
+        name: 'CapeLoad Logistics',
+        description: 'Load booking — ' + (pricing[selectedVehicle]?.label || selectedVehicle),
+        callback: async function(result) {
+          if (result.error) {
+            status.textContent = '❌ ' + (result.error.message || 'Payment cancelled.');
+            status.style.display = 'block';
+            btn.disabled = false;
+            btn.innerHTML = 'Confirm Booking <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>';
+            return;
+          }
+          // Got token — charge server-side
+          btn.textContent = 'Processing payment…';
+          status.style.display = 'none';
+          try {
+            var ref = generateRef();
+            var chargeRes = await sb.functions.invoke('yoco-charge', {
+              body: { token: result.id, amountInCents: Math.round(total * 100), currency: 'ZAR', ref: ref }
+            });
+            if (chargeRes.error || (chargeRes.data && chargeRes.data.error)) {
+              var errMsg = (chargeRes.data && chargeRes.data.error) || 'Payment failed. Please try again.';
+              status.textContent = '❌ ' + errMsg;
+              status.style.display = 'block';
+              btn.disabled = false;
+              btn.innerHTML = 'Confirm Booking <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>';
+              return;
+            }
+            // Payment succeeded — save booking
+            await saveBooking(ref, q, 'yoco_card', 'paid');
+          } catch(e) {
+            status.textContent = '❌ Payment error. Please try again.';
+            status.style.display = 'block';
+            btn.disabled = false;
+            btn.innerHTML = 'Confirm Booking <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>';
+          }
+        }
+      });
+    } else {
+      // ── Cash payment — save directly ───────
+      btn.disabled = true;
+      var ref = generateRef();
+      await saveBooking(ref, q, selectedPay, 'pending');
+    }
+  }
+
+  async function saveBooking(ref, q, payMethod, status) {
+    document.getElementById('refNum').textContent = ref;
     var clientId = null;
     try { var user = await getCurrentUser(); if (user) clientId = user.id; } catch(e) {}
     try {
@@ -630,14 +694,14 @@
         client_phone: document.getElementById('phone').value,
         client_email: document.getElementById('email').value || null,
         notes: document.getElementById('notes').value || null,
-        payment_method: selectedPay, status: 'pending', client_id: clientId
+        payment_method: payMethod, status: status, client_id: clientId
       });
     } catch(e) { console.warn('Booking save error:', e); }
+
     var vLabel = pricing[selectedVehicle]?.label || selectedVehicle;
     var msg = encodeURIComponent('Hi CapeLoad! Booking ref ' + ref + '. ' + vLabel + ' from ' + document.getElementById('pickup').value.split(',')[0] + ' to ' + document.getElementById('dropoff').value.split(',')[0] + '. Total: R' + (q.total || 0));
     document.getElementById('waLink').href = 'https://wa.me/27625692939?text=' + msg;
 
-    // Email notifications
     var emailData = {
       ref: ref,
       name: document.getElementById('fullName').value,
@@ -649,7 +713,7 @@
       date: document.getElementById('bookingDate').value || '',
       time: document.getElementById('bookingTime').value || '',
       total: String(q.total || 0),
-      payment: selectedPay || 'TBC'
+      payment: payMethod
     };
     var clientEmail = document.getElementById('email').value;
     if (clientEmail) sendEmail(clientEmail, 'booking_confirmation', emailData);
