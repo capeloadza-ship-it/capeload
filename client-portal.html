@@ -179,6 +179,24 @@
       </div>
     </div>
 
+    <!-- Booking Detail Modal -->
+    <div class="modal-bg" id="booking-detail-modal" style="display:none;" onclick="if(event.target===this)closeBookingDetail()">
+      <div class="modal" style="max-width:520px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px;">
+          <div>
+            <h3 style="margin-bottom:6px;" id="bd-ref">Booking</h3>
+            <span id="bd-status"></span>
+          </div>
+          <button onclick="closeBookingDetail()" style="background:none;border:none;cursor:pointer;font-size:22px;line-height:1;color:var(--text-muted);">×</button>
+        </div>
+        <div id="bd-route" style="margin-bottom:14px;"></div>
+        <div id="bd-details" style="margin-bottom:14px;"></div>
+        <div id="bd-driver" style="margin-bottom:14px;display:none;"></div>
+        <div id="bd-notes" style="margin-bottom:14px;display:none;"></div>
+        <div id="bd-actions" class="modal-actions"></div>
+      </div>
+    </div>
+
     <!-- New Template Modal -->
     <div class="modal-bg" id="template-modal" style="display:none;" onclick="if(event.target===this)closeTemplateModal()">
       <div class="modal">
@@ -437,10 +455,15 @@
       document.getElementById('s-confirmpw').value = '';
     }
 
+    var bookingCache = {};
+
     async function loadBookings() {
       var userId = window.currentUser.id;
-      var { data } = await sb.from('bookings').select('*').eq('client_id', userId).order('created_at', { ascending: false });
+      var { data } = await sb.from('bookings')
+        .select('*, drivers!bookings_driver_id_fkey(id, users!drivers_user_id_fkey(full_name, phone))')
+        .eq('client_id', userId).order('created_at', { ascending: false });
       var bookings = data || [];
+      bookings.forEach(function(b) { bookingCache[b.id] = b; });
 
       // Stats
       var active = bookings.filter(function(b) { return ['pending','assigned','in_progress'].includes(b.status); });
@@ -464,9 +487,16 @@
           var route = (b.pickup_address || '?').split(',')[0] + ' &rarr; ' + (b.dropoff_address || '?').split(',')[0];
           var dateStr = b.booking_date || 'Flexible';
 
+          var driverInfo = '';
+          if ((b.status === 'assigned' || b.status === 'in_progress') && b.drivers?.users?.full_name) {
+            driverInfo = '<div style="font-size:11px;color:var(--text-muted);margin-top:3px;">Driver: <strong>' + escHtml(b.drivers.users.full_name) + '</strong></div>';
+          }
           var item = document.createElement('div');
           item.className = 'job-item';
-          item.innerHTML = '<div class="job-item-left"><div class="job-icon move"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a4 4 0 00-8 0v2"/></svg></div><div class="job-meta"><h4>' + jobType + ' — ' + vehicle + '</h4><p>' + route + '</p></div></div><div class="job-item-right"><span class="badge ' + s[0] + '">' + s[1] + '</span><div class="job-date">' + dateStr + '</div></div>';
+          item.style.cursor = 'pointer';
+          item.title = 'Click to view details';
+          item.innerHTML = '<div class="job-item-left"><div class="job-icon move"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a4 4 0 00-8 0v2"/></svg></div><div class="job-meta"><h4>' + jobType + ' — ' + vehicle + '</h4><p>' + route + '</p>' + driverInfo + '</div></div><div class="job-item-right"><span class="badge ' + s[0] + '">' + s[1] + '</span><div class="job-date">' + dateStr + '</div></div>';
+          item.addEventListener('click', function() { openBookingDetail(b.id); });
           activeList.appendChild(item);
         });
       }
@@ -479,12 +509,96 @@
         historyTbody.innerHTML = '';
         completed.forEach(function(b) {
           var tr = document.createElement('tr');
+          tr.style.cursor = 'pointer';
+          tr.title = 'Click to view details';
           var jobType = b.job_type ? b.job_type.charAt(0).toUpperCase() + b.job_type.slice(1) : '—';
           var route = (b.pickup_address || '?').split(',')[0] + ' → ' + (b.dropoff_address || '?').split(',')[0];
           tr.innerHTML = '<td>' + b.ref + '</td><td>' + (b.booking_date || '—') + '</td><td>' + jobType + '</td><td>' + route + '</td><td>' + formatRand(b.total) + '</td><td>—</td>';
+          tr.addEventListener('click', function() { openBookingDetail(b.id); });
           historyTbody.appendChild(tr);
         });
       }
+    }
+    function openBookingDetail(id) {
+      var b = bookingCache[id];
+      if (!b) return;
+      var s = statusMap[b.status] || ['badge-orange','Pending'];
+      document.getElementById('bd-ref').textContent = 'Booking ' + b.ref;
+      document.getElementById('bd-status').innerHTML = '<span class="badge ' + s[0] + '">' + s[1] + '</span>';
+
+      document.getElementById('bd-route').innerHTML =
+        '<div style="background:#f8f8f8;border-radius:10px;padding:14px;">' +
+        '<div style="font-size:10px;text-transform:uppercase;color:var(--text-muted);font-weight:600;margin-bottom:3px;">Pickup</div>' +
+        '<div style="font-size:13px;font-weight:600;margin-bottom:10px;">' + escHtml(b.pickup_address || '—') + '</div>' +
+        '<div style="font-size:10px;text-transform:uppercase;color:var(--text-muted);font-weight:600;margin-bottom:3px;">Dropoff</div>' +
+        '<div style="font-size:13px;font-weight:600;">' + escHtml(b.dropoff_address || '—') + '</div></div>';
+
+      var vLabel = vehicleLabels[b.vehicle_type] || b.vehicle_type || '—';
+      var jLabel = b.job_type ? b.job_type.charAt(0).toUpperCase() + b.job_type.slice(1) : '—';
+      var payLabels = { yoco_card:'Card (Yoco)', cash_pickup:'Cash at Pickup', cash_delivery:'Cash on Delivery' };
+      document.getElementById('bd-details').innerHTML =
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">' +
+        '<div style="background:#f8f8f8;border-radius:8px;padding:10px;"><div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;font-weight:600;">Vehicle</div><div style="font-size:13px;font-weight:700;margin-top:2px;">' + vLabel + '</div></div>' +
+        '<div style="background:#f8f8f8;border-radius:8px;padding:10px;"><div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;font-weight:600;">Job Type</div><div style="font-size:13px;font-weight:700;margin-top:2px;">' + jLabel + '</div></div>' +
+        '<div style="background:#f8f8f8;border-radius:8px;padding:10px;"><div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;font-weight:600;">Date</div><div style="font-size:13px;font-weight:700;margin-top:2px;">' + (b.booking_date || 'Flexible') + '</div></div>' +
+        '<div style="background:#f8f8f8;border-radius:8px;padding:10px;"><div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;font-weight:600;">Total</div><div style="font-size:13px;font-weight:700;margin-top:2px;color:var(--orange);">' + formatRand(b.total) + '</div></div>' +
+        '<div style="background:#f8f8f8;border-radius:8px;padding:10px;"><div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;font-weight:600;">Payment</div><div style="font-size:13px;font-weight:700;margin-top:2px;">' + (payLabels[b.payment_method] || '—') + '</div></div>' +
+        '<div style="background:#f8f8f8;border-radius:8px;padding:10px;"><div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;font-weight:600;">Distance</div><div style="font-size:13px;font-weight:700;margin-top:2px;">' + (b.distance_km ? b.distance_km + ' km' : '—') + '</div></div>' +
+        '</div>';
+
+      var driverDiv = document.getElementById('bd-driver');
+      var driverData = b.drivers?.users;
+      if (driverData && (b.status === 'assigned' || b.status === 'in_progress')) {
+        var dName = driverData.full_name || 'Driver';
+        var dPhone = driverData.phone || '';
+        driverDiv.style.display = 'block';
+        driverDiv.innerHTML =
+          '<div style="border:1.5px solid #eee;border-radius:10px;padding:14px;">' +
+          '<div style="font-size:10px;text-transform:uppercase;color:var(--text-muted);font-weight:600;margin-bottom:10px;">Your Driver</div>' +
+          '<div style="display:flex;align-items:center;gap:12px;">' +
+          '<div style="width:40px;height:40px;border-radius:50%;background:var(--orange);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:16px;flex-shrink:0;">' + escHtml(dName.charAt(0).toUpperCase()) + '</div>' +
+          '<div style="flex:1;"><div style="font-weight:700;font-size:14px;">' + escHtml(dName) + '</div>' +
+          (dPhone ? '<div style="font-size:12px;color:var(--text-muted);">' + escHtml(dPhone) + '</div>' : '') + '</div>' +
+          (dPhone ? '<a href="https://wa.me/' + dPhone.replace(/\D/g,'') + '" target="_blank" class="btn btn-outline" style="padding:7px 14px;font-size:12px;flex-shrink:0;">💬 Chat</a>' : '') +
+          '</div></div>';
+      } else {
+        driverDiv.style.display = 'none';
+      }
+
+      var notesDiv = document.getElementById('bd-notes');
+      if (b.notes) {
+        notesDiv.style.display = 'block';
+        notesDiv.innerHTML = '<div style="background:#fff8f0;border:1px solid #ffe0b3;border-radius:8px;padding:10px;font-size:13px;"><strong>Notes:</strong> ' + escHtml(b.notes) + '</div>';
+      } else { notesDiv.style.display = 'none'; }
+
+      var actionsDiv = document.getElementById('bd-actions');
+      var cancelBtn = (b.status === 'pending' || b.status === 'assigned')
+        ? '<button class="btn btn-danger" onclick="cancelMyBooking(\'' + b.id + '\')">Cancel Booking</button>'
+        : '';
+      actionsDiv.innerHTML = cancelBtn + '<button class="btn btn-outline" onclick="closeBookingDetail()" style="margin-left:auto;">Close</button>';
+
+      document.getElementById('booking-detail-modal').style.display = 'flex';
+    }
+
+    function closeBookingDetail() {
+      document.getElementById('booking-detail-modal').style.display = 'none';
+    }
+
+    async function cancelMyBooking(id) {
+      if (!confirm('Cancel this booking? This cannot be undone.')) return;
+      var b = bookingCache[id];
+      var refundNote = '';
+      if (b && b.payment_method === 'yoco_card' && b.yoco_charge_id && b.total > 0) {
+        try {
+          var rr = await sb.functions.invoke('yoco-refund', { body: { chargeId: b.yoco_charge_id, amountInCents: Math.round(b.total * 100) } });
+          if (!rr.error && !(rr.data && rr.data.error)) refundNote = ' — R' + b.total + ' will be refunded to your card';
+        } catch(e) {}
+      }
+      var { error } = await sb.from('bookings').update({ status: 'cancelled', cancelled_reason: 'Cancelled by client' }).eq('id', id).eq('client_id', window.currentUser.id);
+      if (error) { showToast('Cancel failed: ' + error.message, 'error'); return; }
+      closeBookingDetail();
+      showToast('Booking cancelled' + refundNote, 'success');
+      loadBookings();
     }
   </script>
 <script src="js/transitions.js"></script>
