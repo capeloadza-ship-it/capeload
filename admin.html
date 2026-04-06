@@ -188,22 +188,98 @@
     .tracking-placeholder { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 10px; padding: 80px; color: var(--text-muted); font-size: 13px; text-align: center; }
     .tracking-placeholder svg { width: 40px; height: 40px; stroke: #ccc; fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
 
-    @media (max-width: 1100px) { .tracking-layout { grid-template-columns: 1fr; } .tracking-info-grid { grid-template-columns: repeat(2, 1fr); } }
+    /* ═══ MOBILE MENU ═══ */
+    .menu-toggle {
+      display: none; background: none; border: none; cursor: pointer;
+      padding: 8px; margin-right: 2px; border-radius: 8px; color: #1a1a1a;
+      align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .menu-toggle:hover { background: #f0ede8; }
+    .menu-toggle svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .sidebar-close {
+      display: none; position: absolute; top: 18px; right: 14px;
+      background: rgba(255,255,255,0.08); border: none; color: #888;
+      border-radius: 8px; padding: 7px 9px; cursor: pointer; line-height: 1;
+      align-items: center; justify-content: center; transition: all 0.15s;
+    }
+    .sidebar-close:hover { background: rgba(255,255,255,0.15); color: #fff; }
+    .sidebar-close svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .sidebar-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.55); z-index: 49;
+    }
+    .sidebar-overlay.open { display: block; }
+
+    /* ═══ TABLE MIN-WIDTHS (ensure horizontal scroll works) ═══ */
+    #panel-bookings table { min-width: 640px; }
+    #panel-fleet table { min-width: 620px; }
+    #panel-drivers table { min-width: 520px; }
+    #panel-clients table { min-width: 440px; }
+    #panel-promotions .table-wrap table { min-width: 420px; }
 
     /* ═══ RESPONSIVE ═══ */
     @media (max-width: 1100px) {
+      .tracking-layout { grid-template-columns: 1fr; }
+      .tracking-info-grid { grid-template-columns: repeat(2, 1fr); }
       .promo-grid { grid-template-columns: 1fr; }
       .overview-grid { grid-template-columns: 1fr; }
     }
     @media (max-width: 960px) {
-      .sidebar { display: none; }
+      .menu-toggle { display: flex; }
+      .sidebar-close { display: flex; }
+      /* Sidebar becomes off-canvas drawer */
+      .sidebar { transform: translateX(-100%); transition: transform 0.25s cubic-bezier(.4,0,.2,1); }
+      .sidebar.open { transform: translateX(0); }
       .main { margin-left: 0; }
       .stats-row { grid-template-columns: repeat(2, 1fr); }
+      .topbar-time { display: none; }
+      /* Larger tap targets for nav */
+      .sidebar-link { padding: 12px 14px; font-size: 14px; gap: 12px; }
+      .sidebar-link svg { width: 18px; height: 18px; min-width: 18px; }
+      .sidebar-section { padding: 18px 8px 6px; }
     }
     @media (max-width: 640px) {
-      .stats-row { grid-template-columns: 1fr 1fr; }
-      .content { padding: 16px; }
-      .topbar { padding: 0 16px; }
+      .content { padding: 14px; }
+      .topbar { padding: 0 12px; height: 52px; }
+      .card { padding: 16px; margin-bottom: 14px; }
+      .card-header { flex-wrap: wrap; gap: 10px; }
+      .stat-card { padding: 14px 12px; gap: 10px; }
+      .stat-value { font-size: 22px; }
+      .stat-icon { width: 40px; height: 40px; min-width: 40px; }
+      .stat-icon svg { width: 18px; height: 18px; }
+      .stat-label { font-size: 10px; }
+      .stats-row { gap: 10px; margin-bottom: 20px; }
+      /* Quick actions: 2-per-row on small screens */
+      .quick-actions { gap: 8px; }
+      .qa-btn { padding: 10px 12px; flex: 1 1 140px; justify-content: center; font-size: 12px; }
+      /* Better tap targets for all buttons */
+      .btn { padding: 9px 14px; font-size: 13px; min-height: 38px; }
+      td .btn { padding: 8px 12px; font-size: 12px; min-height: 36px; }
+      th { padding: 8px 10px; }
+      td { padding: 12px 10px; }
+      /* Tracking panel */
+      .tracking-layout { min-height: unset; gap: 14px; }
+      .tracking-info-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+      #admin-map { height: 260px; }
+      .tracking-info { padding: 16px; }
+      .tracking-placeholder { padding: 40px 20px; }
+      .trip-list-header { flex-wrap: wrap; gap: 8px; }
+      .trip-filter { flex-wrap: wrap; }
+      /* Prevent iOS auto-zoom on form focus */
+      .field select, .field input, .field textarea { font-size: 16px; }
+      /* Promo send row */
+      #promo-send-btn { width: 100%; justify-content: center; margin-bottom: 8px; }
+      [style*="display:flex;align-items:center;gap:12px"] { flex-wrap: wrap; }
+      /* Contacts export header */
+      .card-header > div:last-child { flex-wrap: wrap; }
+      /* Topbar title size */
+      .topbar-title { font-size: 14px; }
+      .topbar-dot { display: none; }
+    }
+    @media (max-width: 420px) {
+      .stats-row { grid-template-columns: 1fr; }
+      .stat-card { padding: 12px; }
+      .content { padding: 12px; }
     }
   </style>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
@@ -215,8 +291,14 @@
 </head>
 <body>
 
+<!-- ═══ SIDEBAR OVERLAY ═══ -->
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeMobileMenu()"></div>
+
 <!-- ═══ SIDEBAR ═══ -->
-<aside class="sidebar">
+<aside class="sidebar" id="sidebar">
+  <button class="sidebar-close" onclick="closeMobileMenu()" aria-label="Close menu">
+    <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+  </button>
   <div class="sidebar-logo">
     <a href="index.html"><img src="images/logo-light.png" alt="CapeLoad"></a>
   </div>
@@ -272,6 +354,9 @@
 <div class="main">
   <div class="topbar">
     <div class="topbar-left">
+      <button class="menu-toggle" onclick="toggleMobileMenu()" aria-label="Open menu">
+        <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
       <div class="topbar-dot"></div>
       <div class="topbar-title" id="topbar-title">Dashboard</div>
     </div>
@@ -567,6 +652,20 @@
   }
   updateClock(); setInterval(updateClock, 60000);
 
+  // ── Mobile menu ──
+  function toggleMobileMenu() {
+    var sidebar = document.getElementById('sidebar');
+    var overlay = document.getElementById('sidebar-overlay');
+    sidebar.classList.toggle('open');
+    overlay.classList.toggle('open');
+    document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
+  }
+  function closeMobileMenu() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebar-overlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
   // ── Panel switching ──
   function showPanel(name, el) {
     document.querySelectorAll('.sidebar-link').forEach(function(l) { l.classList.remove('active'); });
@@ -574,6 +673,7 @@
     if (el) el.classList.add('active');
     document.getElementById('panel-' + name).classList.add('active');
     document.getElementById('topbar-title').textContent = el ? el.textContent.trim() : name;
+    closeMobileMenu();
     if (name === 'tracking') loadTracking();
     if (name === 'fleet') loadFleet();
     if (name === 'drivers') loadDrivers();
