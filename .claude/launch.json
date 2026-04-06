@@ -5,7 +5,8 @@
       "name": "capeload-static",
       "runtimeExecutable": "npx",
       "runtimeArgs": ["-y", "serve", "."],
-      "port": 3000
+      "port": 3001,
+      "autoPort": true
     }
   ]
 }

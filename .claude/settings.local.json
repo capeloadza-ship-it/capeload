@@ -33,7 +33,30 @@
       "Bash(taskkill //PID 4328 //F)",
       "Bash(netstat -ano)",
       "Bash(findstr :3000)",
-      "Bash(taskkill //F //IM node.exe)"
+      "Bash(taskkill //F //IM node.exe)",
+      "Bash(supabase --version)",
+      "Bash(python3 -c \"import sys,json; cfg=json.load\\(sys.stdin\\); supa=[v for k,v in cfg.get\\(''''mcpServers'''',{}\\).items\\(\\) if ''''supabase'''' in k.lower\\(\\)]; print\\(json.dumps\\(supa, indent=2\\)\\)\")",
+      "Bash(python3 -c \"import sys,json; cfg=json.load\\(sys.stdin\\); print\\(json.dumps\\(cfg.get\\(''''mcpServers'''',{}\\), indent=2\\)\\)\")",
+      "Bash(python3 -c \":*)",
+      "Bash(node -e \":*)",
+      "Bash(node -e \"const fs=require\\(''fs''\\);const d=fs.readFileSync\\(''C:/Users/Axious Spaces/AppData/Roaming/Claude/claude_desktop_config.json'',''utf8''\\);console.log\\(d.substring\\(0,2000\\)\\);\")",
+      "Bash(node -e \"const fs=require\\(''fs''\\);const d=fs.readFileSync\\(''C:/Users/Axious Spaces/.claude/settings.json'',''utf8''\\);const o=JSON.parse\\(d\\);const keys=Object.keys\\(o\\);console.log\\(keys.join\\(''\\\\n''\\)\\);if\\(o.env\\)console.log\\(''ENV:'',JSON.stringify\\(o.env\\)\\);\")",
+      "Read(//d/website projects/capeload/$USERPROFILE/.supabase/**)",
+      "Read(//d/website projects/capeload/$HOME/.supabase/**)",
+      "Bash(find 'C:/Users/Axious Spaces/.claude' -name *.json -newer 'C:/Users/Axious Spaces/.claude/settings.json')",
+      "Bash(vercel deploy:*)",
+      "Bash(npx supabase:*)",
+      "Bash(sed -i 's/\\\\.logo img { height: 144px; width: auto; }/.logo img { height: 120px; width: auto; }/g' \"D:/website projects/capeload/client-portal.html\" \"D:/website projects/capeload/driver-portal.html\")",
+      "Bash(sed -i 's/\\\\.sidebar-logo img { height: 144px; width: auto; }/.sidebar-logo img { height: 120px; width: auto; }/g' \"D:/website projects/capeload/admin.html\")",
+      "Bash(SUPABASE_ACCESS_TOKEN=sbp_4a970e826e813aff88bec4a5ff590f2dd30572f5 npx supabase db query --project-ref kudjacibkfztvdvwunuh \"CREATE TABLE IF NOT EXISTS public.subscribers \\(id uuid DEFAULT gen_random_uuid\\(\\) PRIMARY KEY, email text NOT NULL UNIQUE, source text DEFAULT ''website'', created_at timestamptz DEFAULT now\\(\\)\\); ALTER TABLE public.subscribers ENABLE ROW LEVEL SECURITY;\")",
+      "Bash(SUPABASE_ACCESS_TOKEN=sbp_4a970e826e813aff88bec4a5ff590f2dd30572f5 npx supabase db query --linked \"SELECT 1\")",
+      "Bash(SUPABASE_ACCESS_TOKEN=sbp_4a970e826e813aff88bec4a5ff590f2dd30572f5 npx supabase link --project-ref kudjacibkfztvdvwunuh)",
+      "Bash(SUPABASE_ACCESS_TOKEN=sbp_4a970e826e813aff88bec4a5ff590f2dd30572f5 npx supabase db query --linked \"CREATE TABLE IF NOT EXISTS public.subscribers \\(id uuid DEFAULT gen_random_uuid\\(\\) PRIMARY KEY, email text NOT NULL UNIQUE, source text DEFAULT ''website'', created_at timestamptz DEFAULT now\\(\\)\\); ALTER TABLE public.subscribers ENABLE ROW LEVEL SECURITY; DO $$ BEGIN IF NOT EXISTS \\(SELECT 1 FROM pg_policies WHERE tablename=''subscribers'' AND policyname=''Public can subscribe''\\) THEN CREATE POLICY \"\"Public can subscribe\"\" ON public.subscribers FOR INSERT WITH CHECK \\(true\\); END IF; IF NOT EXISTS \\(SELECT 1 FROM pg_policies WHERE tablename=''subscribers'' AND policyname=''Authenticated can read subscribers''\\) THEN CREATE POLICY \"\"Authenticated can read subscribers\"\" ON public.subscribers FOR SELECT USING \\(auth.role\\(\\) = ''authenticated''\\); END IF; END$$;\")",
+      "Bash(SUPABASE_ACCESS_TOKEN=sbp_4a970e826e813aff88bec4a5ff590f2dd30572f5 npx supabase functions deploy send-email --project-ref kudjacibkfztvdvwunuh --no-verify-jwt)",
+      "Bash(grep -l \"cookie-consent.js\" *.html)",
+      "Bash(grep -L \"cookie-consent.js\" *.html)",
+      "Bash(grep -c \"cookie-consent.js\\\\|terms-gate.js\" *.html)",
+      "Bash(find 'D:/website projects/' -name *.html -newer 'D:/website projects/capeload/booking.html' -path */capeload*)"
     ]
   }
 }
