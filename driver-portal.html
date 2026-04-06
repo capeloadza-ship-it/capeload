@@ -327,6 +327,24 @@
       <button class="btn btn-primary" onclick="driverChangePassword()">Update Password</button>
     </div>
     <div class="card">
+      <div class="card-title" style="margin-bottom:4px;">Email Notifications</div>
+      <p style="font-size:12px;color:var(--text-muted);margin-bottom:16px;">Choose which emails you receive from CapeLoad.</p>
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <label style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;">
+          <span style="font-size:13px;font-weight:600;">Job assigned to me</span>
+          <input type="checkbox" id="dn-assigned" onchange="saveDriverNotifPrefs()" style="width:18px;height:18px;cursor:pointer;accent-color:var(--orange);">
+        </label>
+        <label style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;">
+          <span style="font-size:13px;font-weight:600;">Delivery completed</span>
+          <input type="checkbox" id="dn-completed" onchange="saveDriverNotifPrefs()" style="width:18px;height:18px;cursor:pointer;accent-color:var(--orange);">
+        </label>
+        <label style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;">
+          <span style="font-size:13px;font-weight:600;">New job available nearby</span>
+          <input type="checkbox" id="dn-new-job" onchange="saveDriverNotifPrefs()" style="width:18px;height:18px;cursor:pointer;accent-color:var(--orange);">
+        </label>
+      </div>
+    </div>
+    <div class="card">
       <div class="card-title">Add Vehicle</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
         <div><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">Type</label><select id="av-type" style="width:100%;padding:12px;border:1.5px solid #eee;border-radius:10px;font-size:14px;font-family:inherit;outline:none;"><option value="">Select</option><option value="motorbike">Motorbike</option><option value="bakkie">Bakkie</option><option value="panel-van">Panel Van</option><option value="4-ton">4-Ton</option><option value="8-ton">8-Ton</option><option value="flatbed">Flatbed</option></select></div>
@@ -435,6 +453,9 @@
     // Pre-fill settings
     document.getElementById('ds-name').value = profile?.full_name || '';
     document.getElementById('ds-phone').value = profile?.phone || '';
+    document.getElementById('dn-assigned').checked = profile?.notify_driver_assigned !== false;
+    document.getElementById('dn-completed').checked = profile?.notify_booking_completed !== false;
+    document.getElementById('dn-new-job').checked = profile?.notify_new_job !== false;
     var { data: driverFull } = await sb.from('drivers').select('bank_name, account_number, branch_code').eq('id', driverRecord.id).single();
     if (driverFull) {
       document.getElementById('ds-bank').value = driverFull.bank_name || '';
@@ -917,6 +938,15 @@
   // ══════════════════════════════════════
   // SETTINGS
   // ══════════════════════════════════════
+  async function saveDriverNotifPrefs() {
+    await sb.from('users').update({
+      notify_driver_assigned: document.getElementById('dn-assigned').checked,
+      notify_booking_completed: document.getElementById('dn-completed').checked,
+      notify_new_job: document.getElementById('dn-new-job').checked
+    }).eq('id', window.currentUser.id);
+    showToast('Preferences saved', 'success');
+  }
+
   async function saveDriverProfile() {
     var name = document.getElementById('ds-name').value.trim();
     var phone = document.getElementById('ds-phone').value.trim();

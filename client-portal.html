@@ -442,6 +442,18 @@
       window.location.href = 'booking.html';
     }
 
+    function rebookFromHistory(bookingId) {
+      var b = bookingCache[bookingId];
+      if (!b) return;
+      sessionStorage.setItem('cl_rebook', JSON.stringify({
+        pickup_address: b.pickup_address || '',
+        dropoff_address: b.dropoff_address || '',
+        vehicle_type: b.vehicle_type || '',
+        notes: b.notes || ''
+      }));
+      window.location.href = 'booking.html';
+    }
+
     function escHtml(str) {
       return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
@@ -659,7 +671,10 @@
       var pdfBtn = b.status === 'completed'
         ? '<button class="btn btn-outline" onclick="downloadInvoice(\'' + b.id + '\')">PDF Invoice</button>'
         : '';
-      actionsDiv.innerHTML = cancelBtn + rateBtn + pdfBtn + '<button class="btn btn-outline" onclick="closeBookingDetail()" style="margin-left:auto;">Close</button>';
+      var rebookBtn = b.status === 'completed' || b.status === 'cancelled'
+        ? '<button class="btn btn-primary" onclick="rebookFromHistory(\'' + b.id + '\')">Re-book</button>'
+        : '';
+      actionsDiv.innerHTML = cancelBtn + rateBtn + pdfBtn + rebookBtn + '<button class="btn btn-outline" onclick="closeBookingDetail()" style="margin-left:auto;">Close</button>';
 
       document.getElementById('booking-detail-modal').style.display = 'flex';
     }

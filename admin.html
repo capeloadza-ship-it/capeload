@@ -333,6 +333,11 @@
       <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 11h-6m3-3v6"/></svg>
       Contacts
     </div>
+    <div class="sidebar-section">System</div>
+    <div class="sidebar-link" data-panel="settings" onclick="showPanel('settings', this)">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      Settings
+    </div>
     <div class="sidebar-section">Marketing</div>
     <div class="sidebar-link" data-panel="promotions" onclick="showPanel('promotions', this)">
       <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.95 10.5a19.79 19.79 0 01-3.07-8.67A2 2 0 012.85 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.46 6.46l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
@@ -662,6 +667,35 @@
       </div>
     </div>
 
+    <!-- ─── Settings ─── -->
+    <div class="panel" id="panel-settings">
+      <div class="card" style="max-width:520px;">
+        <div class="card-header">
+          <div><div class="card-title">Platform Settings</div><div class="card-sub">Global configuration for CapeLoad</div></div>
+        </div>
+        <div style="margin-bottom:20px;">
+          <label style="font-size:12px;font-weight:600;display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.4px;color:var(--text-muted);">Commission Rate (%)</label>
+          <div style="display:flex;gap:10px;align-items:center;">
+            <input type="number" id="setting-commission" min="0" max="100" step="0.1" placeholder="e.g. 15" style="width:140px;padding:11px 14px;border:1.5px solid #e5e2dd;border-radius:10px;font-size:15px;font-family:inherit;outline:none;">
+            <span style="font-size:13px;color:var(--text-muted);">% of booking total kept by CapeLoad</span>
+          </div>
+          <p style="font-size:12px;color:var(--text-muted);margin-top:8px;">This is informational only — commission is calculated at booking time via the pricing engine.</p>
+        </div>
+        <div style="margin-bottom:20px;">
+          <label style="font-size:12px;font-weight:600;display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.4px;color:var(--text-muted);">Support Email</label>
+          <input type="email" id="setting-support-email" placeholder="support@capeload.co.za" style="width:100%;padding:11px 14px;border:1.5px solid #e5e2dd;border-radius:10px;font-size:14px;font-family:inherit;outline:none;">
+        </div>
+        <div style="margin-bottom:20px;">
+          <label style="font-size:12px;font-weight:600;display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.4px;color:var(--text-muted);">Platform Status</label>
+          <select id="setting-status" style="padding:11px 14px;border:1.5px solid #e5e2dd;border-radius:10px;font-size:14px;font-family:inherit;outline:none;background:#fff;">
+            <option value="active">Active — accepting bookings</option>
+            <option value="maintenance">Maintenance — bookings paused</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -707,6 +741,7 @@
     if (name === 'clients') loadClients();
     if (name === 'promotions') loadPromoHistory();
     if (name === 'contacts') { loadContacts(); loadSubscribers(); }
+    if (name === 'settings') loadSettings();
   }
 
   // ── Auth ready ──
@@ -1420,6 +1455,27 @@
       tr.innerHTML = '<td style="font-size:12px;color:var(--text-muted);">' + date + '</td><td style="font-weight:600;">' + p.subject + '</td><td><span class="badge badge-blue">' + aud + '</span></td><td>' + (p.recipient_count||0) + '</td><td><span class="badge badge-green">Sent</span></td>';
       tbody.appendChild(tr);
     });
+  }
+
+  // ── Platform Settings ──
+  async function loadSettings() {
+    var { data } = await sb.from('platform_settings').select('key, value');
+    var map = {};
+    (data || []).forEach(function(r) { map[r.key] = r.value; });
+    if (map.commission_rate) document.getElementById('setting-commission').value = map.commission_rate;
+    if (map.support_email) document.getElementById('setting-support-email').value = map.support_email;
+    if (map.platform_status) document.getElementById('setting-status').value = map.platform_status;
+  }
+
+  async function saveSettings() {
+    var rows = [
+      { key: 'commission_rate', value: document.getElementById('setting-commission').value.trim() },
+      { key: 'support_email', value: document.getElementById('setting-support-email').value.trim() },
+      { key: 'platform_status', value: document.getElementById('setting-status').value }
+    ];
+    var { error } = await sb.from('platform_settings').upsert(rows, { onConflict: 'key' });
+    if (error) { showToast('Save failed: ' + error.message, 'error'); return; }
+    showToast('Settings saved', 'success');
   }
 </script>
 <script src="js/transitions.js"></script>
