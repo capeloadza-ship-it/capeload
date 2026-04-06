@@ -56,7 +56,8 @@
       "Bash(grep -l \"cookie-consent.js\" *.html)",
       "Bash(grep -L \"cookie-consent.js\" *.html)",
       "Bash(grep -c \"cookie-consent.js\\\\|terms-gate.js\" *.html)",
-      "Bash(find 'D:/website projects/' -name *.html -newer 'D:/website projects/capeload/booking.html' -path */capeload*)"
+      "Bash(find 'D:/website projects/' -name *.html -newer 'D:/website projects/capeload/booking.html' -path */capeload*)",
+      "Bash(curl -s -X POST \"https://api.supabase.com/v1/projects/kudjacibkfztvdvwunuh/database/query\" -H \"Authorization: Bearer sbp_4a970e826e813aff88bec4a5ff590f2dd30572f5\" -H \"Content-Type: application/json\" -d '{\"\"query\"\": \"\"ALTER TABLE bookings ADD COLUMN IF NOT EXISTS yoco_charge_id text;\"\"}')"
     ]
   }
 }

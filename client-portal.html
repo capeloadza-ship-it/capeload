@@ -6,6 +6,7 @@
   <title>Client Portal | CapeLoad Logistics</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Inter', sans-serif; background: #f5f5f3; color: #1a1a1a; line-height: 1.6; }
@@ -261,23 +262,14 @@
     <div class="tab-panel" id="tab-tracking">
       <div class="card">
         <div class="card-title">Live driver tracking</div>
-        <div class="map-placeholder">
-          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-          Map will display here when a driver is en route (Google Maps integration)
+        <div id="tracking-no-active" style="text-align:center;padding:40px 20px;color:var(--text-muted);">
+          <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom:12px;opacity:0.4;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <p style="font-size:14px;margin-bottom:8px;">No active trip to track right now.</p>
+          <a href="booking.html" style="color:var(--orange);font-weight:600;font-size:13px;">Book a load →</a>
         </div>
-        <div style="margin-top: 16px;">
-          <div class="job-item" style="border-bottom: none;">
-            <div class="job-item-left">
-              <div class="job-icon move"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a4 4 0 00-8 0v2"/></svg></div>
-              <div class="job-meta">
-                <h4>Driver: Sipho N. — Toyota Hilux</h4>
-                <p>ETA: ~15 minutes &middot; Claremont → CBD</p>
-              </div>
-            </div>
-            <div class="job-item-right">
-              <span class="badge badge-blue">En Route</span>
-            </div>
-          </div>
+        <div id="tracking-active" style="display:none;">
+          <div id="tracking-driver-info" style="margin-bottom:14px;"></div>
+          <div id="client-map" style="height:340px;border-radius:12px;overflow:hidden;"></div>
         </div>
       </div>
     </div>
@@ -465,6 +457,9 @@
       var bookings = data || [];
       bookings.forEach(function(b) { bookingCache[b.id] = b; });
 
+      var inProgress = bookings.find(function(b) { return b.status === 'in_progress'; });
+      setupTracking(inProgress || null);
+
       // Stats
       var active = bookings.filter(function(b) { return ['pending','assigned','in_progress'].includes(b.status); });
       var completed = bookings.filter(function(b) { return b.status === 'completed'; });
@@ -601,8 +596,101 @@
       loadBookings();
     }
   </script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="js/transitions.js"></script>
 <script src="js/terms-gate.js"></script>
 <script src="js/cookie-consent.js"></script>
+<script>
+  var clientMap = null;
+  var driverMarker = null;
+  var trackingChannel = null;
+
+  function setupTracking(booking) {
+    var noActive = document.getElementById('tracking-no-active');
+    var activeDiv = document.getElementById('tracking-active');
+    if (!booking || booking.status !== 'in_progress') {
+      noActive.style.display = 'block'; activeDiv.style.display = 'none';
+      if (trackingChannel) { sb.removeChannel(trackingChannel); trackingChannel = null; }
+      return;
+    }
+    noActive.style.display = 'none'; activeDiv.style.display = 'block';
+
+    var driverName = booking.drivers?.users?.full_name || 'Your driver';
+    var vLabel = vehicleLabels[booking.vehicle_type] || booking.vehicle_type || '';
+    var driverPhone = booking.drivers?.users?.phone || '';
+    document.getElementById('tracking-driver-info').innerHTML =
+      '<div class="job-item" style="border:none;padding:0;margin-bottom:4px;">' +
+      '<div class="job-item-left"><div class="job-icon move" style="background:var(--orange-light);"><svg viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg></div>' +
+      '<div class="job-meta"><h4>' + escHtml(driverName) + (vLabel ? ' — ' + vLabel : '') + '</h4>' +
+      '<p id="tracking-eta" style="color:var(--orange);font-weight:600;">Calculating ETA…</p></div></div>' +
+      '<div class="job-item-right">' +
+      (driverPhone ? '<a href="https://wa.me/' + driverPhone.replace(/\D/g,'') + '" target="_blank" class="btn btn-outline" style="padding:7px 14px;font-size:12px;">💬 Chat</a>' : '') +
+      '<span class="badge badge-blue" style="margin-left:8px;">En Route</span></div></div>';
+
+    setTimeout(function() {
+      if (clientMap) { clientMap.remove(); clientMap = null; driverMarker = null; }
+      var mapEl = document.getElementById('client-map');
+      if (!mapEl) return;
+      clientMap = L.map('client-map', { zoomControl: true });
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { attribution: '&copy; OSM &copy; CARTO', maxZoom: 19 }).addTo(clientMap);
+
+      var points = [];
+      if (booking.pickup_lat && booking.pickup_lng) {
+        L.circleMarker([booking.pickup_lat, booking.pickup_lng], { radius: 9, color: '#22c55e', fillColor: '#22c55e', fillOpacity: 1, weight: 3 }).bindTooltip('Pickup').addTo(clientMap);
+        points.push([booking.pickup_lat, booking.pickup_lng]);
+      }
+      if (booking.dropoff_lat && booking.dropoff_lng) {
+        L.circleMarker([booking.dropoff_lat, booking.dropoff_lng], { radius: 9, color: '#f15f22', fillColor: '#f15f22', fillOpacity: 1, weight: 3 }).bindTooltip('Dropoff').addTo(clientMap);
+        points.push([booking.dropoff_lat, booking.dropoff_lng]);
+      }
+      if (booking.driver_lat && booking.driver_lng) {
+        driverMarker = L.marker([booking.driver_lat, booking.driver_lng], { icon: L.divIcon({ className: '', html: '<div style="width:34px;height:34px;background:#f15f22;border-radius:50%;border:3px solid #fff;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.35);font-size:16px;">🚚</div>', iconSize: [34,34], iconAnchor: [17,17] }) }).addTo(clientMap);
+        updateTrackingEta(booking.driver_lat, booking.driver_lng, booking.dropoff_lat, booking.dropoff_lng);
+        points.unshift([booking.driver_lat, booking.driver_lng]);
+      }
+      if (booking.pickup_lat && booking.dropoff_lat) drawClientRoute(booking.pickup_lat, booking.pickup_lng, booking.dropoff_lat, booking.dropoff_lng);
+      if (points.length > 0) clientMap.fitBounds(points, { padding: [30, 30] });
+      else clientMap.setView([-33.925, 18.42], 11);
+    }, 150);
+
+    if (trackingChannel) sb.removeChannel(trackingChannel);
+    trackingChannel = sb.channel('client-tracking-' + booking.id)
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'bookings', filter: 'id=eq.' + booking.id }, function(payload) {
+        var b = payload.new;
+        if (b.driver_lat && b.driver_lng && clientMap) {
+          if (!driverMarker) {
+            driverMarker = L.marker([b.driver_lat, b.driver_lng], { icon: L.divIcon({ className: '', html: '<div style="width:34px;height:34px;background:#f15f22;border-radius:50%;border:3px solid #fff;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.35);font-size:16px;">🚚</div>', iconSize: [34,34], iconAnchor: [17,17] }) }).addTo(clientMap);
+          } else { driverMarker.setLatLng([b.driver_lat, b.driver_lng]); }
+          updateTrackingEta(b.driver_lat, b.driver_lng, b.dropoff_lat, b.dropoff_lng);
+        }
+        if (b.status === 'completed') {
+          var etaEl = document.getElementById('tracking-eta');
+          if (etaEl) { etaEl.textContent = '✓ Delivered!'; etaEl.style.color = '#22c55e'; }
+        }
+      }).subscribe();
+  }
+
+  function updateTrackingEta(dLat, dLng, toLat, toLng) {
+    if (!toLat || !toLng) return;
+    fetch('https://router.project-osrm.org/route/v1/driving/' + dLng + ',' + dLat + ';' + toLng + ',' + toLat + '?overview=false')
+      .then(function(r) { return r.json(); }).then(function(d) {
+        if (d.routes && d.routes[0]) {
+          var mins = Math.round(d.routes[0].duration / 60);
+          var el = document.getElementById('tracking-eta');
+          if (el) el.textContent = 'ETA: ~' + mins + ' min' + (mins !== 1 ? 's' : '');
+        }
+      }).catch(function() {});
+  }
+
+  function drawClientRoute(fromLat, fromLng, toLat, toLng) {
+    fetch('https://router.project-osrm.org/route/v1/driving/' + fromLng + ',' + fromLat + ';' + toLng + ',' + toLat + '?overview=full&geometries=geojson')
+      .then(function(r) { return r.json(); }).then(function(d) {
+        if (d.routes && d.routes[0] && clientMap) {
+          var coords = d.routes[0].geometry.coordinates.map(function(c) { return [c[1], c[0]]; });
+          L.polyline(coords, { color: '#f15f22', weight: 4, opacity: 0.65, dashArray: '10 6' }).addTo(clientMap);
+        }
+      }).catch(function() {});
+  }
+</script>
 </body>
 </html>

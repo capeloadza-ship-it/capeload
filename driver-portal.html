@@ -349,6 +349,7 @@
   var driverRecord = null;
   var isOnline = false;
   var tripMap = null;
+  var locationInterval = null;
   var newJobCount = 0;
   var currentEarningsPeriod = 'week';
 
@@ -664,6 +665,8 @@
     }
 
     var b = data;
+    // Resume GPS tracking if already in an active driving state
+    if (b.status === 'in_progress' && !locationInterval) startLocationTracking(b.id);
     var pickup = (b.pickup_address || '').split(',')[0];
     var dropoff = (b.dropoff_address || '').split(',')[0];
     var vehicle = vehicleLabels[b.vehicle_type] || b.vehicle_type;
@@ -790,14 +793,32 @@
     }
   }
 
+  function startLocationTracking(bookingId) {
+    if (!navigator.geolocation) return;
+    function push() {
+      navigator.geolocation.getCurrentPosition(function(pos) {
+        sb.from('bookings').update({ driver_lat: pos.coords.latitude, driver_lng: pos.coords.longitude, location_updated_at: new Date().toISOString() }).eq('id', bookingId);
+      }, null, { enableHighAccuracy: true, timeout: 10000, maximumAge: 5000 });
+    }
+    push();
+    if (locationInterval) clearInterval(locationInterval);
+    locationInterval = setInterval(push, 30000);
+  }
+
+  function stopLocationTracking() {
+    if (locationInterval) { clearInterval(locationInterval); locationInterval = null; }
+  }
+
   async function advanceStep(bookingId, nextStatus) {
     var isDelivered = nextStatus === 'delivered';
     var updates = { driver_status: nextStatus };
     if (isDelivered) {
       updates.status = 'completed';
       updates.delivered_at = new Date().toISOString();
+      stopLocationTracking();
     } else {
       updates.status = 'in_progress';
+      startLocationTracking(bookingId);
     }
     var { error } = await sb.from('bookings').update(updates).eq('id', bookingId);
     if (error) { showToast('Update failed: ' + error.message, 'error'); return; }
