@@ -240,6 +240,14 @@
 
   <!-- ── JOB BOARD ─────────────────────── -->
   <div class="tab-panel" id="tab-jobs">
+    <div id="assigned-jobs-wrap" style="display:none;margin-bottom:20px;">
+      <div style="font-size:13px;font-weight:700;color:var(--orange);margin-bottom:10px;display:flex;align-items:center;gap:8px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        Assigned to You
+      </div>
+      <div id="assigned-jobs-list"></div>
+    </div>
+    <div style="font-size:13px;font-weight:700;color:var(--text-secondary);margin-bottom:10px;">Available Jobs</div>
     <div id="jobs-list"><p style="color:var(--text-muted);font-size:13px;padding:16px 0;">Loading...</p></div>
   </div>
 
@@ -456,9 +464,18 @@
       }
     }).subscribe();
 
-    // Realtime: updates to my assigned bookings
-    sb.channel('driver-my-jobs').on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'bookings', filter: 'driver_id=eq.' + driverRecord.id }, function() {
+    // Realtime: bookings assigned to me
+    sb.channel('driver-my-jobs').on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'bookings', filter: 'driver_id=eq.' + driverRecord.id }, function(payload) {
       loadStats();
+      if (payload.new && payload.new.status === 'assigned') {
+        newJobCount++;
+        updateJobBadge();
+        showToast('🚛 A job has been assigned to you — check the Jobs tab!', 'info');
+        // Reload job board if already on jobs tab
+        if (document.getElementById('tab-jobs').classList.contains('active')) {
+          loadJobBoard();
+        }
+      }
     }).subscribe();
   });
 
@@ -512,6 +529,44 @@
   async function loadJobBoard() {
     var list = document.getElementById('jobs-list');
     list.innerHTML = '<p style="color:var(--text-muted);font-size:13px;padding:16px 0;">Loading jobs...</p>';
+
+    // ── Assigned to this driver (not yet accepted/active) ──
+    var { data: assignedJobs } = await sb.from('bookings')
+      .select('*').eq('driver_id', driverRecord.id).eq('status', 'assigned')
+      .order('assigned_at', { ascending: false }).limit(10);
+    var assignedWrap = document.getElementById('assigned-jobs-wrap');
+    var assignedList = document.getElementById('assigned-jobs-list');
+    if (assignedJobs && assignedJobs.length > 0) {
+      assignedWrap.style.display = 'block';
+      assignedList.innerHTML = '';
+      assignedJobs.forEach(function(b) {
+        var pickup = (b.pickup_address || '').split(',')[0];
+        var dropoff = (b.dropoff_address || '').split(',')[0];
+        var vehicle = vehicleLabels[b.vehicle_type] || b.vehicle_type;
+        var card = document.createElement('div');
+        card.className = 'job-card';
+        card.style.cssText = 'border-left:3px solid var(--orange);';
+        card.innerHTML =
+          '<div class="job-card-header">' +
+            '<div>' +
+              '<div class="job-card-ref">' + (b.ref || '') + ' &middot; ' + vehicle + '</div>' +
+              '<div class="job-route"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>' + pickup + ' → ' + dropoff + '</div>' +
+            '</div>' +
+            '<span class="badge badge-orange">Assigned to you</span>' +
+          '</div>' +
+          '<div class="job-meta">' +
+            '<div class="job-meta-item"><div class="job-meta-label">Your payout</div><div class="job-meta-value earn">' + formatRand(b.driver_payout) + '</div></div>' +
+            '<div class="job-meta-item"><div class="job-meta-label">Distance</div><div class="job-meta-value">' + (b.distance_km || '—') + ' km</div></div>' +
+            '<div class="job-meta-item"><div class="job-meta-label">When</div><div class="job-meta-value" style="font-size:12px;">' + (b.booking_date || 'Flexible') + '</div></div>' +
+          '</div>' +
+          '<div class="job-actions">' +
+            '<button class="btn btn-green btn-lg" style="flex:1" onclick="acceptJob(\'' + b.id + '\')">✓ Accept This Job</button>' +
+          '</div>';
+        assignedList.appendChild(card);
+      });
+    } else {
+      assignedWrap.style.display = 'none';
+    }
 
     var { data: vehicles } = await sb.from('vehicles').select('type').eq('owner_id', driverRecord.id).eq('status', 'approved').eq('availability_status', 'available');
     var myTypes = (vehicles || []).map(function(v) { return v.type; });

@@ -476,9 +476,24 @@
         </div>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Ref</th><th>Client</th><th>Type</th><th>Route</th><th>Vehicle</th><th>Status</th><th>Actions</th></tr></thead>
-            <tbody id="bookings-tbody"><tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:32px;">Loading...</td></tr></tbody>
+            <thead><tr><th>Ref</th><th>Client</th><th>Route</th><th>Vehicle</th><th>Total</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="bookings-tbody"><tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:32px;">Loading...</td></tr></tbody>
           </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Assign Driver Modal ── -->
+    <div id="assign-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.55);display:none;align-items:center;justify-content:center;padding:24px;">
+      <div style="background:#fff;border-radius:16px;padding:32px;max-width:420px;width:100%;box-shadow:0 24px 80px rgba(0,0,0,0.2);">
+        <div style="font-size:18px;font-weight:800;color:#1a1a1a;margin-bottom:6px;">Assign Driver</div>
+        <div style="font-size:13px;color:var(--text-muted);margin-bottom:20px;">Select an approved driver for booking <strong id="assign-ref"></strong></div>
+        <select id="assign-driver-select" style="width:100%;padding:11px 14px;border:1.5px solid #e5e2dd;border-radius:10px;font-size:14px;font-family:inherit;color:#1a1a1a;background:#fff;margin-bottom:16px;">
+          <option value="">Loading drivers…</option>
+        </select>
+        <div style="display:flex;gap:10px;">
+          <button class="btn btn-outline" style="flex:1;" onclick="closeAssignModal()">Cancel</button>
+          <button class="btn btn-primary" style="flex:1;" onclick="confirmAssign()">Assign Driver</button>
         </div>
       </div>
     </div>
@@ -758,9 +773,11 @@
 
   // ── Bookings ──
   async function loadBookings() {
-    var { data } = await sb.from('bookings').select('*').order('created_at', { ascending: false }).limit(100);
+    var { data } = await sb.from('bookings')
+      .select('*, drivers!bookings_driver_id_fkey(id, users!drivers_user_id_fkey(full_name, phone))')
+      .order('created_at', { ascending: false }).limit(100);
     var tbody = document.getElementById('bookings-tbody');
-    if (!data || data.length === 0) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:32px;">No bookings yet</td></tr>'; return; }
+    if (!data || data.length === 0) { tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:32px;">No bookings yet</td></tr>'; return; }
     tbody.innerHTML = '';
     data.forEach(function(b) { renderBookingRow(b, false); });
   }
@@ -770,18 +787,111 @@
     var emptyRow = tbody.querySelector('td[colspan]');
     if (emptyRow) emptyRow.closest('tr').remove();
     var s = statusBadge[b.status] || ['badge-orange','Pending'];
-    var jobType = b.job_type ? b.job_type.charAt(0).toUpperCase() + b.job_type.slice(1) : '—';
     var route = (b.pickup_address||'?').split(',')[0] + ' → ' + (b.dropoff_address||'?').split(',')[0];
-    var action = b.status === 'pending'
-      ? '<button class="btn btn-primary" onclick="assignBooking(\'' + b.id + '\')">Assign</button> <button class="btn btn-red" onclick="cancelBooking(\'' + b.id + '\')">Cancel</button>'
-      : '<button class="btn btn-outline">View</button>';
+    var dateStr = b.booking_date ? new Date(b.booking_date).toLocaleDateString('en-ZA', {day:'numeric',month:'short'}) : '—';
+    var totalStr = b.total ? 'R' + b.total : '—';
+    var driverName = b.drivers?.users?.full_name || null;
+    var driverPhone = b.drivers?.users?.phone || null;
+
+    var action = '';
+    if (b.status === 'pending') {
+      action = '<button class="btn btn-primary" onclick="openAssignModal(\'' + b.id + '\',\'' + b.ref + '\')">Assign Driver</button> <button class="btn btn-red" onclick="cancelBooking(\'' + b.id + '\')">Cancel</button>';
+    } else if (b.status === 'assigned' || b.status === 'in_progress') {
+      var waBtn = driverPhone
+        ? ' <a href="https://wa.me/' + driverPhone.replace(/\D/g,'') + '" target="_blank" class="btn btn-outline" title="WhatsApp driver">💬</a>'
+        : '';
+      action = '<span style="font-size:12px;color:var(--text-muted);">' + (driverName || 'Driver assigned') + '</span>' + waBtn + ' <button class="btn btn-red" style="padding:5px 10px;font-size:11px;" onclick="cancelBooking(\'' + b.id + '\')">Cancel</button>';
+    } else {
+      action = driverName ? '<span style="font-size:12px;color:var(--text-muted);">' + driverName + '</span>' : '<span style="font-size:12px;color:var(--text-muted);">—</span>';
+    }
+
     var tr = document.createElement('tr');
-    tr.innerHTML = '<td style="font-weight:600;font-size:12px;">' + b.ref + '</td><td>' + (b.client_name||'Guest') + '</td><td>' + jobType + '</td><td style="font-size:12px;color:var(--text-muted);">' + route + '</td><td>' + (vehicleLabels[b.vehicle_type]||b.vehicle_type||'—') + '</td><td><span class="badge ' + s[0] + '">' + s[1] + '</span></td><td>' + action + '</td>';
+    tr.setAttribute('data-booking-id', b.id);
+    tr.innerHTML = '<td style="font-weight:600;font-size:12px;">' + b.ref + '</td>'
+      + '<td>' + (b.client_name||'Guest') + '<div style="font-size:11px;color:var(--text-muted);">' + (b.client_phone||'') + '</div></td>'
+      + '<td style="font-size:12px;color:var(--text-muted);">' + route + '</td>'
+      + '<td>' + (vehicleLabels[b.vehicle_type]||b.vehicle_type||'—') + '</td>'
+      + '<td style="font-weight:600;">' + totalStr + '</td>'
+      + '<td style="font-size:12px;">' + dateStr + '</td>'
+      + '<td><span class="badge ' + s[0] + '">' + s[1] + '</span></td>'
+      + '<td style="white-space:nowrap;">' + action + '</td>';
     if (prepend) tbody.insertBefore(tr, tbody.firstChild);
     else tbody.appendChild(tr);
   }
 
+  // ── Assign modal ──
+  var _assignBookingId = null;
+  var _assignDrivers = [];
+
+  async function openAssignModal(bookingId, ref) {
+    _assignBookingId = bookingId;
+    document.getElementById('assign-ref').textContent = ref;
+    var sel = document.getElementById('assign-driver-select');
+    sel.innerHTML = '<option value="">Loading…</option>';
+    document.getElementById('assign-modal').style.display = 'flex';
+
+    var { data } = await sb.from('drivers')
+      .select('id, users!drivers_user_id_fkey(full_name, phone, email)')
+      .eq('status', 'approved').order('created_at', { ascending: false });
+    _assignDrivers = data || [];
+    sel.innerHTML = '<option value="">— Select a driver —</option>';
+    _assignDrivers.forEach(function(d) {
+      var name = d.users?.full_name || 'Unknown';
+      var phone = d.users?.phone ? ' · ' + d.users.phone : '';
+      var opt = document.createElement('option');
+      opt.value = d.id;
+      opt.textContent = name + phone;
+      sel.appendChild(opt);
+    });
+  }
+
+  function closeAssignModal() {
+    document.getElementById('assign-modal').style.display = 'none';
+    _assignBookingId = null;
+  }
+
+  async function confirmAssign() {
+    var driverId = document.getElementById('assign-driver-select').value;
+    if (!driverId) { showToast('Please select a driver', 'error'); return; }
+    if (!_assignBookingId) return;
+
+    var driver = _assignDrivers.find(function(d) { return d.id === driverId; });
+    var driverName = driver?.users?.full_name || 'Driver';
+    var driverEmail = driver?.users?.email || null;
+    var driverPhone = driver?.users?.phone || null;
+
+    // Get booking ref for notification
+    var { data: booking } = await sb.from('bookings').select('ref, vehicle_type, pickup_address, dropoff_address, booking_date, booking_time, total').eq('id', _assignBookingId).single();
+
+    var { error } = await sb.from('bookings').update({
+      driver_id: driverId,
+      status: 'assigned',
+      assigned_at: new Date().toISOString()
+    }).eq('id', _assignBookingId);
+
+    if (error) { showToast('Error: ' + error.message, 'error'); return; }
+
+    // Email driver
+    if (driverEmail && booking) {
+      sendEmail(driverEmail, 'booking_assigned_driver', {
+        driverName: driverName,
+        ref: booking.ref || '',
+        vehicle: vehicleLabels[booking.vehicle_type] || booking.vehicle_type || '—',
+        pickup: booking.pickup_address || '',
+        dropoff: booking.dropoff_address || '',
+        date: booking.booking_date || '',
+        time: booking.booking_time || '',
+        total: String(booking.total || 0)
+      });
+    }
+
+    closeAssignModal();
+    showToast('Driver assigned — ' + driverName + ' notified', 'success');
+    loadBookings(); loadStats();
+  }
+
   async function assignBooking(id) {
+    // legacy — now handled by openAssignModal
     var { error } = await sb.from('bookings').update({ status: 'assigned' }).eq('id', id);
     if (error) { showToast('Error: ' + error.message, 'error'); return; }
     showToast('Booking assigned', 'success');

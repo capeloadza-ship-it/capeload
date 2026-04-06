@@ -176,6 +176,26 @@ function buildEmail(template: string, data: TemplateData): { subject: string; ht
         )
       }
 
+    case 'booking_assigned_driver':
+      return {
+        subject: `New Job Assigned — ${data.ref}`,
+        html: wrap(
+          h1('You have a new job! 🚛') +
+          p(`Hi ${data.driverName}, a booking has been assigned to you. Please log in to your driver portal to accept and view the full details.`) +
+          `<div style="background:#f9f7f5;border-radius:10px;padding:20px;margin:20px 0;">` +
+          detail('Reference', data.ref) +
+          detail('Vehicle', data.vehicle) +
+          detail('Pickup', data.pickup) +
+          detail('Drop-off', data.dropoff) +
+          (data.date ? detail('Date', data.date) : '') +
+          (data.time ? detail('Time', data.time) : '') +
+          detail('Your Payout', `R${data.total}`) +
+          `</div>` +
+          p('Accept the job in your portal as soon as possible to confirm your availability.') +
+          btn('Open Driver Portal', `${SITE_URL}/auth.html?redirect=driver-portal.html`)
+        )
+      }
+
     default:
       return null
   }
