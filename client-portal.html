@@ -117,6 +117,7 @@
       .job-item-right { text-align: left; }
     }
   </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/supabase-config.js"></script>
   <script>window.REQUIRED_ROLE = 'client';</script>
@@ -198,6 +199,26 @@
       </div>
     </div>
 
+    <!-- Rating Modal -->
+    <div class="modal-bg" id="rating-modal" style="display:none;" onclick="if(event.target===this)closeRatingModal()">
+      <div class="modal" style="max-width:360px;text-align:center;">
+        <h3 style="margin-bottom:6px;">Rate your delivery</h3>
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:20px;">How was your experience?</p>
+        <div id="rating-stars" style="font-size:38px;cursor:pointer;margin-bottom:16px;letter-spacing:2px;">
+          <span data-val="1" onclick="setRating(1)" style="color:#ddd;">☆</span>
+          <span data-val="2" onclick="setRating(2)" style="color:#ddd;">☆</span>
+          <span data-val="3" onclick="setRating(3)" style="color:#ddd;">☆</span>
+          <span data-val="4" onclick="setRating(4)" style="color:#ddd;">☆</span>
+          <span data-val="5" onclick="setRating(5)" style="color:#ddd;">☆</span>
+        </div>
+        <textarea id="rating-comment" placeholder="Comment (optional)" style="width:100%;padding:10px;border:1.5px solid #eee;border-radius:8px;font-family:inherit;font-size:13px;resize:none;height:72px;margin-bottom:16px;outline:none;"></textarea>
+        <div style="display:flex;gap:10px;">
+          <button class="btn btn-outline" style="flex:1" onclick="closeRatingModal()">Cancel</button>
+          <button class="btn btn-primary" style="flex:1" onclick="submitRating()">Submit</button>
+        </div>
+      </div>
+    </div>
+
     <!-- New Template Modal -->
     <div class="modal-bg" id="template-modal" style="display:none;" onclick="if(event.target===this)closeTemplateModal()">
       <div class="modal">
@@ -249,7 +270,7 @@
         </div>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Ref</th><th>Date</th><th>Type</th><th>Route</th><th>Amount</th><th>Invoice</th></tr></thead>
+            <thead><tr><th>Ref</th><th>Date</th><th>Type</th><th>Route</th><th>Amount</th><th>Rating</th><th>Invoice</th></tr></thead>
             <tbody id="history-tbody">
               <tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:32px;">Loading...</td></tr>
             </tbody>
@@ -508,7 +529,11 @@
           tr.title = 'Click to view details';
           var jobType = b.job_type ? b.job_type.charAt(0).toUpperCase() + b.job_type.slice(1) : '—';
           var route = (b.pickup_address || '?').split(',')[0] + ' → ' + (b.dropoff_address || '?').split(',')[0];
-          tr.innerHTML = '<td>' + b.ref + '</td><td>' + (b.booking_date || '—') + '</td><td>' + jobType + '</td><td>' + route + '</td><td>' + formatRand(b.total) + '</td><td>—</td>';
+          var ratingHtml = b.client_rating
+            ? '<span style="color:#f59e0b;font-size:14px;letter-spacing:1px;">' + '★'.repeat(b.client_rating) + '<span style="color:#ddd;">' + '★'.repeat(5 - b.client_rating) + '</span></span>'
+            : '<button class="btn btn-outline" style="padding:4px 10px;font-size:11px;" onclick="openRatingModal(\'' + b.id + '\',event)">Rate ★</button>';
+          var invoiceHtml = '<button class="btn btn-outline" style="padding:4px 10px;font-size:11px;" onclick="downloadInvoice(\'' + b.id + '\',event)">PDF</button>';
+          tr.innerHTML = '<td>' + b.ref + '</td><td>' + (b.booking_date || '—') + '</td><td>' + jobType + '</td><td>' + route + '</td><td>' + formatRand(b.total) + '</td><td>' + ratingHtml + '</td><td>' + invoiceHtml + '</td>';
           tr.addEventListener('click', function() { openBookingDetail(b.id); });
           historyTbody.appendChild(tr);
         });
@@ -570,7 +595,13 @@
       var cancelBtn = (b.status === 'pending' || b.status === 'assigned')
         ? '<button class="btn btn-danger" onclick="cancelMyBooking(\'' + b.id + '\')">Cancel Booking</button>'
         : '';
-      actionsDiv.innerHTML = cancelBtn + '<button class="btn btn-outline" onclick="closeBookingDetail()" style="margin-left:auto;">Close</button>';
+      var rateBtn = b.status === 'completed' && !b.client_rating
+        ? '<button class="btn btn-outline" onclick="openRatingModal(\'' + b.id + '\')">Rate ★</button>'
+        : '';
+      var pdfBtn = b.status === 'completed'
+        ? '<button class="btn btn-outline" onclick="downloadInvoice(\'' + b.id + '\')">PDF Invoice</button>'
+        : '';
+      actionsDiv.innerHTML = cancelBtn + rateBtn + pdfBtn + '<button class="btn btn-outline" onclick="closeBookingDetail()" style="margin-left:auto;">Close</button>';
 
       document.getElementById('booking-detail-modal').style.display = 'flex';
     }
@@ -594,6 +625,89 @@
       closeBookingDetail();
       showToast('Booking cancelled' + refundNote, 'success');
       loadBookings();
+    }
+
+    // ── Star Rating ──
+    var _ratingBookingId = null;
+    var _selectedRating = 0;
+
+    function openRatingModal(bookingId, e) {
+      if (e) e.stopPropagation();
+      _ratingBookingId = bookingId;
+      _selectedRating = 0;
+      setRating(0);
+      document.getElementById('rating-comment').value = '';
+      document.getElementById('rating-modal').style.display = 'flex';
+    }
+    function closeRatingModal() {
+      document.getElementById('rating-modal').style.display = 'none';
+      _ratingBookingId = null;
+    }
+    function setRating(val) {
+      _selectedRating = val;
+      document.querySelectorAll('#rating-stars span').forEach(function(s, i) {
+        s.textContent = i < val ? '★' : '☆';
+        s.style.color = i < val ? '#f59e0b' : '#ddd';
+      });
+    }
+    async function submitRating() {
+      if (!_selectedRating) { showToast('Please select a rating', 'error'); return; }
+      var comment = document.getElementById('rating-comment').value.trim();
+      var { error } = await sb.from('bookings').update({ client_rating: _selectedRating, client_rating_comment: comment || null }).eq('id', _ratingBookingId).eq('client_id', window.currentUser.id);
+      if (error) { showToast('Error saving rating', 'error'); return; }
+      showToast('Thanks for your feedback!', 'success');
+      closeRatingModal();
+      loadBookings();
+    }
+
+    // ── Invoice PDF ──
+    function downloadInvoice(bookingId, e) {
+      if (e) e.stopPropagation();
+      var b = bookingCache[bookingId];
+      if (!b) return;
+      if (!window.jspdf) { showToast('PDF library not loaded', 'error'); return; }
+      var doc = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4' });
+      var vLabels = { motorbike:'Motorbike', bakkie:'Bakkie', 'panel-van':'Panel Van', '4-ton':'4-Ton Truck', '8-ton':'8-Ton Truck', flatbed:'Flatbed' };
+      var pLabels = { yoco_card:'Card (Yoco)', cash_pickup:'Cash at Pickup', cash_delivery:'Cash on Delivery' };
+
+      doc.setFillColor(241, 95, 34);
+      doc.rect(0, 0, 210, 28, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(18); doc.setFont(undefined, 'bold');
+      doc.text('CapeLoad Logistics', 16, 18);
+      doc.setFontSize(10); doc.setFont(undefined, 'normal');
+      doc.text('INVOICE', 194, 18, { align: 'right' });
+
+      doc.setTextColor(26, 26, 26);
+      var y = 42;
+      doc.setFontSize(13); doc.setFont(undefined, 'bold');
+      doc.text('Booking: ' + (b.ref || '—'), 16, y);
+      doc.setFont(undefined, 'normal'); doc.setFontSize(10);
+      y += 8; doc.text('Date: ' + (b.booking_date || new Date(b.created_at).toLocaleDateString('en-ZA')), 16, y);
+      y += 7; doc.text('Client: ' + (b.client_name || '—'), 16, y);
+      if (b.client_phone) { y += 7; doc.text('Phone: ' + b.client_phone, 16, y); }
+
+      y += 12; doc.setFont(undefined, 'bold'); doc.text('Route', 16, y);
+      doc.setFont(undefined, 'normal');
+      y += 7; doc.text('Pickup:  ' + (b.pickup_address || '—'), 16, y);
+      y += 7; doc.text('Dropoff: ' + (b.dropoff_address || '—'), 16, y);
+
+      y += 12; doc.setFont(undefined, 'bold'); doc.text('Details', 16, y);
+      doc.setFont(undefined, 'normal');
+      y += 7; doc.text('Vehicle:  ' + (vLabels[b.vehicle_type] || b.vehicle_type || '—'), 16, y);
+      y += 7; doc.text('Payment:  ' + (pLabels[b.payment_method] || b.payment_method || '—'), 16, y);
+      if (b.distance_km) { y += 7; doc.text('Distance: ' + b.distance_km + ' km', 16, y); }
+
+      y += 14;
+      doc.setFillColor(245, 245, 243);
+      doc.rect(14, y - 7, 182, 14, 'F');
+      doc.setFontSize(13); doc.setFont(undefined, 'bold');
+      doc.text('Total: ' + formatRand(b.total), 16, y + 2);
+
+      doc.setFontSize(9); doc.setTextColor(160, 160, 160); doc.setFont(undefined, 'normal');
+      doc.text('CapeLoad Logistics · capeload.co.za · info@capeload.co.za', 105, 282, { align: 'center' });
+
+      doc.save('CapeLoad-Invoice-' + (b.ref || bookingId) + '.pdf');
     }
   </script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
