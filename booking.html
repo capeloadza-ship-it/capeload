@@ -251,6 +251,11 @@
   </div>
 </div>
 
+<!-- Maintenance banner (hidden by default) -->
+<div id="maintenance-banner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:9999;background:#f15f22;color:#fff;text-align:center;padding:14px 20px;font-size:14px;font-weight:600;">
+  🚧 CapeLoad is currently under maintenance. Bookings are temporarily paused. Check back soon.
+</div>
+
 <!-- Bottom / Side sheet -->
 <div class="sheet" id="sheet">
   <div class="sheet-drag"></div>
@@ -442,6 +447,21 @@
       if (t.notes) {
         var notesEl = document.getElementById('notes');
         if (notesEl) notesEl.value = t.notes;
+      }
+    } catch(e) {}
+  })();
+
+  // ══════════════════════════════════════════
+  // MAINTENANCE CHECK
+  // ══════════════════════════════════════════
+  (async function checkMaintenance() {
+    try {
+      var { data } = await sb.from('platform_settings').select('value').eq('key', 'platform_status').single();
+      if (data && data.value === 'maintenance') {
+        document.getElementById('maintenance-banner').style.display = 'block';
+        document.getElementById('sheet').style.marginTop = '50px';
+        var confirmBtn = document.getElementById('confirm-btn');
+        if (confirmBtn) { confirmBtn.disabled = true; confirmBtn.textContent = 'Bookings paused — maintenance'; }
       }
     } catch(e) {}
   })();

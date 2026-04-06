@@ -543,6 +543,18 @@
           </table>
         </div>
       </div>
+      <div class="card" style="margin-top:20px;">
+        <div class="card-header">
+          <div><div class="card-title">Payout Requests</div><div class="card-sub">Pending driver payout requests</div></div>
+          <button class="btn btn-outline" style="padding:7px 14px;font-size:12px;" onclick="loadPayoutRequests()">Refresh</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Driver</th><th>Amount</th><th>Requested</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="payouts-tbody"><tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:24px;">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
     </div>
 
     <!-- ─── Clients ─── -->
@@ -737,7 +749,7 @@
     closeMobileMenu();
     if (name === 'tracking') loadTracking();
     if (name === 'fleet') loadFleet();
-    if (name === 'drivers') loadDrivers();
+    if (name === 'drivers') { loadDrivers(); loadPayoutRequests(); }
     if (name === 'clients') loadClients();
     if (name === 'promotions') loadPromoHistory();
     if (name === 'contacts') { loadContacts(); loadSubscribers(); }
@@ -1455,6 +1467,36 @@
       tr.innerHTML = '<td style="font-size:12px;color:var(--text-muted);">' + date + '</td><td style="font-weight:600;">' + p.subject + '</td><td><span class="badge badge-blue">' + aud + '</span></td><td>' + (p.recipient_count||0) + '</td><td><span class="badge badge-green">Sent</span></td>';
       tbody.appendChild(tr);
     });
+  }
+
+  // ── Payout Requests ──
+  async function loadPayoutRequests() {
+    var tbody = document.getElementById('payouts-tbody');
+    if (!tbody) return;
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:24px;">Loading...</td></tr>';
+    var { data } = await sb.from('payout_requests')
+      .select('*, drivers!payout_requests_driver_id_fkey(id, users!drivers_user_id_fkey(full_name, phone))')
+      .order('requested_at', { ascending: false }).limit(50);
+    if (!data || data.length === 0) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:24px;">No payout requests</td></tr>'; return; }
+    tbody.innerHTML = '';
+    data.forEach(function(p) {
+      var name = p.drivers?.users?.full_name || 'Unknown';
+      var date = new Date(p.requested_at).toLocaleDateString('en-ZA', { day: 'numeric', month: 'short', year: 'numeric' });
+      var badge = p.status === 'pending' ? 'badge-orange' : p.status === 'approved' ? 'badge-green' : 'badge-red';
+      var actions = p.status === 'pending'
+        ? '<button class="btn btn-green" style="padding:5px 10px;font-size:11px;" onclick="processPayoutRequest(\'' + p.id + '\',\'approved\')">Approve</button> <button class="btn btn-red" style="padding:5px 10px;font-size:11px;" onclick="processPayoutRequest(\'' + p.id + '\',\'rejected\')">Reject</button>'
+        : '—';
+      var tr = document.createElement('tr');
+      tr.innerHTML = '<td style="font-weight:600;">' + name + '</td><td style="font-weight:700;color:var(--green);">' + formatRand(p.amount) + '</td><td style="font-size:12px;color:var(--text-muted);">' + date + '</td><td><span class="badge ' + badge + '">' + p.status + '</span></td><td>' + actions + '</td>';
+      tbody.appendChild(tr);
+    });
+  }
+
+  async function processPayoutRequest(id, status) {
+    var { error } = await sb.from('payout_requests').update({ status: status, processed_at: new Date().toISOString() }).eq('id', id);
+    if (error) { showToast('Error: ' + error.message, 'error'); return; }
+    showToast('Request ' + status, 'success');
+    loadPayoutRequests();
   }
 
   // ── Platform Settings ──

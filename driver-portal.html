@@ -289,7 +289,11 @@
       <div class="earn-box"><div class="earn-box-label">Your Payout</div><div class="earn-box-value green" id="earn-payout">—</div></div>
     </div>
     <div class="card">
-      <div class="card-title">Breakdown</div>
+      <div class="card-header">
+        <div class="card-title">Breakdown</div>
+        <button class="btn btn-primary" style="padding:8px 16px;font-size:12px;" onclick="requestPayout()">Request Payout</button>
+      </div>
+      <div id="payout-status" style="display:none;font-size:12px;border-radius:8px;padding:10px 14px;margin-bottom:12px;"></div>
       <div class="table-wrap">
         <table>
           <thead><tr><th>Date</th><th>Route</th><th>Vehicle</th><th>Fare</th><th>Commission</th><th>Payout</th><th>Rating</th></tr></thead>
@@ -533,16 +537,23 @@
   // ══════════════════════════════════════
   async function loadStats() {
     var weekAgo = new Date(Date.now() - 7 * 86400000).toISOString();
-    var [vehicleRes, jobsRes, earningsRes] = await Promise.all([
+    var [vehicleRes, jobsRes, earningsRes, ratingsRes] = await Promise.all([
       sb.from('vehicles').select('id', { count: 'exact', head: true }).eq('owner_id', driverRecord.id).eq('availability_status', 'available'),
       sb.from('bookings').select('id', { count: 'exact', head: true }).eq('driver_id', driverRecord.id).gte('created_at', weekAgo),
-      sb.from('bookings').select('driver_payout').eq('driver_id', driverRecord.id).eq('status', 'completed').gte('created_at', weekAgo)
+      sb.from('bookings').select('driver_payout').eq('driver_id', driverRecord.id).eq('status', 'completed').gte('created_at', weekAgo),
+      sb.from('bookings').select('client_rating').eq('driver_id', driverRecord.id).not('client_rating', 'is', null)
     ]);
     document.getElementById('stat-vehicles').textContent = vehicleRes.count || 0;
     document.getElementById('stat-jobs').textContent = jobsRes.count || 0;
     var earnings = (earningsRes.data || []).reduce(function(s, b) { return s + (b.driver_payout || 0); }, 0);
     document.getElementById('stat-earnings').textContent = formatRand(earnings);
-    document.getElementById('stat-rating').textContent = driverRecord.rating || '—';
+    var ratings = ratingsRes.data || [];
+    if (ratings.length > 0) {
+      var avg = ratings.reduce(function(s, r) { return s + r.client_rating; }, 0) / ratings.length;
+      document.getElementById('stat-rating').textContent = '★ ' + avg.toFixed(1) + ' (' + ratings.length + ')';
+    } else {
+      document.getElementById('stat-rating').textContent = '—';
+    }
   }
 
   // ══════════════════════════════════════
@@ -933,6 +944,28 @@
       tr.innerHTML = '<td>' + dateStr + '</td><td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + route + '</td><td>' + (vehicleLabels[b.vehicle_type] || '—') + '</td><td>' + formatRand(b.total) + '</td><td style="color:var(--red);">-' + formatRand(b.commission) + '</td><td class="amount">' + formatRand(b.driver_payout) + '</td><td>' + stars + '</td>';
       tbody.appendChild(tr);
     });
+  }
+
+  async function requestPayout() {
+    var statusEl = document.getElementById('payout-status');
+    var totalPayout = parseFloat((document.getElementById('earn-payout').textContent || '0').replace(/[^0-9.]/g, '')) || 0;
+    if (totalPayout <= 0) { showToast('No earnings to request payout for', 'error'); return; }
+
+    // Check for pending request already
+    var { data: existing } = await sb.from('payout_requests').select('id, status').eq('driver_id', driverRecord.id).eq('status', 'pending').limit(1);
+    if (existing && existing.length > 0) {
+      statusEl.style.display = 'block';
+      statusEl.style.background = '#fff8f0'; statusEl.style.border = '1px solid #ffe0b3'; statusEl.style.color = '#c05a00';
+      statusEl.textContent = 'You already have a pending payout request. Admin will process it soon.';
+      return;
+    }
+
+    var { error } = await sb.from('payout_requests').insert({ driver_id: driverRecord.id, amount: totalPayout, status: 'pending', requested_at: new Date().toISOString() });
+    if (error) { showToast('Request failed: ' + error.message, 'error'); return; }
+    statusEl.style.display = 'block';
+    statusEl.style.background = '#dcfce7'; statusEl.style.border = '1px solid #bbf7d0'; statusEl.style.color = '#166534';
+    statusEl.textContent = '✓ Payout request of ' + formatRand(totalPayout) + ' submitted. Admin will process within 1–2 business days.';
+    showToast('Payout request submitted!', 'success');
   }
 
   // ══════════════════════════════════════
