@@ -103,6 +103,8 @@
     .badge-red { background: var(--red-light); color: var(--red); }
     .badge-blue { background: var(--blue-light); color: var(--blue); }
     .badge-yellow { background: var(--yellow-light); color: #b45309; }
+    .badge-pulse { animation: badgePulse 1.5s ease-in-out infinite; }
+    @keyframes badgePulse { 0%,100%{ opacity:1; } 50%{ opacity:0.5; } }
 
     /* ═══ BUTTONS ═══ */
     .btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; border: none; cursor: pointer; transition: opacity 0.15s; font-family: inherit; }
@@ -483,6 +485,7 @@
           <input id="bookings-search" type="text" placeholder="Search ref, client, route…" oninput="filterBookings()" style="flex:1;min-width:180px;padding:9px 14px;border:1.5px solid #e5e2dd;border-radius:10px;font-size:13px;font-family:inherit;color:#1a1a1a;background:#fff;">
           <select id="bookings-status-filter" onchange="filterBookings()" style="padding:9px 14px;border:1.5px solid #e5e2dd;border-radius:10px;font-size:13px;font-family:inherit;color:#1a1a1a;background:#fff;">
             <option value="">All statuses</option>
+            <option value="searching">Searching...</option>
             <option value="pending">Pending</option>
             <option value="assigned">Assigned</option>
             <option value="in_progress">In Progress</option>
@@ -713,7 +716,7 @@
 
 <script>
   var vehicleLabels = { motorbike:'Motorbike', bakkie:'Bakkie', 'panel-van':'Panel Van', '4-ton':'4-Ton', '8-ton':'8-Ton', flatbed:'Flatbed' };
-  var statusBadge = { pending:['badge-orange','Pending'], assigned:['badge-blue','Assigned'], in_progress:['badge-blue','In Progress'], completed:['badge-green','Completed'], cancelled:['badge-red','Cancelled'] };
+  var statusBadge = { searching:['badge-orange badge-pulse','Searching...'], pending:['badge-orange','Pending'], assigned:['badge-blue','Assigned'], in_progress:['badge-blue','In Progress'], completed:['badge-green','Completed'], cancelled:['badge-red','Cancelled'] };
   var driverBadge = { pending:['badge-yellow','Pending'], approved:['badge-green','Approved'], suspended:['badge-red','Suspended'], rejected:['badge-red','Rejected'] };
 
   // ── Clock ──
@@ -871,7 +874,9 @@
     var driverPhone = b.drivers?.users?.phone || null;
 
     var action = '';
-    if (b.status === 'pending') {
+    if (b.status === 'searching') {
+      action = '<span style="font-size:11px;color:var(--orange);font-weight:600;">Finding driver (' + (b.offer_count || 0) + ' notified)</span> <button class="btn btn-primary" style="padding:5px 10px;font-size:11px;" onclick="openAssignModal(\'' + b.id + '\',\'' + b.ref + '\')">Override</button> <button class="btn btn-red" style="padding:5px 10px;font-size:11px;" onclick="cancelBooking(\'' + b.id + '\')">Cancel</button>';
+    } else if (b.status === 'pending') {
       action = '<button class="btn btn-primary" onclick="openAssignModal(\'' + b.id + '\',\'' + b.ref + '\')">Assign Driver</button> <button class="btn btn-red" onclick="cancelBooking(\'' + b.id + '\')">Cancel</button>';
     } else if (b.status === 'assigned' || b.status === 'in_progress') {
       var waBtn = driverPhone
@@ -968,6 +973,10 @@
     }).eq('id', _assignBookingId);
 
     if (error) { showToast('Error: ' + error.message, 'error'); return; }
+
+    // Cancel any pending auto-dispatch offers for this booking
+    await sb.from('job_offers').update({ status: 'lost', responded_at: new Date().toISOString() })
+      .eq('booking_id', _assignBookingId).eq('status', 'pending');
 
     // Email driver
     if (driverEmail && booking) {

@@ -82,7 +82,7 @@ function buildEmail(template: string, data: TemplateData): { subject: string; ht
           detail('Total', `R${data.total}`) +
           detail('Payment', data.payment) +
           `</div>` +
-          p('We\'ll notify you once a driver has been assigned. You can also track your booking via WhatsApp.') +
+          p('We\'re finding a driver for you right now. You\'ll be notified once a driver accepts. Track your booking anytime.') +
           btn('Track on WhatsApp', `https://wa.me/27625692939?text=Hi%20CapeLoad%21%20My%20booking%20ref%20is%20${data.ref}`)
         )
       }
@@ -192,6 +192,24 @@ function buildEmail(template: string, data: TemplateData): { subject: string; ht
           detail('Your Payout', `R${data.total}`) +
           `</div>` +
           p('Accept the job in your portal as soon as possible to confirm your availability.') +
+          btn('Open Driver Portal', `${SITE_URL}/auth.html?redirect=driver-portal.html`)
+        )
+      }
+
+    case 'driver_job_offer':
+      return {
+        subject: `New Job Offer — ${data.ref}`,
+        html: wrap(
+          h1('You have a job offer!') +
+          p(`Hi ${data.driverName}, a new delivery request matches your vehicle. Open your driver portal to accept before it expires.`) +
+          `<div style="background:#f9f7f5;border-radius:10px;padding:20px;margin:20px 0;">` +
+          detail('Reference', data.ref) +
+          detail('Vehicle', data.vehicle) +
+          detail('Route', `${data.pickup} → ${data.dropoff}`) +
+          detail('Your Payout', `R${data.payout}`) +
+          detail('Expires', 'Accept within 60 seconds in the portal') +
+          `</div>` +
+          p('Open your driver portal now to accept this job.') +
           btn('Open Driver Portal', `${SITE_URL}/auth.html?redirect=driver-portal.html`)
         )
       }

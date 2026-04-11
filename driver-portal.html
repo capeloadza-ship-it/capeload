@@ -186,6 +186,59 @@
       .stats-row { grid-template-columns: 1fr; }
       .vehicle-card { flex-direction: column; align-items: flex-start; gap: 12px; }
     }
+
+    /* ── Offer Popup Overlay ─────────────── */
+    .offer-overlay {
+      display: none; position: fixed; inset: 0; z-index: 9000;
+      background: rgba(0,0,0,0.7); backdrop-filter: blur(6px);
+      align-items: center; justify-content: center; padding: 20px;
+    }
+    .offer-overlay.active { display: flex; }
+    .offer-card {
+      background: #fff; border-radius: 24px; width: 100%; max-width: 420px;
+      padding: 28px 24px 24px; position: relative; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      animation: offerSlideUp 0.35s cubic-bezier(.4,0,.2,1);
+    }
+    @keyframes offerSlideUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .offer-header { text-align: center; margin-bottom: 20px; }
+    .offer-header h2 { font-size: 20px; font-weight: 900; margin-bottom: 4px; }
+    .offer-header p { font-size: 13px; color: var(--text-muted); }
+    .offer-timer-wrap { text-align: center; margin-bottom: 18px; }
+    .offer-timer-ring {
+      width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 8px;
+      position: relative; display: flex; align-items: center; justify-content: center;
+    }
+    .offer-timer-ring svg { position: absolute; inset: 0; transform: rotate(-90deg); }
+    .offer-timer-ring svg circle {
+      fill: none; stroke-width: 4; cx: 40; cy: 40; r: 36;
+    }
+    .offer-timer-ring .track { stroke: #eee; }
+    .offer-timer-ring .fill { stroke: var(--orange); stroke-dasharray: 226.2; stroke-dashoffset: 0; transition: stroke-dashoffset 1s linear; stroke-linecap: round; }
+    .offer-timer-text { font-size: 24px; font-weight: 900; color: var(--orange); z-index: 1; }
+    .offer-route { background: #f8f8f6; border-radius: 14px; padding: 14px 16px; margin-bottom: 14px; }
+    .offer-route-label { font-size: 10px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+    .offer-route-value { font-size: 15px; font-weight: 700; }
+    .offer-route-arrow { color: var(--orange); font-size: 13px; margin: 6px 0; }
+    .offer-meta { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 18px; }
+    .offer-meta-item { background: #f8f8f6; border-radius: 10px; padding: 10px; text-align: center; }
+    .offer-meta-label { font-size: 10px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; }
+    .offer-meta-value { font-size: 17px; font-weight: 800; margin-top: 2px; }
+    .offer-meta-value.green { color: var(--green); }
+    .offer-btns { display: flex; gap: 10px; }
+    .offer-accept {
+      flex: 1; padding: 16px; border: none; border-radius: 14px; font-size: 16px; font-weight: 800;
+      background: var(--green); color: #fff; cursor: pointer; font-family: inherit;
+      transition: opacity 0.15s; letter-spacing: 0.3px;
+    }
+    .offer-accept:hover { opacity: 0.9; }
+    .offer-decline {
+      padding: 16px 20px; border: 1.5px solid var(--card-border); border-radius: 14px; font-size: 14px;
+      font-weight: 600; background: #fff; color: var(--text-muted); cursor: pointer; font-family: inherit;
+    }
+    .offer-decline:hover { border-color: var(--red); color: var(--red); }
   </style>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -365,6 +418,40 @@
 
 </div><!-- end portal-layout -->
 
+<!-- ── Offer Popup Overlay ─────────────────── -->
+<div class="offer-overlay" id="offer-overlay">
+  <div class="offer-card">
+    <div class="offer-header">
+      <h2>New Job Offer!</h2>
+      <p id="offer-vehicle">—</p>
+    </div>
+    <div class="offer-timer-wrap">
+      <div class="offer-timer-ring">
+        <svg viewBox="0 0 80 80"><circle class="track" /><circle class="fill" id="offer-ring-fill" /></svg>
+        <span class="offer-timer-text" id="offer-timer-text">60</span>
+      </div>
+      <div style="font-size:11px;color:var(--text-muted);">seconds to respond</div>
+    </div>
+    <div class="offer-route">
+      <div class="offer-route-label">Pickup</div>
+      <div class="offer-route-value" id="offer-pickup">—</div>
+      <div class="offer-route-arrow">↓</div>
+      <div class="offer-route-label">Drop-off</div>
+      <div class="offer-route-value" id="offer-dropoff">—</div>
+    </div>
+    <div class="offer-meta">
+      <div class="offer-meta-item"><div class="offer-meta-label">Your Payout</div><div class="offer-meta-value green" id="offer-payout">—</div></div>
+      <div class="offer-meta-item"><div class="offer-meta-label">Distance</div><div class="offer-meta-value" id="offer-distance">—</div></div>
+      <div class="offer-meta-item"><div class="offer-meta-label">When</div><div class="offer-meta-value" id="offer-when" style="font-size:12px;">—</div></div>
+    </div>
+    <div id="offer-cash-notice" style="display:none;background:#fff8f0;border:1px solid #f0a050;border-radius:10px;padding:10px 14px;font-size:12px;color:#8a6a3a;margin-bottom:14px;"></div>
+    <div class="offer-btns">
+      <button class="offer-accept" id="offer-accept-btn" onclick="acceptCurrentOffer()">ACCEPT</button>
+      <button class="offer-decline" id="offer-decline-btn" onclick="declineCurrentOffer()">Decline</button>
+    </div>
+  </div>
+</div>
+
 <script>
   var vehicleLabels = { motorbike:'Motorbike', bakkie:'Bakkie', 'panel-van':'Panel Van', '4-ton':'4-Ton', '8-ton':'8-Ton', flatbed:'Flatbed' };
   var payLabels = { yoco:'Card (Yoco)', cash_pickup:'Cash at Pickup', cash_delivery:'Cash on Delivery' };
@@ -489,6 +576,31 @@
         showToast('New job available — ' + (vehicleLabels[payload.new.vehicle_type] || payload.new.vehicle_type) + '!', 'info');
       }
     }).subscribe();
+
+    // Realtime: job offers (auto-dispatch) — popup with accept/decline
+    sb.channel('driver-offers')
+      .on('postgres_changes', {
+        event: 'INSERT', schema: 'public', table: 'job_offers',
+        filter: 'driver_id=eq.' + driverRecord.id
+      }, function(payload) {
+        if (payload.new && payload.new.status === 'pending') {
+          showOfferPopup(payload.new);
+        }
+      }).subscribe();
+
+    // Also check for any pending offers on page load
+    (async function checkPendingOffers() {
+      var { data: pendingOffers } = await sb.from('job_offers')
+        .select('*')
+        .eq('driver_id', driverRecord.id)
+        .eq('status', 'pending')
+        .gt('expires_at', new Date().toISOString())
+        .order('offered_at', { ascending: false })
+        .limit(1);
+      if (pendingOffers && pendingOffers.length > 0) {
+        showOfferPopup(pendingOffers[0]);
+      }
+    })();
 
     // Realtime: bookings assigned to me
     sb.channel('driver-my-jobs').on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'bookings', filter: 'driver_id=eq.' + driverRecord.id }, function(payload) {
@@ -1028,6 +1140,173 @@
     showToast('Vehicle submitted for approval', 'success');
     ['av-type','av-make','av-model','av-plate','av-year'].forEach(function(id) { document.getElementById(id).value = ''; });
     loadVehicles();
+  }
+
+  // ══════════════════════════════════════
+  // AUTO-DISPATCH — OFFER POPUP
+  // ══════════════════════════════════════
+  var _currentOffer = null;
+  var _offerTimer = null;
+  var _offerChime = null;
+
+  // Chime sound (short notification beep as base64 data URI)
+  try {
+    _offerChime = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACA' +
+      'f39/f4CAgICBgoOEhoeIiYqLjI2Oj5CRkZKTlJSVlpeYmJmam5ydnp+foKGi' +
+      'o6SlpqeoqaqrrK2ur7CxsrO0tba3uLm6u7y9vr/AwcLDxMXGx8jJysvMzc7P' +
+      '0NHS09TV1tfY2drb3N3e3+Dh4uPk5ebn6Onq6+zt7u/w8fLz9PX29/j5+vv8' +
+      '/f7/AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygp' +
+      'KissLS4vMDEyMzQ1Njc4OTo7PD0+P0BBQkNERUZHSElKS0xNTk9QUVJTVFVW' +
+      'V1hZWltcXV5fYGFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6e3x9fn+AgYKD' +
+      'hIWGh4iJiouMjY6PkJGSk5SVlpeYmZqbnJ2en6ChoqOkpaanqKmqq6ytrq+w' +
+      'sbKztLW2t7i5uru8vb6/wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd' +
+      '3t/g4eLj5OXm5+jp6uvs7e7v8PHy8/T19vf4+fr7/P3+/w==');
+    _offerChime.volume = 0.7;
+  } catch(e) {}
+
+  async function showOfferPopup(offer) {
+    // If already showing an offer, ignore new ones
+    if (_currentOffer) return;
+    _currentOffer = offer;
+
+    // Fetch booking details
+    var { data: booking } = await sb.from('bookings').select('*').eq('id', offer.booking_id).single();
+    if (!booking || booking.status !== 'searching') {
+      // Booking already taken or cancelled
+      _currentOffer = null;
+      return;
+    }
+
+    // Fill popup content
+    var pickup = (booking.pickup_address || '').split(',')[0] || '—';
+    var dropoff = (booking.dropoff_address || '').split(',')[0] || '—';
+    document.getElementById('offer-vehicle').textContent = (vehicleLabels[booking.vehicle_type] || booking.vehicle_type) + ' — ' + (booking.ref || '');
+    document.getElementById('offer-pickup').textContent = pickup;
+    document.getElementById('offer-dropoff').textContent = dropoff;
+    document.getElementById('offer-payout').textContent = formatRand(booking.driver_payout);
+    document.getElementById('offer-distance').textContent = (booking.distance_km || '—') + ' km';
+    document.getElementById('offer-when').textContent = booking.booking_date ? booking.booking_date + (booking.booking_time ? ' ' + booking.booking_time : '') : 'ASAP';
+
+    // Cash notice
+    var isCash = booking.payment_method === 'cash_pickup' || booking.payment_method === 'cash_delivery';
+    var cashNotice = document.getElementById('offer-cash-notice');
+    if (isCash) {
+      cashNotice.style.display = 'block';
+      cashNotice.innerHTML = '<strong>Cash job</strong> — Collect <strong>' + formatRand(booking.total) + '</strong>. Owe CapeLoad: <strong>' + formatRand(booking.commission) + '</strong>. You keep: <strong>' + formatRand(booking.driver_payout) + '</strong>.';
+    } else {
+      cashNotice.style.display = 'none';
+    }
+
+    // Show overlay
+    document.getElementById('offer-overlay').classList.add('active');
+
+    // Play chime + vibrate
+    try { if (_offerChime) { _offerChime.currentTime = 0; _offerChime.play(); } } catch(e) {}
+    try { if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 200]); } catch(e) {}
+
+    // Start countdown timer
+    var expiresAt = new Date(offer.expires_at).getTime();
+    var totalSec = Math.max(1, Math.round((expiresAt - Date.now()) / 1000));
+    var remaining = totalSec;
+    var ringFill = document.getElementById('offer-ring-fill');
+    var timerText = document.getElementById('offer-timer-text');
+    var circumference = 2 * Math.PI * 36; // r=36
+    ringFill.style.strokeDasharray = circumference;
+    ringFill.style.strokeDashoffset = '0';
+    timerText.textContent = remaining;
+
+    _offerTimer = setInterval(function() {
+      remaining--;
+      timerText.textContent = Math.max(0, remaining);
+      var pct = 1 - (remaining / totalSec);
+      ringFill.style.strokeDashoffset = (pct * circumference).toFixed(1);
+
+      if (remaining <= 10) {
+        ringFill.style.stroke = '#ef4444';
+        timerText.style.color = '#ef4444';
+      }
+
+      if (remaining <= 0) {
+        // Expired — mark offer and close
+        clearInterval(_offerTimer);
+        _offerTimer = null;
+        sb.from('job_offers').update({ status: 'expired', responded_at: new Date().toISOString() }).eq('id', offer.id);
+        closeOfferPopup();
+        showToast('Offer expired', 'info');
+      }
+    }, 1000);
+  }
+
+  async function acceptCurrentOffer() {
+    if (!_currentOffer) return;
+    var offer = _currentOffer;
+    var btn = document.getElementById('offer-accept-btn');
+    btn.textContent = 'Accepting...';
+    btn.disabled = true;
+
+    // Race-condition-safe accept: only succeeds if booking is still searching
+    var { data, error } = await sb.from('bookings')
+      .update({
+        status: 'assigned',
+        driver_id: driverRecord.id,
+        driver_status: 'accepted',
+        assigned_at: new Date().toISOString(),
+        accepted_at: new Date().toISOString()
+      })
+      .eq('id', offer.booking_id)
+      .eq('status', 'searching')
+      .is('driver_id', null)
+      .select();
+
+    if (!data || data.length === 0) {
+      // Race lost — another driver got it
+      await sb.from('job_offers').update({ status: 'lost', responded_at: new Date().toISOString() }).eq('id', offer.id);
+      closeOfferPopup();
+      showToast('This job was already taken by another driver', 'error');
+      return;
+    }
+
+    // Won the race — mark offer accepted, cancel others
+    await sb.from('job_offers').update({ status: 'accepted', responded_at: new Date().toISOString() }).eq('id', offer.id);
+    await sb.from('job_offers').update({ status: 'lost', responded_at: new Date().toISOString() })
+      .eq('booking_id', offer.booking_id).neq('id', offer.id).eq('status', 'pending');
+
+    // Set vehicle_id
+    var booking = data[0];
+    var { data: vehicle } = await sb.from('vehicles').select('id')
+      .eq('owner_id', driverRecord.id).eq('type', booking.vehicle_type)
+      .eq('availability_status', 'available').eq('status', 'approved').limit(1).single();
+    if (vehicle) {
+      await sb.from('bookings').update({ vehicle_id: vehicle.id }).eq('id', offer.booking_id);
+    }
+
+    closeOfferPopup();
+    showToast('Trip accepted! Head to Active Trip.', 'success');
+    loadStats();
+
+    // Auto-switch to Active Trip tab
+    switchTab('active');
+  }
+
+  async function declineCurrentOffer() {
+    if (!_currentOffer) return;
+    await sb.from('job_offers').update({ status: 'declined', responded_at: new Date().toISOString() }).eq('id', _currentOffer.id);
+    closeOfferPopup();
+    showToast('Offer declined', 'info');
+  }
+
+  function closeOfferPopup() {
+    if (_offerTimer) { clearInterval(_offerTimer); _offerTimer = null; }
+    _currentOffer = null;
+    document.getElementById('offer-overlay').classList.remove('active');
+    // Reset styles
+    var ringFill = document.getElementById('offer-ring-fill');
+    var timerText = document.getElementById('offer-timer-text');
+    ringFill.style.stroke = 'var(--orange)';
+    timerText.style.color = 'var(--orange)';
+    var btn = document.getElementById('offer-accept-btn');
+    btn.textContent = 'ACCEPT';
+    btn.disabled = false;
   }
 </script>
 <script src="js/transitions.js"></script>

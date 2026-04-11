@@ -194,6 +194,35 @@
     }
     .btn-back svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2.5; }
 
+    /* ── Finding Driver (Step 5) ────────────── */
+    .search-wrap { text-align: center; padding: 24px 0 8px; }
+    .search-pulse {
+      width: 90px; height: 90px; border-radius: 50%;
+      background: var(--orange-light); border: 2.5px solid var(--orange);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 20px; position: relative;
+      animation: searchPulse 2s ease-in-out infinite;
+    }
+    .search-pulse svg { width: 38px; height: 38px; stroke: var(--orange); fill: none; stroke-width: 2; }
+    @keyframes searchPulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(241,95,34,0.25); }
+      50% { box-shadow: 0 0 0 18px rgba(241,95,34,0); }
+    }
+    .search-title { font-size: 20px; font-weight: 800; margin-bottom: 6px; }
+    .search-sub { font-size: 14px; color: var(--muted); margin-bottom: 16px; line-height: 1.5; }
+    .search-timer { font-size: 28px; font-weight: 900; color: var(--orange); margin-bottom: 8px; font-variant-numeric: tabular-nums; }
+    .search-bar-track { height: 6px; background: var(--surface3); border-radius: 3px; margin: 0 20px 20px; overflow: hidden; }
+    .search-bar-fill { height: 100%; background: var(--orange); border-radius: 3px; transition: width 1s linear; }
+    .search-ref { display: inline-block; background: var(--surface2); border: 1px solid var(--border); border-radius: 100px; padding: 6px 16px; font-size: 14px; font-weight: 700; margin-bottom: 16px; }
+    .search-found { display: none; }
+    .search-found .driver-card {
+      background: var(--surface2); border-radius: 16px; padding: 16px; margin: 16px 0;
+      border: 1.5px solid rgba(34,197,94,0.3);
+    }
+    .search-found .driver-card h4 { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+    .search-found .driver-card p { font-size: 13px; color: var(--muted); }
+    .search-cancel { background: none; border: 1px solid var(--border); border-radius: 12px; padding: 12px 24px; font-size: 13px; font-weight: 600; color: var(--muted); cursor: pointer; font-family: inherit; margin-top: 8px; }
+
     /* ── Confirmation ─────────────────────────── */
     .confirm-wrap { text-align: center; padding: 8px 0; }
     .confirm-icon-wrap {
@@ -397,6 +426,58 @@
         <div class="confirm-sub">Your booking has been submitted.<br>A driver will be assigned shortly.</div>
         <div class="confirm-actions">
           <a href="#" id="waLink" class="btn-wa" target="_blank">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            WhatsApp Us
+          </a>
+          <a href="index.html" class="btn-home">Home</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 5: Finding Driver -->
+    <div class="step" id="step-5">
+      <div class="search-wrap" id="search-active">
+        <div class="search-pulse">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </div>
+        <div class="search-title">Finding your driver...</div>
+        <div class="search-sub" id="search-sub">We're notifying <strong id="search-count">0</strong> nearby drivers.<br>First to accept gets your job.</div>
+        <div class="search-timer" id="search-timer">2:00</div>
+        <div class="search-bar-track"><div class="search-bar-fill" id="search-bar" style="width:100%"></div></div>
+        <div class="search-ref" id="search-ref">CL-000000</div>
+        <br>
+        <button class="search-cancel" onclick="cancelSearch()">Cancel booking</button>
+      </div>
+
+      <div class="search-found" id="search-found">
+        <div class="confirm-icon-wrap" style="background:rgba(34,197,94,0.12);border-color:rgba(34,197,94,0.3);">
+          <svg viewBox="0 0 24 24" style="stroke:var(--green);"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="search-title" style="color:var(--green);">Driver found!</div>
+        <div class="driver-card">
+          <h4 id="found-driver-name">—</h4>
+          <p id="found-driver-phone">—</p>
+        </div>
+        <div class="search-ref" id="found-ref">CL-000000</div>
+        <div class="confirm-sub">Your driver is on the way. You can track your delivery in the client portal.</div>
+        <div class="confirm-actions">
+          <a href="#" id="waLink2" class="btn-wa" target="_blank">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            WhatsApp Us
+          </a>
+          <a href="client-portal.html" class="btn-home">Track Delivery</a>
+        </div>
+      </div>
+
+      <div class="search-wrap" id="search-fallback" style="display:none;">
+        <div class="confirm-icon-wrap" style="background:rgba(241,95,34,0.12);border-color:rgba(241,95,34,0.3);">
+          <svg viewBox="0 0 24 24" style="stroke:var(--orange);"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        </div>
+        <div class="search-title">No drivers available right now</div>
+        <div class="search-ref" id="fallback-ref">CL-000000</div>
+        <div class="search-sub">Don't worry — your booking is saved. Our team will assign a driver manually and you'll be notified.</div>
+        <div class="confirm-actions">
+          <a href="#" id="waLink3" class="btn-wa" target="_blank">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
             WhatsApp Us
           </a>
@@ -750,12 +831,19 @@
     }
   }
 
+  var _dispatchTimer = null;
+  var _dispatchChannel = null;
+  var _currentBookingId = null;
+
   async function saveBooking(ref, q, payMethod, status, chargeId) {
     document.getElementById('refNum').textContent = ref;
     var clientId = null;
     try { var user = await getCurrentUser(); if (user) clientId = user.id; } catch(e) {}
+
+    // Insert booking with "searching" status — auto-dispatch
+    var bookingRow = null;
     try {
-      await sb.from('bookings').insert({
+      var { data: inserted, error: insertErr } = await sb.from('bookings').insert({
         ref, job_type: selectedJobType || 'move', vehicle_type: selectedVehicle,
         pickup_address: document.getElementById('pickup').value,
         dropoff_address: document.getElementById('dropoff').value,
@@ -773,35 +861,173 @@
         client_phone: document.getElementById('phone').value,
         client_email: document.getElementById('email').value || null,
         notes: document.getElementById('notes').value || null,
-        payment_method: payMethod, status: status, client_id: clientId,
+        payment_method: payMethod, status: 'searching', client_id: clientId,
         yoco_charge_id: chargeId || null,
         promo_code: appliedPromo ? appliedPromo.code : null,
-        discount_amount: appliedPromo ? appliedPromo.discount_amount : null
-      });
+        discount_amount: appliedPromo ? appliedPromo.discount_amount : null,
+        dispatch_expires_at: new Date(Date.now() + 120000).toISOString()
+      }).select();
+      if (inserted && inserted.length) bookingRow = inserted[0];
+      if (insertErr) console.warn('Booking save error:', insertErr);
     } catch(e) { console.warn('Booking save error:', e); }
 
+    // WhatsApp links
     var vLabel = pricing[selectedVehicle]?.label || selectedVehicle;
     var msg = encodeURIComponent('Hi CapeLoad! Booking ref ' + ref + '. ' + vLabel + ' from ' + document.getElementById('pickup').value.split(',')[0] + ' to ' + document.getElementById('dropoff').value.split(',')[0] + '. Total: R' + (q.total || 0));
     document.getElementById('waLink').href = 'https://wa.me/27625692939?text=' + msg;
+    document.getElementById('waLink2').href = 'https://wa.me/27625692939?text=' + msg;
+    document.getElementById('waLink3').href = 'https://wa.me/27625692939?text=' + msg;
 
+    // Send emails
     var emailData = {
-      ref: ref,
-      name: document.getElementById('fullName').value,
+      ref: ref, name: document.getElementById('fullName').value,
       phone: document.getElementById('phone').value,
       clientEmail: document.getElementById('email').value || '',
-      vehicle: vLabel,
-      pickup: document.getElementById('pickup').value,
+      vehicle: vLabel, pickup: document.getElementById('pickup').value,
       dropoff: document.getElementById('dropoff').value,
       date: document.getElementById('bookingDate').value || '',
       time: document.getElementById('bookingTime').value || '',
-      total: String(q.total || 0),
-      payment: payMethod
+      total: String(q.total || 0), payment: payMethod
     };
     var clientEmail = document.getElementById('email').value;
     if (clientEmail) sendEmail(clientEmail, 'booking_confirmation', emailData);
     sendEmail('info@capeload.co.za', 'booking_admin', emailData);
 
-    goStep(4);
+    // If booking saved, dispatch to drivers
+    if (bookingRow && bookingRow.id) {
+      _currentBookingId = bookingRow.id;
+      await dispatchToDrivers(bookingRow.id, ref, selectedVehicle, q);
+    } else {
+      // Fallback: no booking ID — go to old confirmation
+      goStep(4);
+    }
+  }
+
+  // ══════════════════════════════════════════
+  // AUTO-DISPATCH — find & notify drivers
+  // ══════════════════════════════════════════
+  async function dispatchToDrivers(bookingId, ref, vehicleType, q) {
+    // Show "Finding driver" screen
+    document.getElementById('search-ref').textContent = ref;
+    document.getElementById('found-ref').textContent = ref;
+    document.getElementById('fallback-ref').textContent = ref;
+    goStep(5);
+
+    // Find available drivers with matching vehicle type
+    var { data: matchingVehicles } = await sb.from('vehicles')
+      .select('owner_id')
+      .eq('type', vehicleType)
+      .eq('status', 'approved')
+      .eq('availability_status', 'available');
+
+    var driverIds = [];
+    var seen = {};
+    (matchingVehicles || []).forEach(function(v) {
+      if (!seen[v.owner_id]) { seen[v.owner_id] = true; driverIds.push(v.owner_id); }
+    });
+
+    document.getElementById('search-count').textContent = driverIds.length;
+
+    if (driverIds.length === 0) {
+      // No matching drivers online — fall back to pending
+      await sb.from('bookings').update({ status: 'pending', offer_count: 0 }).eq('id', bookingId);
+      showSearchFallback();
+      return;
+    }
+
+    // Create job offers for each matching driver (60s expiry)
+    var expiresAt = new Date(Date.now() + 60000).toISOString();
+    var offers = driverIds.map(function(dId) {
+      return { booking_id: bookingId, driver_id: dId, status: 'pending', expires_at: expiresAt };
+    });
+    await sb.from('job_offers').insert(offers);
+
+    // Update offer count on booking
+    await sb.from('bookings').update({ offer_count: driverIds.length }).eq('id', bookingId);
+
+    // Subscribe to realtime — watch for driver accepting
+    _dispatchChannel = sb.channel('dispatch-' + bookingId)
+      .on('postgres_changes', {
+        event: 'UPDATE', schema: 'public', table: 'bookings',
+        filter: 'id=eq.' + bookingId
+      }, function(payload) {
+        if (payload.new.status === 'assigned' && payload.new.driver_id) {
+          onDriverFound(payload.new);
+        }
+      }).subscribe();
+
+    // Start 2-minute countdown
+    startSearchTimer(bookingId);
+  }
+
+  function startSearchTimer(bookingId) {
+    var remaining = 120; // seconds
+    var bar = document.getElementById('search-bar');
+    var timerEl = document.getElementById('search-timer');
+    bar.style.width = '100%';
+
+    _dispatchTimer = setInterval(function() {
+      remaining--;
+      var min = Math.floor(remaining / 60);
+      var sec = remaining % 60;
+      timerEl.textContent = min + ':' + (sec < 10 ? '0' : '') + sec;
+      bar.style.width = Math.round((remaining / 120) * 100) + '%';
+
+      if (remaining <= 0) {
+        clearInterval(_dispatchTimer);
+        _dispatchTimer = null;
+        // Timeout — fall back to pending for admin
+        sb.from('bookings').update({ status: 'pending' }).eq('id', bookingId).eq('status', 'searching').then(function() {
+          // Expire all pending offers
+          sb.from('job_offers').update({ status: 'expired', responded_at: new Date().toISOString() })
+            .eq('booking_id', bookingId).eq('status', 'pending');
+        });
+        showSearchFallback();
+      }
+    }, 1000);
+  }
+
+  async function onDriverFound(booking) {
+    // Stop timer
+    if (_dispatchTimer) { clearInterval(_dispatchTimer); _dispatchTimer = null; }
+    if (_dispatchChannel) { sb.removeChannel(_dispatchChannel); _dispatchChannel = null; }
+
+    // Fetch driver name
+    var driverName = 'Your driver';
+    var driverPhone = '';
+    try {
+      var { data: drv } = await sb.from('drivers')
+        .select('id, users!drivers_user_id_fkey(full_name, phone)')
+        .eq('id', booking.driver_id).single();
+      if (drv && drv.users) {
+        driverName = drv.users.full_name || 'Your driver';
+        driverPhone = drv.users.phone || '';
+      }
+    } catch(e) {}
+
+    // Show "Driver found" UI
+    document.getElementById('search-active').style.display = 'none';
+    document.getElementById('search-found').style.display = 'block';
+    document.getElementById('found-driver-name').textContent = driverName;
+    document.getElementById('found-driver-phone').textContent = driverPhone;
+  }
+
+  function showSearchFallback() {
+    if (_dispatchChannel) { sb.removeChannel(_dispatchChannel); _dispatchChannel = null; }
+    document.getElementById('search-active').style.display = 'none';
+    document.getElementById('search-fallback').style.display = 'block';
+  }
+
+  async function cancelSearch() {
+    if (_dispatchTimer) { clearInterval(_dispatchTimer); _dispatchTimer = null; }
+    if (_dispatchChannel) { sb.removeChannel(_dispatchChannel); _dispatchChannel = null; }
+    if (_currentBookingId) {
+      await sb.from('bookings').update({ status: 'cancelled' }).eq('id', _currentBookingId).eq('status', 'searching');
+      await sb.from('job_offers').update({ status: 'expired', responded_at: new Date().toISOString() })
+        .eq('booking_id', _currentBookingId).eq('status', 'pending');
+    }
+    showToast('Booking cancelled', 'info');
+    setTimeout(function() { window.location.reload(); }, 1500);
   }
 
   document.getElementById('bookingDate').setAttribute('min', new Date().toISOString().split('T')[0]);
